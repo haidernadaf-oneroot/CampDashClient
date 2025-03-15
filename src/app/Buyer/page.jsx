@@ -7,7 +7,7 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [file, setFile] = useState(null);
   const [fileUser, setFileUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [consentFilter, setConsentFilter] = useState("");
   const itemsPerPage = 50;
 
@@ -22,12 +22,15 @@ const Page = () => {
 
   useEffect(() => {
     const getdata = async () => {
+      setLoading(true); // Start loading before fetching
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/users`,
           {
             method: "GET",
-            Accept: "application/json",
+            headers: {
+              Accept: "application/json",
+            },
           }
         );
 
@@ -38,9 +41,12 @@ const Page = () => {
         const data = await response.json();
         setBuyers(data);
       } catch (error) {
-        console.log(error, "error");
+        console.error("Error fetching buyers:", error);
+      } finally {
+        setLoading(false); // Ensure loading is turned off in all cases
       }
     };
+
     getdata();
   }, []);
 
@@ -302,25 +308,57 @@ const Page = () => {
               </tr>
             </thead>
             <tbody>
-              {selectedFarmers.map((buyer, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-200 hover:bg-green-50"
-                >
-                  <td className="px-4 py-3 text-gray-600">{buyer.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.createdAt}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.village}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.taluk}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.district}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.number}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.identity}</td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.consent}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {buyer.consent_date}
+              {loading ? (
+                // Show Skeleton UI while loading
+                [...Array(5)].map((_, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 animate-pulse"
+                  >
+                    {Array(10)
+                      .fill("")
+                      .map((_, colIndex) => (
+                        <td key={colIndex} className="px-4 py-3">
+                          <div className="h-4 bg-gray-300 rounded w-full"></div>
+                        </td>
+                      ))}
+                  </tr>
+                ))
+              ) : selectedFarmers.length > 0 ? (
+                selectedFarmers.map((buyer, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 hover:bg-green-50"
+                  >
+                    <td className="px-4 py-3 text-gray-600">{buyer.name}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.createdAt}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.village}</td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.taluk}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.district}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.number}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.identity}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.consent}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.consent_date}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.updatedAt}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={10} className="text-center py-4 text-gray-500">
+                    No Data Available
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{buyer.updatedAt}</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
