@@ -21,9 +21,10 @@ import { usePathname } from "next/navigation";
 const Sidebar = () => {
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(() => {
-    return typeof window !== "undefined"
-      ? localStorage.getItem("activeSidebarItem") || pathname
-      : pathname;
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("activeSidebarItem") || "/Farmer"; // ✅ Set default to "/Farmer"
+    }
+    return "/Farmer"; // ✅ Ensure server-side rendering does not break
   });
 
   useEffect(() => {

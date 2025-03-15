@@ -7,7 +7,7 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [file, setFile] = useState(null);
   const [fileUser, setFileUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [consentFilter, setConsentFilter] = useState("");
   const itemsPerPage = 50;
 
@@ -22,12 +22,15 @@ const Page = () => {
 
   useEffect(() => {
     const getdata = async () => {
+      setLoading(true); // Start loading before fetching
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/users`,
           {
             method: "GET",
-            Accept: "application/json",
+            headers: {
+              Accept: "application/json",
+            },
           }
         );
 
@@ -38,16 +41,19 @@ const Page = () => {
         const data = await response.json();
         setBuyers(data);
       } catch (error) {
-        console.log(error, "error");
+        console.error("Error fetching buyers:", error);
+      } finally {
+        setLoading(false); // Ensure loading is turned off in all cases
       }
     };
+
     getdata();
   }, []);
 
   // Filter logic for consent
-  const filteredBuyers = Buyer.filter((farmer) => {
-    if (consentFilter === "yes") return farmer.consent === "yes";
-    if (consentFilter === "No") return !farmer.consent || farmer.consent === "";
+  const filteredBuyers = Buyer.filter((buyer) => {
+    if (consentFilter === "yes") return buyer.consent === "yes";
+    if (consentFilter === "No") return !buyer.consent || buyer.consent === "";
     return true; // Show all
   });
 
@@ -63,18 +69,18 @@ const Page = () => {
       "data:text/csv;charset=utf-8," +
       [
         "Name,Created At,Village,Taluka,District,Number,Identity,Consent,Consent Date,Updated At",
-        ...filteredBuyers.map((farmer) =>
+        ...filteredBuyers.map((buyer) =>
           [
-            farmer.name,
-            farmer.createdAt,
-            farmer.village,
-            farmer.taluk,
-            farmer.district,
-            farmer.number,
-            farmer.identity,
-            farmer.consent || "No" || "yes",
-            farmer.consent_date,
-            farmer.updatedAt,
+            buyer.name,
+            buyer.createdAt,
+            buyer.village,
+            buyer.taluk,
+            buyer.district,
+            buyer.number,
+            buyer.identity,
+            buyer.consent || "No" || "yes",
+            buyer.consent_date,
+            buyer.updatedAt,
           ].join(",")
         ),
       ].join("\n");
@@ -172,11 +178,11 @@ const Page = () => {
   }, [currentPage]);
 
   return (
-    <div className="mt-20 px-4">
+    <div className="mt-16 pr-11">
       {/* Upload Section */}
       <div className="mt-20 px-4 flex items-center space-y-6 bg-white shadow-md p-6 rounded-lg">
         {/* Consent User Upload */}
-        <div className="flex flex-col items-center space-y-4 w-full">
+        <div className="flex flex-col items-center space-y-4 w-full mt-3">
           <label className="flex flex-col items-center w-full max-w-xs px-4 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
             <span className="text-green-700 font-medium">Consent User</span>
             <input
@@ -201,8 +207,8 @@ const Page = () => {
 
           <button
             onClick={handleUpload}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md 
-             hover:bg-blue-700 transition 
+            className="bg-green-500 text-white px-5 py-2 rounded-lg shadow-md 
+             hover:bg-green-600 transition 
              disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={!file}
           >
@@ -211,7 +217,7 @@ const Page = () => {
         </div>
 
         {/* Import User Upload */}
-        <div className="flex flex-col items-center space-y-4 w-full">
+        <div className="flex flex-col items-center space-y-4 w-full mt-3">
           <label className="flex flex-col items-center w-full max-w-xs px-4 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
             <span className="text-green-700 font-medium">Import User</span>
             <input
@@ -236,8 +242,8 @@ const Page = () => {
 
           <button
             onClick={handleUploadUser}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md 
-           hover:bg-blue-700 transition 
+            className="bg-green-500 text-white px-5 py-2 rounded-lg shadow-md 
+           hover:bg-green-600 transition 
            disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={!fileUser}
           >
@@ -246,7 +252,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-4 mt-6">
+      <div className="flex items-center gap-4 mb-4 mt-11">
         <label className="text-gray-700">Filter Consent:</label>
         <select
           value={consentFilter}
@@ -260,7 +266,7 @@ const Page = () => {
         {consentFilter === "yes" && (
           <button
             onClick={handleDownload}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-green-700 text-white px-4 py-2 rounded"
           >
             Download Table
           </button>
@@ -268,7 +274,7 @@ const Page = () => {
         {consentFilter === "No" && (
           <button
             onClick={handleDownload}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-green-600 text-white px-4 py-2 rounded"
           >
             Download Table
           </button>
@@ -302,29 +308,57 @@ const Page = () => {
               </tr>
             </thead>
             <tbody>
-              {selectedFarmers.map((farmer, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-200 hover:bg-green-50"
-                >
-                  <td className="px-4 py-3 text-gray-600">{farmer.name}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {farmer.createdAt}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.village}</td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.taluk}</td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.district}</td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.number}</td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.identity}</td>
-                  <td className="px-4 py-3 text-gray-600">{farmer.consent}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {farmer.consent_date}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {farmer.updatedAt}
+              {loading ? (
+                // Show Skeleton UI while loading
+                [...Array(5)].map((_, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 animate-pulse"
+                  >
+                    {Array(10)
+                      .fill("")
+                      .map((_, colIndex) => (
+                        <td key={colIndex} className="px-4 py-3">
+                          <div className="h-4 bg-gray-300 rounded w-full"></div>
+                        </td>
+                      ))}
+                  </tr>
+                ))
+              ) : selectedFarmers.length > 0 ? (
+                selectedFarmers.map((buyer, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 hover:bg-green-50"
+                  >
+                    <td className="px-4 py-3 text-gray-600">{buyer.name}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.createdAt}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.village}</td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.taluk}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.district}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.number}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.identity}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{buyer.consent}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.consent_date}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {buyer.updatedAt}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={10} className="text-center py-4 text-gray-500">
+                    No Data Available
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
