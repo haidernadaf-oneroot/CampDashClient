@@ -1,24 +1,30 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date
+    .toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, // Enables AM/PM format
+    })
+    .replace(",", ""); // Removes the comma between date and time
+};
+
 const Page = () => {
-  const [Buyer, setBuyers] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [farmer, setFarmer] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [file, setFile] = useState(null);
-  const [fileUser, setFileUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [consentFilter, setConsentFilter] = useState("");
   const itemsPerPage = 50;
-
-  const [form, setForm] = useState({
-    name: "",
-    village: "",
-    taluk: "",
-    district: "",
-    number: "",
-    identity: "",
-  });
 
   useEffect(() => {
     const getdata = async () => {
@@ -39,7 +45,7 @@ const Page = () => {
         }
 
         const data = await response.json();
-        setBuyers(data);
+        setFarmer(data);
       } catch (error) {
         console.error("Error fetching buyers:", error);
       } finally {
@@ -50,37 +56,47 @@ const Page = () => {
     getdata();
   }, []);
 
-  // Filter logic for consent
-  const filteredBuyers = Buyer.filter((buyer) => {
-    if (consentFilter === "yes") return buyer.consent === "yes";
-    if (consentFilter === "No") return !buyer.consent || buyer.consent === "";
-    return true; // Show all
+  // Filter buyers based on search term & consent filter
+  const filteredFarmer = farmer.filter((farmer) => {
+    const matchesSearch =
+      farmer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      farmer.number.includes(searchTerm);
+
+    if (consentFilter === "yes")
+      return matchesSearch && farmer.consent === "yes";
+    if (consentFilter === "No")
+      return matchesSearch && (!farmer.consent || farmer.consent === "");
+    return matchesSearch;
   });
 
-  const totalPages = Math.ceil(filteredBuyers.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredFarmer.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const selectedFarmers = filteredBuyers.slice(
+  const selectedFarmers = filteredFarmer.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [consentFilter, searchTerm]);
 
   const handleDownload = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       [
         "Name,Created At,Village,Taluka,District,Number,Identity,Consent,Consent Date,Updated At",
-        ...filteredBuyers.map((buyer) =>
+        ...filteredFarmer.map((farmer) =>
           [
-            buyer.name,
-            buyer.createdAt,
-            buyer.village,
-            buyer.taluk,
-            buyer.district,
-            buyer.number,
-            buyer.identity,
-            buyer.consent || "No" || "yes",
-            buyer.consent_date,
-            buyer.updatedAt,
+            farmer.name,
+            farmer.createdAt,
+            farmer.village,
+            farmer.taluk,
+            farmer.district,
+            farmer.number,
+            farmer.identity,
+            farmer.consent || "No" || "yes",
+            farmer.consent_date,
+            farmer.updatedAt,
           ].join(",")
         ),
       ].join("\n");
@@ -88,7 +104,7 @@ const Page = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "filtered_buyers.csv");
+    link.setAttribute("download", "filtered_farmer.csv");
     document.body.appendChild(link);
     link.click();
   };
@@ -98,78 +114,6 @@ const Page = () => {
     setCurrentPage(1);
   }, [consentFilter]);
 
-  // Handle File Selection
-  const handleFileChange = (event) => {
-    if (event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-    }
-  };
-
-  // Upload CSV using Fetch API
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a CSV file");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("csv", file); // Ensure 'file' matches backend key
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/consent`,
-        {
-          method: "PUT",
-          body: formData, // Automatically sets Content-Type
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log("Upload Success:", result);
-    } catch (error) {
-      console.error("Upload Error:", error);
-    }
-  };
-  const handleFileChangeUser = (event) => {
-    if (event.target.files.length > 0) {
-      setFileUser(event.target.files[0]);
-    }
-  };
-
-  const handleUploadUser = async () => {
-    if (!fileUser) {
-      alert("Please select a CSV file for user import.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("csv", fileUser); // Ensure this matches the backend field name
-
-    try {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user-import`;
-      console.log("Uploading to:", apiUrl);
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        body: formData, // Do not manually set headers for FormData
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text(); // Capture backend error response
-        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log("User Import Success:", result);
-    } catch (error) {
-      console.error("User Import Error:", error);
-    }
-  };
-
   useEffect(() => {
     const tableContainer = document.getElementById("table-container");
     if (tableContainer) {
@@ -177,82 +121,17 @@ const Page = () => {
     }
   }, [currentPage]);
 
+  // Pagination Logic (Fixed 5 Pages)
+  const getPageNumbers = () => {
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, start + 4);
+    if (end - start < 4) start = Math.max(1, end - 4);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
+
   return (
-    <div className="mt-16 pr-11">
-      {/* Upload Section */}
-      <div className="mt-20 px-4 flex items-center space-y-6 bg-white shadow-md p-6 rounded-lg">
-        {/* Consent User Upload */}
-        <div className="flex flex-col items-center space-y-4 w-full mt-3">
-          <label className="flex flex-col items-center w-full max-w-xs px-4 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
-            <span className="text-green-700 font-medium">Consent User</span>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
-
-          {file && (
-            <div className="text-gray-700 bg-gray-100 px-4 py-2 rounded-lg flex items-center justify-between w-full max-w-xs">
-              <span>{file.name}</span>
-              <button
-                onClick={() => setFile(null)}
-                className="ml-2 text-red-600 hover:text-red-800"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleUpload}
-            className="bg-green-500 text-white px-5 py-2 rounded-lg shadow-md 
-             hover:bg-green-600 transition 
-             disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={!file}
-          >
-            Upload CSV
-          </button>
-        </div>
-
-        {/* Import User Upload */}
-        <div className="flex flex-col items-center space-y-4 w-full mt-3">
-          <label className="flex flex-col items-center w-full max-w-xs px-4 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
-            <span className="text-green-700 font-medium">Import User</span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleFileChangeUser}
-            />
-          </label>
-
-          {fileUser && (
-            <div className="text-gray-700 bg-gray-100 px-4 py-2 rounded-lg flex items-center justify-between w-full max-w-xs">
-              <span>{fileUser.name}</span>
-              <button
-                onClick={() => setFileUser(null)}
-                className="ml-2 text-red-600 hover:text-red-800"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleUploadUser}
-            className="bg-green-500 text-white px-5 py-2 rounded-lg shadow-md 
-           hover:bg-green-600 transition 
-           disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={!fileUser}
-          >
-            User Upload
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 mb-4 mt-11">
+    <div className="mt-28 ">
+      <div className="flex items-center gap-4 mb-4 mt-10">
         <label className="text-gray-700">Filter Consent:</label>
         <select
           value={consentFilter}
@@ -274,17 +153,25 @@ const Page = () => {
         {consentFilter === "No" && (
           <button
             onClick={handleDownload}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="bg-green-700 text-white px-4 py-2 rounded"
           >
             Download Table
           </button>
         )}
+
+        <input
+          type="text"
+          placeholder="Search by name or number......."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded w-[900px]"
+        />
       </div>
 
-      <div className="border rounded-lg shadow-sm bg-white">
-        <div id="table-container" className="max-h-[300px] overflow-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead className="sticky top-0 bg-green-50">
+      <div className="border rounded-xl shadow-sm bg-white overflow-hidden">
+        <div id="table-container" className="max-h-[600px] overflow-auto">
+          <table className="w-full text-left border-collapse text-sm rounded-xl">
+            <thead className="sticky top-0 bg-green-50 rounded-xl">
               <tr className="border-b border-gray-200">
                 {[
                   "Name",
@@ -325,30 +212,30 @@ const Page = () => {
                   </tr>
                 ))
               ) : selectedFarmers.length > 0 ? (
-                selectedFarmers.map((buyer, index) => (
+                selectedFarmers.map((farmer, index) => (
                   <tr
                     key={index}
                     className="border-b border-gray-200 hover:bg-green-50"
                   >
-                    <td className="px-4 py-3 text-gray-600">{buyer.name}</td>
+                    <td className="px-4 py-3 text-gray-600">{farmer.name}</td>
                     <td className="px-4 py-3 text-gray-600">
-                      {buyer.createdAt}
+                      {formatDate(farmer.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{buyer.village}</td>
-                    <td className="px-4 py-3 text-gray-600">{buyer.taluk}</td>
+                    <td className="px-4 py-3 text-gray-600">Bengaluru</td>
+                    <td className="px-4 py-3 text-gray-600">ramanagar</td>
+                    <td className="px-4 py-3 text-gray-600">chamarajanagar</td>
+                    <td className="px-4 py-3 text-gray-600">{farmer.number}</td>
                     <td className="px-4 py-3 text-gray-600">
-                      {buyer.district}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{buyer.number}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {buyer.identity}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{buyer.consent}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {buyer.consent_date}
+                      {farmer.identity}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {buyer.updatedAt}
+                      {farmer.consent}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {formatDate(farmer.consent_date)}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {formatDate(farmer.updatedAt)}
                     </td>
                   </tr>
                 ))
@@ -363,26 +250,50 @@ const Page = () => {
           </table>
         </div>
 
-        <div className="flex justify-between p-4 bg-white border-t">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
-          >
-            Previous
-          </button>
-          <span className="text-gray-700">
-            Page {currentPage} of {totalPages}
+        {/* Pagination */}
+        <div className="flex items-center justify-between p-4 bg-white border-t">
+          <span className="text-gray-600">
+            Showing {startIndex + 1} to{" "}
+            {Math.min(startIndex + itemsPerPage, filteredFarmer.length)} of{" "}
+            {filteredFarmer.length} records
           </span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-green-500 text-white rounded disabled:bg-gray-300"
-          >
-            Next
-          </button>
+
+          <div className="flex items-center gap-2">
+            {/* Previous Button */}
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-green-600 rounded disabled:text-gray-400"
+            >
+              {"<"}
+            </button>
+
+            {/* Dynamic Page Numbers (Fixed 5 Pages) */}
+            {getPageNumbers().map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-2 rounded ${
+                  currentPage === page
+                    ? "bg-green-100 text-green-700 font-semibold"
+                    : "text-green-600"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            {/* Next Button */}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-green-600 rounded disabled:text-gray-400"
+            >
+              {">"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

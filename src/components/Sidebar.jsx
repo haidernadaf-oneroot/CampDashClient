@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Calendar,
@@ -16,15 +17,17 @@ import {
   MapPinned,
   ChevronLeft,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // ✅ Ensure default page is "/Farmer"
   const [activeItem, setActiveItem] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("activeSidebarItem") || "/Farmer"; // ✅ Set default to "/Farmer"
+      return localStorage.getItem("activeSidebarItem") || "/Farmer";
     }
-    return "/Farmer"; // ✅ Ensure server-side rendering does not break
+    return "/Farmer";
   });
 
   useEffect(() => {
@@ -33,6 +36,13 @@ const Sidebar = () => {
     }
   }, [activeItem]);
 
+  // ✅ Redirect to "/Farmer" on first load
+  useEffect(() => {
+    if (typeof window !== "undefined" && pathname === "/") {
+      router.replace("/Farmer");
+    }
+  }, [pathname, router]);
+
   const menuItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Reservation", icon: Calendar, href: "/reservation" },
@@ -40,7 +50,7 @@ const Sidebar = () => {
     { label: "Farmers", icon: User2, href: "/Farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/Buyer" },
     { label: "Tasks", icon: ListTodo, href: "/my-tasks" },
-    { label: "Market Price", icon: BarChart2, href: "/market-price" },
+    { label: "Market Price", icon: BarChart2, href: "/Market" },
     { label: "Call Logs", icon: PhoneCall, href: "/call-logs" },
     { label: "Status", icon: ShieldCheck, href: "/status" },
     { label: "Requirement", icon: FileText, href: "/requirement" },
@@ -48,7 +58,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="fixed top-0 left-0 z-40 h-screen w-48 bg-green-800 text-white shadow-xl border-r border-green-700">
+    <aside className="fixed top-0 left-0 z-40 h-screen w-52 bg-green-800 text-white shadow-xl border-r border-green-700">
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-4 bg-gradient-to-r from-green-700 to-green-600 shadow-md">
         <Image
@@ -69,7 +79,7 @@ const Sidebar = () => {
             key={item.href}
             href={item.href}
             className={`flex items-center p-2 rounded-md transition-transform duration-200 hover:scale-105 ${
-              activeItem === item.href
+              activeItem === item.href || pathname === item.href
                 ? "bg-green-600 text-white shadow-lg"
                 : "text-green-100 hover:bg-green-700"
             }`}
