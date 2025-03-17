@@ -221,9 +221,13 @@ const Page = () => {
                     <td className="px-4 py-3 text-gray-600">
                       {formatDate(farmer.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">Bengaluru</td>
-                    <td className="px-4 py-3 text-gray-600">ramanagar</td>
-                    <td className="px-4 py-3 text-gray-600">chamarajanagar</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {farmer.village}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{farmer.taluk}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {farmer.district}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">{farmer.number}</td>
                     <td className="px-4 py-3 text-gray-600">
                       {farmer.identity}
