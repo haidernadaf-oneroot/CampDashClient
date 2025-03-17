@@ -136,7 +136,7 @@ const Page = () => {
         <select
           value={consentFilter}
           onChange={(e) => setConsentFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded text-black"
         >
           <option value="">All</option>
           <option value="yes">Yes</option>
