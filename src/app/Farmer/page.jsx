@@ -181,6 +181,7 @@ const Page = () => {
                   "District",
                   "Number",
                   "Identity",
+                  "Tags",
                   "Consent",
                   "Consent Date",
                   "Updated At",
@@ -232,6 +233,7 @@ const Page = () => {
                     <td className="px-4 py-3 text-gray-600">
                       {farmer.identity}
                     </td>
+                    <td className="px-4 py-3 text-gray-600">{farmer.tag}</td>
                     <td className="px-4 py-3 text-gray-600">
                       {farmer.consent}
                     </td>
