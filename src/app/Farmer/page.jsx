@@ -289,7 +289,7 @@ const Page = () => {
 
           {/* Filter Dropdown */}
           {showFilter && (
-            <div className="absolute right-0 mt-2 w-60 bg-white text-red-600 shadow-lg border rounded-md p-3 z-50 overflow-y-auto max-h-64">
+            <div className="absolute right-0 mt-2 w-60 bg-white text-black shadow-lg border rounded-md p-3 z-50 overflow-y-auto max-h-64">
               {allColumns.map((col) => (
                 <label
                   key={col.key}
