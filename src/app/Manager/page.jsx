@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import * as Papa from "papaparse";
 
+// CSV Field Mapper Component
 const CsvFieldMapper = ({
   csvHeaders,
   backendFields,
@@ -10,23 +11,23 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg mt-4 pr-32">
-      <h2 className="text-xl font-semibold mb-4">Map CSV Fields</h2>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="p-6 bg-white shadow-lg rounded-xl border border-gray-200 h-[500px] w-[500px]">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 ">Map CSV Fields</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {backendFields.map((field) => (
-          <div key={field} className="flex items-center space-x-2">
-            <label className="w-32 font-medium">{field}</label>
+          <div key={field} className="flex flex-col space-y-2">
+            <label className="font-semibold text-gray-700">{field}</label>
             {field === "tag" || field === "identity" ? (
               <input
                 type="text"
-                className="border p-2 rounded-md w-full"
+                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={`Enter ${field}`}
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               />
             ) : (
               <select
-                className="border p-2 rounded-md w-full"
+                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               >
@@ -43,7 +44,7 @@ const CsvFieldMapper = ({
       </div>
       <button
         onClick={onUpload}
-        className="mt-4 bg-green-700 text-white px-4 py-2 rounded-md"
+        className=" bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-48 mt-11"
       >
         Upload to Backend
       </button>
@@ -51,19 +52,27 @@ const CsvFieldMapper = ({
   );
 };
 
-const Page = () => {
+// Main CSV Upload Component
+const CsvUploadSection = () => {
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [csvData, setCsvData] = useState([]);
-  const [file, setFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState("");
   const [mapping, setMapping] = useState({});
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  const backendFields = [
+    "name",
+    "village",
+    "taluk",
+    "district",
+    "number",
+    "identity",
+    "tag",
+  ];
 
   const handleFileChange = (event) => {
-    if (event.target.files.length > 0) {
-      const uploadedFile = event.target.files[0];
-      setFile(uploadedFile);
-
-      Papa.parse(uploadedFile, {
+    const file = event.target.files[0];
+    if (file) {
+      Papa.parse(file, {
         complete: (result) => {
           if (result.data.length > 0) {
             setCsvHeaders(Object.keys(result.data[0]));
@@ -78,140 +87,88 @@ const Page = () => {
     }
   };
 
-  const backendFields = [
-    "name",
-    "village",
-    "taluk",
-    "district",
-    "number",
-    "identity",
-    "tag",
-  ];
-
   const handleMappingChange = (field, value) => {
     setMapping((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleUploadCsv = async () => {
-    if (!file) {
+    if (!csvData.length) {
       setUploadStatus("Please upload a CSV file first.");
       return;
     }
 
+    const formattedData = csvData.map((row) => {
+      let newRow = {};
+      backendFields.forEach((field) => {
+        newRow[field] =
+          field === "tag" || field === "identity"
+            ? mapping[field] || ""
+            : mapping[field]
+            ? row[mapping[field]] || ""
+            : "";
+      });
+      return newRow;
+    });
+
+    const csv = Papa.unparse(formattedData);
+    const blob = new Blob([csv], { type: "text/csv" });
     const formData = new FormData();
-    formData.append("csv", file); // ✅ Fix: Match backend field name
+    formData.append("csv", blob, "uploaded_data.csv");
 
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/user-import`,
         {
           method: "POST",
-          body: formData, // ✅ No need to set Content-Type
+          body: formData,
         }
       );
-
-      if (response.ok) {
-        setUploadStatus("Upload successful!");
-      } else {
-        setUploadStatus("Failed to upload.");
-      }
+      setUploadStatus(response.ok ? "Upload successful!" : "Failed to upload.");
     } catch (error) {
       console.error("Error uploading CSV:", error);
       setUploadStatus("Error occurred while uploading.");
     }
   };
 
-  // Handle File Selection
-  const handleFileConsent = (event) => {
-    if (event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-    }
-  };
+  const handleDownloadCsv = () => {
+    if (!csvData.length) return;
 
-  // Upload CSV using Fetch API
-  const handleUploadConsent = async () => {
-    if (!file) {
-      alert("Please select a CSV file");
-      return;
-    }
+    const formattedData = csvData.map((row) => {
+      let newRow = {};
+      backendFields.forEach((field) => {
+        newRow[field] =
+          field === "tag" || field === "identity"
+            ? mapping[field] || ""
+            : mapping[field]
+            ? row[mapping[field]] || ""
+            : "";
+      });
+      return newRow;
+    });
 
-    const formData = new FormData();
-    formData.append("csv", file); // Ensure 'file' matches backend key
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/consent`,
-        {
-          method: "PUT",
-          body: formData, // Automatically sets Content-Type
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log("Upload Success:", result);
-    } catch (error) {
-      console.error("Upload Error:", error);
-    }
+    const csv = Papa.unparse(formattedData);
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exported_data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-6 mt-24">
-      <div className="p-6 bg-gray-50 rounded-lg shadow-lg w-full max-w-md mx-auto">
-        {/* Import User Section */}
-        <div className="mb-6">
-          <label className="flex flex-col items-center w-full px-5 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
-            <span className="text-green-700 font-medium text-sm">
-              📂 Import User
-            </span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </label>
-        </div>
-
-        {/* Consent User Upload */}
-        <div className="flex flex-col items-center space-y-5">
-          <label className="flex flex-col items-center w-full px-5 py-3 bg-green-100 border border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition">
-            <span className="text-green-700 font-medium text-sm">
-              ✅ Consent User
-            </span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleFileConsent}
-            />
-          </label>
-
-          {/* File Name Display */}
-          {file && (
-            <div className="flex items-center justify-between bg-gray-100 text-gray-700 px-4 py-2 rounded-lg w-full">
-              <span className="truncate">{file.name}</span>
-              <button
-                onClick={() => setFile(null)}
-                className="ml-2 text-red-600 hover:text-red-800 transition"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-
-          {/* Upload Button */}
-          <button
-            onClick={handleUploadConsent}
-            className="w-full bg-green-500 text-white font-medium px-5 py-2 rounded-lg shadow-md transition hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={!file}
-          >
-            🚀 Upload CSV
-          </button>
-        </div>
+    <div className="p-8 rounded-xl bg-gray-50 shadow-md mt-20">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Import Users</h1>
+      <div className="mb-6 text-2xl">
+        <label className="block font-semibold text-gray-700 mb-2 ">
+          Upload CSV File
+        </label>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-green-700 hover:file:bg-green-200 "
+        />
       </div>
 
       {csvHeaders.length > 0 && (
@@ -225,8 +182,135 @@ const Page = () => {
       )}
 
       {uploadStatus && (
-        <p className="mt-4 text-center font-medium">{uploadStatus}</p>
+        <p
+          className={`mt-4 text-center font-medium ${
+            uploadStatus.includes("Error") || uploadStatus.includes("Failed")
+              ? "text-red-600"
+              : "text-green-600"
+          }`}
+        >
+          {uploadStatus}
+        </p>
       )}
+
+      {csvData.length > 0 && (
+        <div className="px-72">
+          <button
+            onClick={handleDownloadCsv}
+            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 w-52 h-12"
+          >
+            Download CSV
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Consent Upload Component
+const ConsentUploadSection = () => {
+  const [file, setFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+    setUploadStatus("");
+  };
+
+  const handleConsentUpload = async () => {
+    if (!file) {
+      setUploadStatus("Please select a CSV file first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csv", file);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/consent`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        setUploadStatus("Consent upload successful!");
+        setFile(null);
+      } else {
+        setUploadStatus("Failed to upload consent file.");
+      }
+    } catch (error) {
+      console.error("Upload Error:", error);
+      setUploadStatus("Error occurred while uploading.");
+    }
+  };
+
+  return (
+    <div className="p-8 bg-gray-50 rounded-xl shadow-md mt-20 h-56 ">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Consent User Upload
+      </h1>
+      <label className="flex flex-col items-center w-full px-4 py-3 bg-green-100 border-2 border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition duration-300">
+        <span className="text-green-700 font-semibold">Select Consent CSV</span>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
+
+      {file && (
+        <div className="mt-4 flex items-center justify-between bg-gray-100 p-3 rounded-lg w-full">
+          <span className="text-gray-700 truncate">{file.name}</span>
+          <button
+            onClick={() => setFile(null)}
+            className="text-red-600 hover:text-red-800 font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <button
+        onClick={handleConsentUpload}
+        className={`mt-6 w-full px-6 py-3 rounded-lg text-white font-semibold transition duration-300 ${
+          file
+            ? "bg-green-500 hover:bg-green-600"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+        disabled={!file}
+      >
+        Upload Consent CSV
+      </button>
+
+      {uploadStatus && (
+        <p
+          className={`mt-4 text-center font-medium ${
+            uploadStatus.includes("Error") || uploadStatus.includes("Failed")
+              ? "text-red-600"
+              : "text-green-600"
+          }`}
+        >
+          {uploadStatus}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// Main Page Component
+const Page = () => {
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row gap-8 p-8">
+      <div className="w-full lg:w-1/2">
+        <CsvUploadSection />
+      </div>
+      <div className="w-full lg:w-1/2">
+        <ConsentUploadSection />
+      </div>
     </div>
   );
 };
