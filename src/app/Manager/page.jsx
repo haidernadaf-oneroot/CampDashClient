@@ -11,27 +11,29 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl border border-gray-200 h-[500px] w-[500px]">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 ">Map CSV Fields</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-6 bg-white shadow-lg rounded-xl  text-black border border-gray-200 h-[500px] w-[500px]">
+      <h2 className="text-2xl font-bold mb-6 text-black ">Map CSV Fields</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {backendFields.map((field) => (
           <div key={field} className="flex flex-col space-y-2">
-            <label className="font-semibold text-gray-700">{field}</label>
+            <label className="font-semibold text-black">{field}</label>
             {field === "tag" || field === "identity" ? (
               <input
                 type="text"
-                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={`Enter ${field}`}
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               />
             ) : (
               <select
-                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               >
-                <option value="">-- Select Field --</option>
+                <option value="" className="text-black">
+                  -- Select Field --
+                </option>
                 {csvHeaders.map((header) => (
                   <option key={header} value={header}>
                     {header}
