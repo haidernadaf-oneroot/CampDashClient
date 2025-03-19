@@ -23,22 +23,23 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [consentFilter, setConsentFilter] = useState("");
   const itemsPerPage = 50;
   const [dateFilter, setDateFilter] = useState("");
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
-    "village",
-    "taluk",
     "number",
+    "identity",
+    "tag",
+    "consent",
+    "consent_date",
   ]);
   const [showFilter, setShowFilter] = useState(false);
 
   const allColumns = [
     { key: "name", label: "Name" },
-
     { key: "village", label: "Village" },
     { key: "taluk", label: "Taluk" },
     { key: "district", label: "District" },
@@ -95,7 +96,7 @@ const Page = () => {
     const matchesConsent =
       consentFilter === "yes"
         ? farmer.consent === "yes"
-        : consentFilter === "No"
+        : consentFilter === "no"
         ? !farmer.consent || farmer.consent === ""
         : true;
 
@@ -184,12 +185,12 @@ const Page = () => {
   };
 
   return (
-    <div className="mt-16">
-      <div className="p-6 ">
+    <div className="mt-16 p-6">
+      <div className="">
         {/* Toggle Button */}
         <button
           onClick={handleToggle}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 mb-4 w-full sm:w-auto"
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300  w-full sm:w-auto"
         >
           {isVisible ? "Hide Filters" : "Show Filters"}
         </button>
@@ -205,7 +206,7 @@ const Page = () => {
               <select
                 value={consentFilter}
                 onChange={(e) => setConsentFilter(e.target.value)}
-                className="border border-gray-300 p-2 rounded-lg text-gray-800 w-full focus:ring-2 focus:ring-green-500"
+                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
               >
                 <option value="">All</option>
                 <option value="yes">Yes</option>
@@ -215,13 +216,13 @@ const Page = () => {
 
             {/* Tag Filter */}
             <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold text-sm mb-1">
+              <label className="text-black font-semibold text-sm mb-1">
                 Tag Filter
               </label>
               <select
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
-                className="border border-gray-300 p-2 rounded-lg text-gray-800 w-full focus:ring-2 focus:ring-green-500"
+                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
               >
                 <option value="">All</option>
                 {uniqueTags.map((tag) => (
@@ -250,7 +251,7 @@ const Page = () => {
               <div className="mt-4">
                 <button
                   onClick={handleDownload}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1"
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1 w-72 border border-gray-200"
                 >
                   Download Table
                 </button>
@@ -260,32 +261,35 @@ const Page = () => {
         )}
       </div>
 
-      <div className="flex px-3 mt-4">
+      <div className="flex mt-3">
         {/* Search Input */}
         <div className="flex-grow">
-          <label className="sr-only">Search</label>
+          <label className="sr-only" htmlFor="search">
+            Search
+          </label>
           <input
+            id="search"
             type="text"
             placeholder="Search by name or number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 p-2 rounded-md w-full sm:w-[400px] focus:ring-2 focus:ring-green-500"
+            className="border border-gray-300 p-3 rounded-lg h-11 w-full max-w-[1100px] focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
           />
         </div>
 
         {/* Filter Button */}
         <div className="relative inline-block">
           <button
-            className="bg-white border px-4 py-2 rounded-md flex items-center gap-2 shadow-md"
+            className="bg-white border text-black px-4 py-2 rounded-md flex items-center gap-2 shadow-md"
             onClick={() => setShowFilter(!showFilter)}
           >
-            <FilterIcon />
+            <FilterIcon className="text-black" />
             Columns
           </button>
 
           {/* Filter Dropdown */}
           {showFilter && (
-            <div className="absolute right-0 mt-2 w-60 bg-white shadow-lg border rounded-md p-3 z-50 overflow-y-auto max-h-64">
+            <div className="absolute right-0 mt-2 w-60 bg-white text-red-600 shadow-lg border rounded-md p-3 z-50 overflow-y-auto max-h-64">
               {allColumns.map((col) => (
                 <label
                   key={col.key}
@@ -293,7 +297,7 @@ const Page = () => {
                 >
                   <input
                     type="checkbox"
-                    className="form-checkbox text-blue-600"
+                    className="form-checkbox text-black"
                     checked={selectedColumns.includes(col.key)}
                     onChange={() => toggleColumn(col.key)}
                   />
@@ -305,9 +309,9 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="border rounded-xl shadow-sm bg-white overflow-hidden mt-5">
+      <div className="border rounded-xl shadow-sm bg-white overflow-hidden mt-5 ">
         <div className="border rounded-xl bg-white overflow-hidden">
-          <div id="table-container" className="max-h-[600px] overflow-auto">
+          <div id="table-container" className="max-h-[500px] overflow-auto">
             <table className="w-full text-left border-collapse text-sm rounded-xl">
               {/* Table Header */}
               <thead className="sticky top-0 bg-green-50">
