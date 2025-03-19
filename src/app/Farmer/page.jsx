@@ -42,9 +42,7 @@ const Page = () => {
     { key: "village", label: "Village" },
     { key: "taluk", label: "Taluk" },
     { key: "district", label: "District" },
-
     { key: "number", label: "Mobile Number" },
-
     { key: "identity", label: "Identity" },
     { key: "tag", label: "Tags" },
     { key: "consent", label: "consent" },
@@ -104,7 +102,10 @@ const Page = () => {
     const matchesTag = tagFilter ? farmer.tag === tagFilter : true;
 
     const matchesDate = dateFilter
-      ? new Date(farmer.createdAt).toISOString().split("T")[0] === dateFilter
+      ? farmer.consent_date && !isNaN(new Date(farmer.consent_date))
+        ? new Date(farmer.consent_date).toISOString().split("T")[0] ===
+          dateFilter
+        : false
       : true;
 
     return matchesSearch && matchesConsent && matchesTag && matchesDate;
