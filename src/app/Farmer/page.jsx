@@ -185,7 +185,7 @@ const Page = () => {
   };
 
   return (
-    <div className="mt-16 p-6">
+    <div className="">
       <div className="">
         {/* Toggle Button */}
         <button
@@ -261,7 +261,7 @@ const Page = () => {
         )}
       </div>
 
-      <div className="flex mt-3">
+      <div className="flex mt-3 gap-4">
         {/* Search Input */}
         <div className="flex-grow">
           <label className="sr-only" htmlFor="search">
@@ -273,7 +273,7 @@ const Page = () => {
             placeholder="Search by name or number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 p-3 rounded-lg h-11 w-full max-w-[1100px] focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
+            className="border border-gray-300 p-3 rounded-lg w-full h-11 focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
           />
         </div>
 

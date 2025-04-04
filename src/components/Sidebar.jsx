@@ -70,7 +70,7 @@ const Sidebar = () => {
       } bg-green-800 text-white shadow-xl border-r border-green-700 transition-all duration-150 ease-in-out`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between h-16 px-4 bg-gradient-to-r from-green-700 to-green-600 shadow-md">
+      <div className="flex items-center justify-between h-16  bg-gradient-to-r from-green-700 to-green-600 shadow-md">
         <Image
           src="/marKhet  Logo white.png"
           width={isCollapsed ? 40 : 150}
@@ -88,7 +88,6 @@ const Sidebar = () => {
           />
         </button>
       </div>
-
       {/* Navigation */}
       <nav className="mt-8 space-y-2 px-4">
         {menuItems.map((item) => (
