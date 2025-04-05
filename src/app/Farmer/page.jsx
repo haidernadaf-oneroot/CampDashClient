@@ -27,6 +27,7 @@ const Page = () => {
   const [consentFilter, setConsentFilter] = useState("");
   const itemsPerPage = 50;
   const [dateFilter, setDateFilter] = useState("");
+  const [downloadedFilter, setDownloadedFilter] = useState("");
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
@@ -35,6 +36,8 @@ const Page = () => {
     "tag",
     "consent",
     "consent_date",
+    "downloaded",
+    "downloaded_date",
   ]);
   const [showFilter, setShowFilter] = useState(false);
 
@@ -50,6 +53,8 @@ const Page = () => {
     { key: "consent_date", label: "consent_date" },
     { key: "createdAt", label: "created-At" },
     { key: "updatedAt", label: "updatedAt" },
+    { key: "downloaded", label: "Download" },
+    { key: "downloaded_date", label: "Downloaded Date" },
   ];
 
   useEffect(() => {
@@ -109,7 +114,22 @@ const Page = () => {
         : false
       : true;
 
-    return matchesSearch && matchesConsent && matchesTag && matchesDate;
+    const matchesDownloaded =
+      downloadedFilter === "yes"
+        ? farmer.downloaded === true
+        : downloadedFilter === "no"
+        ? farmer.downloaded === false
+        : downloadedFilter === "lead"
+        ? farmer.downloaded === null
+        : true;
+
+    return (
+      matchesSearch &&
+      matchesConsent &&
+      matchesTag &&
+      matchesDate &&
+      matchesDownloaded
+    );
   });
 
   const totalPages = Math.ceil(filteredFarmer.length / itemsPerPage);
@@ -127,7 +147,7 @@ const Page = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       [
-        "Name,Created At,Village,Taluka,District,Number,Identity,Consent,Consent Date,Updated At",
+        "Name,Created At,Village,Taluka,District,Number,Identity,Consent,Consent Date,Updated At,Downloaded",
         ...filteredFarmer.map((farmer) =>
           [
             farmer.name,
@@ -137,9 +157,10 @@ const Page = () => {
             farmer.district,
             farmer.number,
             farmer.identity,
-            farmer.consent ? "Yes" : "No",
+            farmer.consent ? "Yes" : "No", // Consent comes here
             formatDate(farmer.consent_date),
             formatDate(farmer.updatedAt),
+            farmer.downloaded ? "Yes" : "No", // Moved to the end
           ].join(",")
         ),
       ].join("\n");
@@ -197,7 +218,7 @@ const Page = () => {
 
         {/* Filters Section */}
         {isVisible && (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-white p-6 rounded-lg shadow-md mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 bg-white p-6 rounded-lg shadow-md mt-4">
             {/* Consent Filter */}
             <div className="flex flex-col">
               <label className="text-gray-700 font-semibold text-sm mb-1">
@@ -246,12 +267,29 @@ const Page = () => {
               />
             </div>
 
+            {/* Downloaded Filter */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-semibold text-sm mb-1">
+                Downloaded Filter
+              </label>
+              <select
+                value={downloadedFilter}
+                onChange={(e) => setDownloadedFilter(e.target.value)}
+                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">All</option>
+                <option value="yes">Yes</option>
+                <option value="no">Dashboard</option>
+                <option value="lead">Lead</option>
+              </select>
+            </div>
+
             {/* Download Button */}
-            {(consentFilter || dateFilter) && (
+            {(consentFilter || dateFilter || tagFilter || downloadedFilter) && (
               <div className="mt-4">
                 <button
                   onClick={handleDownload}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1 w-72 border border-gray-200"
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1 w-60 border border-gray-200"
                 >
                   Download Table
                 </button>
@@ -349,15 +387,54 @@ const Page = () => {
                       key={index}
                       className="border-b border-gray-200 hover:bg-green-50"
                     >
-                      {selectedColumns.map((col) => (
-                        <td key={col} className="px-4 py-3 text-gray-600">
-                          {col.includes("date") ||
-                          col.includes("createdAt") ||
-                          col.includes("updatedAt")
-                            ? formatDate(farmer[col])
-                            : farmer[col]}
-                        </td>
-                      ))}
+                      {selectedColumns.map((col) => {
+                        let value = farmer[col];
+
+                        // ✅ Replace empty consent_date with downloaded_date
+                        if (
+                          col === "consent_date" &&
+                          (!value || value.trim() === "") &&
+                          farmer.downloaded_date
+                        ) {
+                          value = farmer.downloaded_date;
+                        }
+
+                        // ✅ Format date fields
+                        if (
+                          [
+                            "createdAt",
+                            "updatedAt",
+                            "consent_date",
+                            "downloaded_date",
+                          ].includes(col)
+                        ) {
+                          value = formatDate(value);
+                        }
+
+                        return (
+                          <td key={col} className="px-4 py-3 text-gray-600">
+                            {col === "downloaded" ? (
+                              <span
+                                className={`font-semibold ${
+                                  farmer[col] === true
+                                    ? "text-green-600"
+                                    : farmer[col] === false
+                                    ? "text-red-500"
+                                    : "text-yellow-500"
+                                }`}
+                              >
+                                {farmer[col] === true
+                                  ? "Yes"
+                                  : farmer[col] === false
+                                  ? "Dashboard"
+                                  : "Lead"}
+                              </span>
+                            ) : (
+                              value || "-"
+                            )}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))
                 ) : (
