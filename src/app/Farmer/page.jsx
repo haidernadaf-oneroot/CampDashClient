@@ -1,5 +1,5 @@
 "use client";
-import { FilterIcon } from "lucide-react";
+import { FilterIcon, PenIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const formatDate = (dateString) => {
@@ -12,9 +12,9 @@ const formatDate = (dateString) => {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true, // Enables AM/PM format
+      hour12: true,
     })
-    .replace(",", ""); // Removes the comma between date and time
+    .replace(",", "");
 };
 
 const Page = () => {
@@ -37,6 +37,7 @@ const Page = () => {
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
+    "village",
     "number",
     "identity",
     "tag",
@@ -64,7 +65,6 @@ const Page = () => {
     { key: "downloaded_date", label: "Downloaded Date" },
   ];
 
-  // Fetch tags for the Tag Filter dropdown
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -80,7 +80,6 @@ const Page = () => {
     fetchTags();
   }, []);
 
-  // Fetch farmer data with filters
   useEffect(() => {
     const getdata = async () => {
       setLoading(true);
@@ -143,6 +142,29 @@ const Page = () => {
 
   const handleEditSubmit = async () => {
     try {
+      // Construct the payload in the desired format
+      const payload = {
+        downloaded:
+          editFormData.downloaded === true
+            ? true
+            : editFormData.downloaded === false
+            ? false
+            : null, // Ensure "lead" maps to null
+        _id: editingFarmerId,
+        name: editFormData.name || "",
+        village: editFormData.village || "",
+        taluk: editFormData.taluk || "",
+        district: editFormData.district || "",
+        number: editFormData.number || "",
+        identity: editFormData.identity || "",
+        tag: editFormData.tags || "", // Assuming "tag" in backend maps to "tags" in frontend
+        __v: editFormData.__v || 0,
+        createdAt: editFormData.createdAt || "",
+        updatedAt: editFormData.updatedAt || "",
+      };
+
+      console.log("Payload being sent:", payload); // Debug log to verify payload
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/users/${editingFarmerId}`,
         {
@@ -151,7 +173,7 @@ const Page = () => {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify(editFormData),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -255,20 +277,14 @@ const Page = () => {
     setIsVisible((prev) => !prev);
   };
 
-  //send to backend like this:
   useEffect(() => {
     if (dateFilter) {
-      // No need to split, it's already in YYYY-MM-DD
       const start = new Date(`${dateFilter}T00:00:00.000Z`);
       const end = new Date(`${dateFilter}T23:59:59.999Z`);
-
-      // use this in fetch or query
       const query = {
         consent_date: { $gte: start, $lte: end },
       };
-
       console.log("Final query:", query);
-      // Call your backend function with this query
     }
   }, [dateFilter]);
 
@@ -324,7 +340,7 @@ const Page = () => {
               <input
                 type="date"
                 value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)} // value is YYYY-MM-DD
+                onChange={(e) => setDateFilter(e.target.value)}
                 className="border border-gray-300 p-2 rounded-lg text-gray-800 w-full focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -469,7 +485,6 @@ const Page = () => {
                         ) {
                           value = formatDate(value);
                         }
-                        // Handle tags as array or string
                         if (col === "tags" && Array.isArray(value)) {
                           value = value.join(", ");
                         }
@@ -507,9 +522,9 @@ const Page = () => {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleEditClick(farmer)}
-                          className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+                          className="text-green-500 px-2 py-1 rounded"
                         >
-                          Edit
+                          <PenIcon />
                         </button>
                       </td>
                     </tr>
