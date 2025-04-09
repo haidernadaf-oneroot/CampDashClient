@@ -602,7 +602,7 @@ const Page = () => {
                   name="name"
                   value={editFormData.name || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9  border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
@@ -614,11 +614,11 @@ const Page = () => {
                   name="number"
                   value={editFormData.number || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium">
                   Village *
                 </label>
                 <input
@@ -626,18 +626,18 @@ const Page = () => {
                   name="village"
                   value={editFormData.village || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Taluk *
                 </label>
                 <select
                   name="taluk"
                   value={editFormData.taluk || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="">Select Taluk</option>
                   {uniqueTaluks.map((taluk) => (
@@ -648,14 +648,14 @@ const Page = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   District *
                 </label>
                 <select
                   name="district"
                   value={editFormData.district || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="">Select District</option>
                   {uniqueDistricts.map((district) => (
@@ -665,33 +665,16 @@ const Page = () => {
                   ))}
                 </select>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Preferred Crops *
-                </label>
-                <select
-                  name="tags"
-                  value={editFormData.tags || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                >
-                  <option value="">Select Crop</option>
-                  {tags.map((tag) => (
-                    <option key={tag} value={tag}>
-                      {tag}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Consent *
                 </label>
                 <select
                   name="consent"
                   value={editFormData.consent || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="">Select Consent</option>
                   <option value="yes">Yes</option>
@@ -699,7 +682,7 @@ const Page = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Consent Date
                 </label>
                 <input
@@ -713,11 +696,11 @@ const Page = () => {
                       : ""
                   }
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Downloaded *
                 </label>
                 <select
@@ -740,7 +723,7 @@ const Page = () => {
                           : null,
                     }))
                   }
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="lead">Lead</option>
                   <option value="yes">Yes</option>
@@ -748,7 +731,7 @@ const Page = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Downloaded Date
                 </label>
                 <input
@@ -762,11 +745,11 @@ const Page = () => {
                       : ""
                   }
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium">
                   Created At
                 </label>
                 <input
@@ -780,11 +763,11 @@ const Page = () => {
                       : ""
                   }
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium ">
                   Updated At
                 </label>
                 <input
@@ -798,7 +781,7 @@ const Page = () => {
                       : ""
                   }
                   onChange={handleEditChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm"
                 />
               </div>
             </div>
