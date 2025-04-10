@@ -34,6 +34,9 @@ const Page = () => {
   const [editingFarmerId, setEditingFarmerId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [pincode, setPincode] = useState("");
+  const [villages, setVillages] = useState([]);
+  const [locationData, setLocationData] = useState(null);
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
@@ -129,27 +132,89 @@ const Page = () => {
     searchTerm,
   ]);
 
+  const fetchLocationData = async (pincodeValue) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3005/location/${pincodeValue}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch location data");
+
+      const result = await response.json();
+      const data = result.data; // get the array directly
+
+      setLocationData(data);
+
+      // Extract villages from the data array
+      const villageList = data.map((loc) => loc.village);
+      setVillages(villageList);
+
+      // Set initial taluk and district from the first entry
+      if (data.length > 0) {
+        setEditFormData((prev) => ({
+          ...prev,
+          taluk: data[0].taluk || "",
+          district: data[0].district || "",
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+      setVillages([]);
+      setLocationData(null);
+    }
+  };
+
   const handleEditClick = (farmer) => {
     setEditingFarmerId(farmer._id);
     setEditFormData({ ...farmer });
     setShowEditModal(true);
+    setPincode("");
+    setVillages([]);
+    setLocationData(null);
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setEditFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "village" && locationData) {
+      const selectedLocation = locationData.find(
+        (loc) => loc.village === value
+      );
+      if (selectedLocation) {
+        setEditFormData((prev) => ({
+          ...prev,
+          village: value,
+          taluk: selectedLocation.taluk || "",
+          district: selectedLocation.district || "",
+        }));
+      }
+    } else {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handlePincodeChange = (e) => {
+    const value = e.target.value;
+    setPincode(value);
+    if (value.length === 6) {
+      fetchLocationData(value);
+    } else {
+      setVillages([]);
+      setLocationData(null);
+    }
   };
 
   const handleEditSubmit = async () => {
     try {
-      // Construct the payload in the desired format
       const payload = {
         downloaded:
           editFormData.downloaded === true
             ? true
             : editFormData.downloaded === false
             ? false
-            : null, // Ensure "lead" maps to null
+            : null,
         _id: editingFarmerId,
         name: editFormData.name || "",
         village: editFormData.village || "",
@@ -157,13 +222,11 @@ const Page = () => {
         district: editFormData.district || "",
         number: editFormData.number || "",
         identity: editFormData.identity || "",
-        tag: editFormData.tags || "", // Assuming "tag" in backend maps to "tags" in frontend
+        tag: editFormData.tags || "",
         __v: editFormData.__v || 0,
         createdAt: editFormData.createdAt || "",
         updatedAt: editFormData.updatedAt || "",
       };
-
-      console.log("Payload being sent:", payload); // Debug log to verify payload
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/users/${editingFarmerId}`,
@@ -196,14 +259,10 @@ const Page = () => {
   const handleCancelEdit = () => {
     setShowEditModal(false);
     setEditingFarmerId(null);
+    setPincode("");
+    setVillages([]);
+    setLocationData(null);
   };
-
-  const uniqueDistricts = [
-    ...new Set(farmer.map((farmer) => farmer.district).filter(Boolean)),
-  ];
-  const uniqueTaluks = [
-    ...new Set(farmer.map((farmer) => farmer.taluk).filter(Boolean)),
-  ];
 
   const displayedFarmers = farmer;
 
@@ -355,8 +414,8 @@ const Page = () => {
                 className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
               >
                 <option value="">All</option>
-                <option value="yes">Yes</option>
-                <option value="no">Dashboard</option>
+                <option value="yes">app</option>
+                <option value="no">on-board</option>
                 <option value="null">Lead</option>
               </select>
             </div>
@@ -502,9 +561,9 @@ const Page = () => {
                                 }`}
                               >
                                 {farmer[col] === true
-                                  ? "Yes"
+                                  ? "app"
                                   : farmer[col] === false
-                                  ? "Dashboard"
+                                  ? "on-board"
                                   : "Lead"}
                               </span>
                             ) : col === "consent" ? (
@@ -602,7 +661,7 @@ const Page = () => {
                   name="name"
                   value={editFormData.name || ""}
                   onChange={handleEditChange}
-                  className="mt-1 block w-full h-9  border-gray-300 rounded-md shadow-sm text-black"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
               <div>
@@ -618,56 +677,64 @@ const Page = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm text-black font-medium">
-                  Village *
+                <label className="block text-sm font-medium text-gray-700">
+                  Pincode *
                 </label>
                 <input
                   type="text"
+                  value={pincode}
+                  onChange={handlePincodeChange}
+                  maxLength={6}
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
+                  placeholder="Enter 6-digit pincode"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-black font-medium">
+                  Village *
+                </label>
+                <select
                   name="village"
                   value={editFormData.village || ""}
                   onChange={handleEditChange}
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
+                >
+                  <option value="">Select Village</option>
+                  {villages.map((village) => (
+                    <option key={village} value={village}>
+                      {village}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   Taluk *
                 </label>
-                <select
+                <input
+                  type="text"
                   name="taluk"
                   value={editFormData.taluk || ""}
                   onChange={handleEditChange}
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                >
-                  <option value="">Select Taluk</option>
-                  {uniqueTaluks.map((taluk) => (
-                    <option key={taluk} value={taluk}>
-                      {taluk}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                />
               </div>
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   District *
                 </label>
-                <select
+                <input
+                  type="text"
                   name="district"
                   value={editFormData.district || ""}
                   onChange={handleEditChange}
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                >
-                  <option value="">Select District</option>
-                  {uniqueDistricts.map((district) => (
-                    <option key={district} value={district}>
-                      {district}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                />
               </div>
-
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   Consent *
                 </label>
                 <select
@@ -682,7 +749,7 @@ const Page = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   Consent Date
                 </label>
                 <input
@@ -699,26 +766,26 @@ const Page = () => {
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
-              <div>
-                <label className="block text-sm text-black font-medium ">
+              {/* <div>
+                <label className="block text-sm text-black font-medium">
                   Downloaded *
                 </label>
                 <select
                   name="downloaded"
                   value={
                     editFormData.downloaded === true
-                      ? "yes"
+                      ? "app"
                       : editFormData.downloaded === false
-                      ? "no"
+                      ? "on-board"
                       : "lead"
                   }
                   onChange={(e) =>
                     setEditFormData((prev) => ({
                       ...prev,
                       downloaded:
-                        e.target.value === "yes"
+                        e.target.value === "app"
                           ? true
-                          : e.target.value === "no"
+                          : e.target.value === "on-board"
                           ? false
                           : null,
                     }))
@@ -726,12 +793,12 @@ const Page = () => {
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="lead">Lead</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
+                  <option value="app">app</option>
+                  <option value="on-board">on-board</option>
                 </select>
-              </div>
+              </div> */}
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   Downloaded Date
                 </label>
                 <input
@@ -767,7 +834,7 @@ const Page = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm text-black font-medium ">
+                <label className="block text-sm text-black font-medium">
                   Updated At
                 </label>
                 <input
@@ -781,7 +848,7 @@ const Page = () => {
                       : ""
                   }
                   onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
             </div>
