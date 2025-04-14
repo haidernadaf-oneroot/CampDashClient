@@ -60,6 +60,7 @@ const CsvUploadSection = () => {
   const [csvData, setCsvData] = useState([]);
   const [mapping, setMapping] = useState({});
   const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadStats, setUploadStats] = useState(null);
 
   const backendFields = [
     "name",
@@ -125,7 +126,20 @@ const CsvUploadSection = () => {
           body: formData,
         }
       );
-      setUploadStatus(response.ok ? "Upload successful!" : "Failed to upload.");
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setUploadStatus("Upload successful!");
+        setUploadStats({
+          totalRecords: result.totalRecords,
+          uniqueNumbers: result.uniqueNumbers,
+          existingNumbers: result.existingNumbers,
+          insertedRecords: result.insertedRecords,
+        });
+      } else {
+        setUploadStatus(result.message || "Failed to upload.");
+      }
     } catch (error) {
       console.error("Error uploading CSV:", error);
       setUploadStatus("Error occurred while uploading.");
@@ -205,23 +219,46 @@ const CsvUploadSection = () => {
           </button>
         </div>
       )}
+
+      {uploadStats && (
+        <div className="mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-200 text-gray-800">
+          <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
+          <ul className="space-y-2">
+            <li>
+              <strong>Total Records:</strong> {uploadStats.totalRecords}
+            </li>
+            <li>
+              <strong>Unique Numbers:</strong> {uploadStats.uniqueNumbers}
+            </li>
+            <li>
+              <strong>Existing Numbers:</strong> {uploadStats.existingNumbers}
+            </li>
+            <li>
+              <strong>Inserted Records:</strong> {uploadStats.insertedRecords}
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
 
 // Consent Upload Component
+
 const ConsentUploadSection = () => {
   const [file, setFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadSummary, setUploadSummary] = useState(null);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
-    setUploadStatus("");
+    setUploadMessage("");
+    setUploadSummary(null);
   };
 
   const handleConsentUpload = async () => {
     if (!file) {
-      setUploadStatus("Please select a CSV file first.");
+      setUploadMessage("Please select a CSV file first.");
       return;
     }
 
@@ -237,20 +274,29 @@ const ConsentUploadSection = () => {
         }
       );
 
+      const result = await response.json();
+
       if (response.ok) {
-        setUploadStatus("Consent upload successful!");
+        setUploadMessage("Consent upload successful!");
+        setUploadSummary({
+          totalRecords: result.totalRecords,
+          updatedCount: result.updatedCount,
+          skippedCount: result.skippedCount,
+        });
         setFile(null);
       } else {
-        setUploadStatus("Failed to upload consent file.");
+        setUploadMessage("Failed to upload consent file.");
+        setUploadSummary(null);
       }
     } catch (error) {
       console.error("Upload Error:", error);
-      setUploadStatus("Error occurred while uploading.");
+      setUploadMessage("Error occurred while uploading.");
+      setUploadSummary(null);
     }
   };
 
   return (
-    <div className="p-8 bg-gray-50 rounded-xl shadow-md mt-20 h-56 ">
+    <div className="p-8 bg-gray-50 rounded-xl shadow-md mt-20 h-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Consent User Upload
       </h1>
@@ -288,16 +334,33 @@ const ConsentUploadSection = () => {
         Upload Consent CSV
       </button>
 
-      {uploadStatus && (
+      {uploadMessage && (
         <p
           className={`mt-4 text-center font-medium ${
-            uploadStatus.includes("Error") || uploadStatus.includes("Failed")
+            uploadMessage.includes("Error") || uploadMessage.includes("Failed")
               ? "text-red-600"
               : "text-green-600"
           }`}
         >
-          {uploadStatus}
+          {uploadMessage}
         </p>
+      )}
+
+      {uploadSummary && (
+        <div className="mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-200 text-gray-800">
+          <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
+          <ul className="space-y-2">
+            <li>
+              <strong>Total Records:</strong> {uploadSummary.totalRecords}
+            </li>
+            <li>
+              <strong>Update Numbers:</strong> {uploadSummary.updatedCount}
+            </li>
+            <li>
+              <strong>Skipped Numbers:</strong> {uploadSummary.skippedCount}
+            </li>
+          </ul>
+        </div>
       )}
     </div>
   );
