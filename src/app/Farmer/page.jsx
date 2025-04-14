@@ -40,7 +40,6 @@ const Page = () => {
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
-    "village",
     "number",
     "identity",
     "tag",
