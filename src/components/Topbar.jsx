@@ -13,8 +13,13 @@ const Topbar = () => {
           <User size={22} />
           <span className="text-sm font-medium">Username</span>
         </div>
-        <button className="flex items-center px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition">
-          <LogOut size={18} className="mr-1" />
+        <button
+          onClick={() => {
+            localStorage.removeItem("isAuthenticated");
+            window.location.href = "/auth"; // Force redirect
+          }}
+          className="flex items-center px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition"
+        >
           Logout
         </button>
       </div>
