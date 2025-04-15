@@ -134,7 +134,7 @@ const Page = () => {
   const fetchLocationData = async (pincodeValue) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/location/${pincodeValue}`
+        `${process.env.NEXT_PUBLIC_API_URL}/${pincodeValue}`
       );
       if (!response.ok) throw new Error("Failed to fetch location data");
 
