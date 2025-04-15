@@ -58,7 +58,7 @@ export default function AuthPage() {
           placeholder="Enter Name"
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-3 focus:ring-green-500"
         />
 
         <input
