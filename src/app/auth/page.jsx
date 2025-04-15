@@ -49,14 +49,16 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-green-500 ">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-4 text-center">Authentication</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-black">
+          Authentication
+        </h2>
 
         <input
           type="text"
           placeholder="Enter Name"
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-green-500"
         />
 
         <input
@@ -64,7 +66,7 @@ export default function AuthPage() {
           placeholder="Enter Number"
           value={numberInput}
           onChange={(e) => setNumberInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-green-500"
         />
 
         <button
