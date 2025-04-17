@@ -11,7 +11,7 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl  text-black border border-gray-200 h-[500px] w-[500px]">
+    <div className="p-6 bg-white shadow-lg rounded-xl  text-black border border-gray-200 h-[700px] w-[500px]">
       <h2 className="text-2xl font-bold mb-6 text-black ">Map CSV Fields</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {backendFields.map((field) => (
@@ -64,6 +64,10 @@ const CsvUploadSection = () => {
 
   const backendFields = [
     "name",
+    "gov_farmer_id",
+    "age",
+    "hobli",
+    "farmer_category",
     "village",
     "taluk",
     "district",
@@ -279,9 +283,9 @@ const ConsentUploadSection = () => {
       if (response.ok) {
         setUploadMessage("Consent upload successful!");
         setUploadSummary({
-          totalRecords: result.totalRecords,
-          updatedCount: result.updatedCount,
-          skippedCount: result.skippedCount,
+          totalProcessed: result.totalProcessed,
+          modifiedCount: result.modifiedCount,
+          upsertedCount: result.upsertedCount,
         });
         setFile(null);
       } else {
@@ -351,13 +355,13 @@ const ConsentUploadSection = () => {
           <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
           <ul className="space-y-2">
             <li>
-              <strong>Total Records:</strong> {uploadSummary.totalRecords}
+              <strong>Total Records:</strong> {uploadSummary.totalProcessed}
             </li>
             <li>
-              <strong>Update Numbers:</strong> {uploadSummary.updatedCount}
+              <strong>modified Numbers:</strong> {uploadSummary.modifiedCount}
             </li>
             <li>
-              <strong>Skipped Numbers:</strong> {uploadSummary.skippedCount}
+              <strong>upserted Numbers:</strong> {uploadSummary.upsertedCount}
             </li>
           </ul>
         </div>

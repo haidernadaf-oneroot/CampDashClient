@@ -42,7 +42,7 @@ export default function AuthPage() {
       localStorage.setItem("auth_name", "dummy");
     }
     if (!localStorage.getItem("auth_number")) {
-      localStorage.setItem("auth_number", "8143717521");
+      localStorage.setItem("auth_number", "9900");
     }
   }, []);
 
@@ -58,7 +58,7 @@ export default function AuthPage() {
           placeholder="Enter Name"
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-3 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-blacks focus:ring-2 focus:ring-green-500"
         />
 
         <input

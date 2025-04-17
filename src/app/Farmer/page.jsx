@@ -47,12 +47,17 @@ const Page = () => {
     "consent_date",
     "downloaded",
     "downloaded_date",
+    "onboarded_date",
   ]);
 
   const [showFilter, setShowFilter] = useState(false);
 
   const allColumns = [
     { key: "name", label: "Name" },
+    { key: "gov_farmer_id", label: "Govt_ID" },
+    { key: "age", label: "Age" },
+    { key: "hobli", label: "Hobli" },
+    { key: "farmer_category", label: "farmer_category" },
     { key: "village", label: "Village" },
     { key: "taluk", label: "Taluk" },
     { key: "district", label: "District" },
@@ -65,6 +70,7 @@ const Page = () => {
     { key: "updatedAt", label: "Updated At" },
     { key: "downloaded", label: "Download" },
     { key: "downloaded_date", label: "Downloaded Date" },
+    { key: "onboarded_date", label: "onboarded Date" },
   ];
 
   useEffect(() => {
@@ -225,6 +231,7 @@ const Page = () => {
         __v: editFormData.__v || 0,
         createdAt: editFormData.createdAt || "",
         updatedAt: editFormData.updatedAt || "",
+        onboarded_date: editFormData.onboarded_date || "",
       };
 
       const response = await fetch(
@@ -526,12 +533,8 @@ const Page = () => {
                     >
                       {selectedColumns.map((col) => {
                         let value = farmer[col];
-                        if (
-                          col === "consent_date" &&
-                          (!value || value.trim() === "") &&
-                          farmer.downloaded_date
-                        ) {
-                          value = farmer.downloaded_date;
+                        if (col === "consent_date" && value) {
+                          value = value;
                         }
                         if (
                           [
@@ -539,6 +542,7 @@ const Page = () => {
                             "updatedAt",
                             "consent_date",
                             "downloaded_date",
+                            "onboarded_date",
                           ].includes(col)
                         ) {
                           value = formatDate(value);
@@ -842,6 +846,24 @@ const Page = () => {
                   value={
                     editFormData.updatedAt
                       ? new Date(editFormData.updatedAt)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  onChange={handleEditChange}
+                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-black font-medium">
+                  Updated At
+                </label>
+                <input
+                  type="date"
+                  name="onboarded_date"
+                  value={
+                    editFormData.onboarded_date
+                      ? new Date(editFormData.onboarded_date)
                           .toISOString()
                           .split("T")[0]
                       : ""
