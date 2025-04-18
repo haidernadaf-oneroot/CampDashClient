@@ -68,6 +68,7 @@ const CsvUploadSection = () => {
     "name",
     "gov_farmer_id",
     "age",
+    "pincode",
     "hobli",
     "farmer_category",
     "village",

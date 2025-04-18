@@ -41,6 +41,7 @@ const Page = () => {
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
     "number",
+    "pincode",
     "identity",
     "tag",
     "consent",
@@ -56,6 +57,7 @@ const Page = () => {
     { key: "name", label: "Name" },
     { key: "gov_farmer_id", label: "Govt_ID" },
     { key: "age", label: "Age" },
+    { key: "pincode", label: "pincode" },
     { key: "hobli", label: "Hobli" },
     { key: "farmer_category", label: "farmer_category" },
     { key: "village", label: "Village" },
