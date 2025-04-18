@@ -285,7 +285,10 @@ const Page = () => {
         ...(dateFilter && { date: dateFilter }),
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
-        all: "true",
+        // your current page limit
+        ...(selectedColumns.length > 0 && {
+          columns: selectedColumns.join(","),
+        }),
       });
 
       const response = await fetch(
@@ -303,7 +306,7 @@ const Page = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `users_${tagFilter || "all"}_${Date.now()}.csv`;
+      link.download = `users_${tagFilter || "visible"}_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

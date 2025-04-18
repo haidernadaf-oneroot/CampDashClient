@@ -11,8 +11,8 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl  text-black border border-gray-200 h-[700px] w-[500px]">
-      <h2 className="text-2xl font-bold mb-6 text-black ">Map CSV Fields</h2>
+    <div className="p-6 bg-white shadow-lg rounded-xl text-black border border-gray-200 h-[700px] w-[500px]">
+      <h2 className="text-2xl font-bold mb-6 text-black">Map CSV Fields</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {backendFields.map((field) => (
           <div key={field} className="flex flex-col space-y-2">
@@ -46,7 +46,7 @@ const CsvFieldMapper = ({
       </div>
       <button
         onClick={onUpload}
-        className=" bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-48 mt-11"
+        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-48 mt-11"
       >
         Upload to Backend
       </button>
@@ -61,6 +61,8 @@ const CsvUploadSection = () => {
   const [mapping, setMapping] = useState({});
   const [uploadStatus, setUploadStatus] = useState("");
   const [uploadStats, setUploadStats] = useState(null);
+  const [currentChunk, setCurrentChunk] = useState(0);
+  const [totalChunks, setTotalChunks] = useState(0);
 
   const backendFields = [
     "name",
@@ -104,50 +106,73 @@ const CsvUploadSection = () => {
       return;
     }
 
-    const formattedData = csvData.map((row) => {
-      let newRow = {};
-      backendFields.forEach((field) => {
-        newRow[field] =
-          field === "tag" || field === "identity"
-            ? mapping[field] || ""
-            : mapping[field]
-            ? row[mapping[field]] || ""
-            : "";
-      });
-      return newRow;
-    });
+    const chunkSize = 10000;
+    const total = Math.ceil(csvData.length / chunkSize);
+    setTotalChunks(total);
+    const summary = {
+      totalRecords: 0,
+      uniqueNumbers: 0,
+      existingNumbers: 0,
+      insertedRecords: 0,
+    };
 
-    const csv = Papa.unparse(formattedData);
-    const blob = new Blob([csv], { type: "text/csv" });
-    const formData = new FormData();
-    formData.append("csv", blob, "uploaded_data.csv");
+    setUploadStatus("Uploading data in chunks...");
 
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user-import`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+    for (let i = 0; i < total; i++) {
+      const chunk = csvData.slice(i * chunkSize, (i + 1) * chunkSize);
 
-      const result = await response.json();
-
-      if (response.ok) {
-        setUploadStatus("Upload successful!");
-        setUploadStats({
-          totalRecords: result.totalRecords,
-          uniqueNumbers: result.uniqueNumbers,
-          existingNumbers: result.existingNumbers,
-          insertedRecords: result.insertedRecords,
+      const formattedData = chunk.map((row) => {
+        let newRow = {};
+        backendFields.forEach((field) => {
+          newRow[field] =
+            field === "tag" || field === "identity"
+              ? mapping[field] || ""
+              : mapping[field]
+              ? row[mapping[field]] || ""
+              : "";
         });
-      } else {
-        setUploadStatus(result.message || "Failed to upload.");
+        return newRow;
+      });
+
+      const csv = Papa.unparse(formattedData);
+      const blob = new Blob([csv], { type: "text/csv" });
+      const formData = new FormData();
+      formData.append("csv", blob, `chunk_${i + 1}.csv`);
+
+      try {
+        setCurrentChunk(i + 1);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/user-import`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+          summary.totalRecords += result.totalRecords || 0;
+          summary.uniqueNumbers += result.uniqueNumbers || 0;
+          summary.existingNumbers += result.existingNumbers || 0;
+          summary.insertedRecords += result.insertedRecords || 0;
+
+          setUploadStatus(`Uploaded chunk ${i + 1} of ${total}...`);
+        } else {
+          setUploadStatus(
+            `Chunk ${i + 1} failed: ${result.message || "Upload failed."}`
+          );
+          return;
+        }
+      } catch (error) {
+        console.error("Error uploading chunk:", error);
+        setUploadStatus(`Error uploading chunk ${i + 1}.`);
+        return;
       }
-    } catch (error) {
-      console.error("Error uploading CSV:", error);
-      setUploadStatus("Error occurred while uploading.");
     }
+
+    setUploadStatus("Upload completed successfully!");
+    setUploadStats(summary);
   };
 
   const handleDownloadCsv = () => {
@@ -180,14 +205,14 @@ const CsvUploadSection = () => {
     <div className="p-8 rounded-xl bg-gray-50 shadow-md mt-20">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Import Users</h1>
       <div className="mb-6 text-2xl">
-        <label className="block font-semibold text-gray-700 mb-2 ">
+        <label className="block font-semibold text-gray-700 mb-2">
           Upload CSV File
         </label>
         <input
           type="file"
           accept=".csv"
           onChange={handleFileChange}
-          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-green-700 hover:file:bg-green-200 "
+          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-green-700 hover:file:bg-green-200"
         />
       </div>
 
@@ -210,6 +235,12 @@ const CsvUploadSection = () => {
           }`}
         >
           {uploadStatus}
+        </p>
+      )}
+
+      {currentChunk > 0 && currentChunk <= totalChunks && (
+        <p className="text-center text-sm mt-1 text-gray-500">
+          Uploading chunk {currentChunk} of {totalChunks}
         </p>
       )}
 
