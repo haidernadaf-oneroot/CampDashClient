@@ -80,7 +80,7 @@ const Sidebar = () => {
         />
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-full bg-green-700 hover:bg-green-800 transition-all duration-150"
+          className="p-2 rounded-full bg-green-700 hover:bg-green-800  transition-all duration-150"
         >
           <ChevronLeft
             size={20}
@@ -101,7 +101,12 @@ const Sidebar = () => {
             }`}
             onClick={() => setActiveItem(item.href)}
           >
-            <item.icon className="w-5 h-5 mr-3" />
+            <item.icon
+              className={`${
+                isCollapsed ? "w-6 h-6 mx-auto" : "w-5 h-5 mr-3"
+              } transition-all duration-150`}
+            />
+
             {!isCollapsed && (
               <span className="text-sm font-medium">{item.label}</span>
             )}
