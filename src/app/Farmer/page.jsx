@@ -459,7 +459,7 @@ const Page = () => {
             placeholder="Search by name or number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 p-3 rounded-lg w-full h-11 focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
+            className="border border-gray-300 p-3 text-black rounded-lg w-full h-11 focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
           />
         </div>
 
