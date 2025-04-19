@@ -73,7 +73,7 @@ const Sidebar = () => {
       <div className="flex items-center justify-between h-16  bg-gradient-to-r from-green-700 to-green-600 shadow-md">
         <Image
           src="/marKhet  Logo white.png"
-          width={isCollapsed ? 40 : 150}
+          width={isCollapsed ? 41 : 150}
           height={20}
           alt="market logo"
           className="transition-all duration-150"
