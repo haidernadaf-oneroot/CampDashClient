@@ -73,7 +73,7 @@ const Page = () => {
     { key: "updatedAt", label: "Updated At" },
     { key: "downloaded", label: "Download" },
     { key: "downloaded_date", label: "Downloaded Date" },
-    { key: "onboarded_date", label: "onboarded Date" },
+    { key: "onboarded_date", label: "Onboarded Date" },
     { key: "coordinates", label: "Coordinates" },
   ];
 
@@ -287,10 +287,11 @@ const Page = () => {
       // Ensure at least one column is selected
       if (!selectedColumns || selectedColumns.length === 0) {
         alert("Please select at least one column to download.");
+        setDownloading(false);
         return;
       }
 
-      // Log selected columns
+      // Log selected columns for debugging
       console.log("Selected Columns for Download:", selectedColumns);
 
       const columnsParam = selectedColumns.join(",");
@@ -301,7 +302,7 @@ const Page = () => {
         ...(dateFilter && { date: dateFilter }),
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
-        columns: columnsParam, // columns is required since user selected something
+        columns: columnsParam,
       });
 
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
@@ -357,11 +358,13 @@ const Page = () => {
   };
 
   const toggleColumn = (column) => {
-    setSelectedColumns((prev) =>
-      prev.includes(column)
+    setSelectedColumns((prev) => {
+      const newColumns = prev.includes(column)
         ? prev.filter((col) => col !== column)
-        : [...prev, column]
-    );
+        : [...prev, column];
+      console.log("Updated selectedColumns:", newColumns);
+      return newColumns;
+    });
   };
 
   const handleToggle = () => {
@@ -378,7 +381,6 @@ const Page = () => {
     }
   }, [dateFilter]);
 
-  // Define displayedFarmers using the farmer state
   const displayedFarmers = farmer;
 
   return (
@@ -449,8 +451,8 @@ const Page = () => {
                 className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
               >
                 <option value="">All</option>
-                <option value="yes">app</option>
-                <option value="no">on-board</option>
+                <option value="yes">App</option>
+                <option value="no">On-board</option>
                 <option value="null">Lead</option>
               </select>
             </div>
@@ -466,7 +468,7 @@ const Page = () => {
                       : ""
                   }`}
                 >
-                  {downloading ? "Downloading..." : "Download Selected"}
+                  {downloading ? "Downloading..." : "Download Filtered Data"}
                 </button>
               </div>
             )}
@@ -575,7 +577,7 @@ const Page = () => {
                         ) {
                           value = formatDate(value);
                         }
-                        if (col === "tags" && Array.isArray(value)) {
+                        if (col === "tag" && Array.isArray(value)) {
                           value = value.join(", ");
                         }
 
@@ -592,17 +594,13 @@ const Page = () => {
                                 }`}
                               >
                                 {farmer[col] === true
-                                  ? "app"
+                                  ? "App"
                                   : farmer[col] === false
-                                  ? "on-board"
+                                  ? "On-board"
                                   : "Lead"}
                               </span>
                             ) : col === "consent" ? (
-                              value ? (
-                                value
-                              ) : (
-                                "No"
-                              )
+                              value || "No"
                             ) : (
                               value || "-"
                             )}
@@ -824,8 +822,8 @@ const Page = () => {
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 >
                   <option value="lead">Lead</option>
-                  <option value="app">app</option>
-                  <option value="on-board">on-board</option>
+                  <option value="app">App</option>
+                  <option value="on-board">On-board</option>
                 </select>
               </div>
               <div>
