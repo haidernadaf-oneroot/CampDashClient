@@ -11,7 +11,7 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl text-black border border-gray-200 h-[700px] w-[500px]">
+    <div className="p-6 bg-white shadow-lg rounded-xl text-black border border-gray-200 h-[900px] w-[500px]">
       <h2 className="text-2xl font-bold mb-6 text-black">Map CSV Fields</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {backendFields.map((field) => (
@@ -75,6 +75,7 @@ const CsvUploadSection = () => {
     "taluk",
     "district",
     "number",
+    "coordinates",
     "identity",
     "tag",
   ];

@@ -1,4 +1,5 @@
 "use client";
+import Update from "@/components/Update";
 import { FilterIcon, PenIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -73,11 +74,15 @@ const Page = () => {
     { key: "downloaded", label: "Download" },
     { key: "downloaded_date", label: "Downloaded Date" },
     { key: "onboarded_date", label: "onboarded Date" },
+    { key: "coordinates", label: "Coordinates" },
   ];
 
   useEffect(() => {
     const fetchTags = async () => {
       try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          throw new Error("API URL is not defined in environment variables");
+        }
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tags`);
         if (!response.ok) throw new Error("Failed to fetch tags");
         const data = await response.json();
@@ -147,15 +152,12 @@ const Page = () => {
       if (!response.ok) throw new Error("Failed to fetch location data");
 
       const result = await response.json();
-      const data = result.data; // get the array directly
+      const data = result.data;
 
       setLocationData(data);
-
-      // Extract villages from the data array
       const villageList = data.map((loc) => loc.village);
       setVillages(villageList);
 
-      // Set initial taluk and district from the first entry
       if (data.length > 0) {
         setEditFormData((prev) => ({
           ...prev,
@@ -234,6 +236,9 @@ const Page = () => {
         createdAt: editFormData.createdAt || "",
         updatedAt: editFormData.updatedAt || "",
         onboarded_date: editFormData.onboarded_date || "",
+        consent: editFormData.consent || "",
+        consent_date: editFormData.consent_date || "",
+        downloaded_date: editFormData.downloaded_date || "",
       };
 
       const response = await fetch(
@@ -272,54 +277,68 @@ const Page = () => {
     setLocationData(null);
   };
 
-  const displayedFarmers = farmer;
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [consentFilter, searchTerm, tagFilter, dateFilter, downloadedFilter]);
-
   const handleDownload = async () => {
     setDownloading(true);
     try {
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        throw new Error("API URL is not defined in environment variables");
+      }
+
+      // Log selected columns for debugging
+      console.log("Selected Columns for Download:", selectedColumns);
+
+      // Ensure selectedColumns is an array and join it properly
+      const columnsParam =
+        Array.isArray(selectedColumns) && selectedColumns.length > 0
+          ? selectedColumns.join(",")
+          : "";
+
       const queryParams = new URLSearchParams({
         ...(tagFilter && { tag: tagFilter }),
         ...(consentFilter && { consent: consentFilter }),
         ...(dateFilter && { date: dateFilter }),
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
-        // your current page limit
-        ...(selectedColumns.length > 0 && {
-          columns: selectedColumns.join(","),
-        }),
+        ...(columnsParam && { columns: columnsParam }),
       });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`,
-        {
-          method: "GET",
-        }
-      );
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
+      console.log("Download URL:", downloadUrl);
+
+      const response = await fetch(downloadUrl, {
+        method: "GET",
+        headers: {
+          Accept: "text/csv",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! Status: ${response.status}, Message: ${errorText}`
+        );
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `users_${tagFilter || "visible"}_${Date.now()}.csv`;
+      link.download = `users_${tagFilter || "all"}_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading users:", error);
-      alert("Failed to download users.");
+      alert(`Failed to download users: ${error.message}`);
     } finally {
       setDownloading(false);
     }
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [consentFilter, searchTerm, tagFilter, dateFilter, downloadedFilter]);
 
   useEffect(() => {
     const tableContainer = document.getElementById("table-container");
@@ -351,16 +370,19 @@ const Page = () => {
     if (dateFilter) {
       const start = new Date(`${dateFilter}T00:00:00.000Z`);
       const end = new Date(`${dateFilter}T23:59:59.999Z`);
-      const query = {
+      console.log("Date filter query:", {
         consent_date: { $gte: start, $lte: end },
-      };
-      console.log("Final query:", query);
+      });
     }
   }, [dateFilter]);
+
+  // Define displayedFarmers using the farmer state
+  const displayedFarmers = farmer;
 
   return (
     <div className="">
       <div className="">
+        <Update />
         <button
           onClick={handleToggle}
           className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 w-full sm:w-auto"
@@ -538,9 +560,6 @@ const Page = () => {
                     >
                       {selectedColumns.map((col) => {
                         let value = farmer[col];
-                        if (col === "consent_date" && value) {
-                          value = value;
-                        }
                         if (
                           [
                             "createdAt",
@@ -774,7 +793,7 @@ const Page = () => {
                   className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
                 />
               </div>
-              {/* <div>
+              <div>
                 <label className="block text-sm text-black font-medium">
                   Downloaded *
                 </label>
@@ -804,7 +823,7 @@ const Page = () => {
                   <option value="app">app</option>
                   <option value="on-board">on-board</option>
                 </select>
-              </div> */}
+              </div>
               <div>
                 <label className="block text-sm text-black font-medium">
                   Downloaded Date
@@ -861,7 +880,7 @@ const Page = () => {
               </div>
               <div>
                 <label className="block text-sm text-black font-medium">
-                  Updated At
+                  Onboarded Date
                 </label>
                 <input
                   type="date"
