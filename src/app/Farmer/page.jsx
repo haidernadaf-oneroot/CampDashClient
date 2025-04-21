@@ -284,14 +284,16 @@ const Page = () => {
         throw new Error("API URL is not defined in environment variables");
       }
 
-      // Log selected columns for debugging
+      // Ensure at least one column is selected
+      if (!selectedColumns || selectedColumns.length === 0) {
+        alert("Please select at least one column to download.");
+        return;
+      }
+
+      // Log selected columns
       console.log("Selected Columns for Download:", selectedColumns);
 
-      // Ensure selectedColumns is an array and join it properly
-      const columnsParam =
-        Array.isArray(selectedColumns) && selectedColumns.length > 0
-          ? selectedColumns.join(",")
-          : "";
+      const columnsParam = selectedColumns.join(",");
 
       const queryParams = new URLSearchParams({
         ...(tagFilter && { tag: tagFilter }),
@@ -299,7 +301,7 @@ const Page = () => {
         ...(dateFilter && { date: dateFilter }),
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
-        ...(columnsParam && { columns: columnsParam }),
+        columns: columnsParam, // columns is required since user selected something
       });
 
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
@@ -457,12 +459,14 @@ const Page = () => {
               <div className="mt-4">
                 <button
                   onClick={handleDownload}
-                  disabled={downloading}
+                  disabled={downloading || selectedColumns.length === 0}
                   className={`bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1 w-60 border border-gray-200 ${
-                    downloading ? "opacity-50 cursor-not-allowed" : ""
+                    downloading || selectedColumns.length === 0
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
                 >
-                  {downloading ? "Downloading..." : "Download All"}
+                  {downloading ? "Downloading..." : "Download Selected"}
                 </button>
               </div>
             )}
