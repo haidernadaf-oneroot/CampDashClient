@@ -6,7 +6,7 @@ const Update = () => {
 
   const handleUpdate = async () => {
     setLoading(true);
-    const url = "http://localhost:3005/update-database";
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/update-database`;
 
     try {
       const response = await fetch(url, {
