@@ -1,6 +1,7 @@
 "use client";
 import Update from "@/components/Update";
-import { FilterIcon, PenIcon } from "lucide-react";
+import { Filter, FilterIcon, FilterX, PenIcon } from "lucide-react";
+
 import React, { useEffect, useState } from "react";
 
 const formatDate = (dateString) => {
@@ -384,15 +385,19 @@ const Page = () => {
   const displayedFarmers = farmer;
 
   return (
-    <div className="">
+    <div>
       <div className="">
-        <Update />
-        <button
+        <div
           onClick={handleToggle}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 w-full sm:w-auto"
+          className="cursor-pointer transition duration-300 w-10 h-10 flex items-center justify-center rounded-full"
         >
-          {isVisible ? "Hide Filters" : "Show Filters"}
-        </button>
+          {isVisible ? (
+            <FilterX className="text-green-600 mt-44 h-7" />
+          ) : (
+            <Filter className="text-green-600 mt-44 h-7" />
+          )}
+        </div>
+        <Update className="" />
 
         {isVisible && (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 bg-white p-6 rounded-lg shadow-md mt-4">
