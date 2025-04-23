@@ -1,5 +1,6 @@
 "use client";
-// import Update from "@/components/Update";
+
+import Update from "@/components/Update";
 import { Filter, FilterIcon, FilterX, PenIcon } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
@@ -397,7 +398,7 @@ const Page = () => {
             <Filter className="text-green-600 mt-44 h-7" />
           )}
         </div>
-        {/* <Update className="" /> */}
+        <Update />
 
         {isVisible && (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 bg-white p-6 rounded-lg shadow-md mt-4">
