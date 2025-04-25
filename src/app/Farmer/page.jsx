@@ -565,7 +565,7 @@ const Page = () => {
                     <span className="sr-only">Close</span>
                   </button>
                 </div>
-                <div className="max-h-64 overflow-y-auto p-3">
+                <div className="max-h-64 overflow-y-auto p-3 text-black">
                   {allColumns.map((col) => (
                     <div
                       key={col.key}
