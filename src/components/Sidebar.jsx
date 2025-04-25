@@ -23,12 +23,12 @@ const Sidebar = () => {
   const router = useRouter();
 
   // ✅ Optimized state for instant UI updates
-  const [activeItem, setActiveItem] = useState("/farmer");
+  const [activeItem, setActiveItem] = useState("/Farmer");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedItem = localStorage.getItem("activeSidebarItem") || "/farmer";
+      const savedItem = localStorage.getItem("activeSidebarItem") || "/Farmer";
       setActiveItem(savedItem);
     }
   }, []);
@@ -41,7 +41,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined" && pathname === "/") {
-      router.replace("/farmer");
+      router.replace("/Farmer");
     }
   }, [pathname, router]);
 
@@ -53,7 +53,7 @@ const Sidebar = () => {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Reservation", icon: Calendar, href: "/reservation" },
     { label: "Crops", icon: Leaf, href: "/crops" },
-    { label: "Farmers", icon: User2, href: "/farmer" },
+    { label: "Farmers", icon: User2, href: "/Farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/Buyer" },
     { label: "Tasks", icon: ListTodo, href: "/tasks" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },

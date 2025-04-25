@@ -23,7 +23,7 @@ export default function AuthPage() {
       numberInput.trim() === storedNumber
     ) {
       localStorage.setItem("isAuthenticated", "true");
-      router.push("/farmer");
+      router.push("/Farmer");
     } else {
       alert("Incorrect name or number. Try again.");
     }
