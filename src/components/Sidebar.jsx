@@ -56,7 +56,7 @@ const Sidebar = () => {
     { label: "Farmers", icon: User2, href: "/farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/Buyer" },
     { label: "Tasks", icon: ListTodo, href: "/tasks" },
-    { label: "Manager", icon: BarChart2, href: "/manager" },
+    { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "Call Logs", icon: PhoneCall, href: "/call-logs" },
     { label: "Status", icon: ShieldCheck, href: "/status" },
     { label: "Requirement", icon: FileText, href: "/requirement" },
