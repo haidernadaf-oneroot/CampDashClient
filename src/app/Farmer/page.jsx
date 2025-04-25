@@ -1,9 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import {
+  Filter,
+  FilterIcon,
+  FilterX,
+  PenIcon,
+  Download,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Calendar,
+  Tag,
+  CheckCircle,
+  DownloadIcon,
+} from "lucide-react";
 import Update from "@/components/Update";
-import { Filter, FilterIcon, FilterX, PenIcon } from "lucide-react";
-
-import React, { useEffect, useState } from "react";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -40,6 +53,7 @@ const Page = () => {
   const [pincode, setPincode] = useState("");
   const [villages, setVillages] = useState([]);
   const [locationData, setLocationData] = useState(null);
+  const [activeTab, setActiveTab] = useState("table");
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
@@ -60,9 +74,9 @@ const Page = () => {
     { key: "name", label: "Name" },
     { key: "gov_farmer_id", label: "Govt_ID" },
     { key: "age", label: "Age" },
-    { key: "pincode", label: "pincode" },
+    { key: "pincode", label: "Pincode" },
     { key: "hobli", label: "Hobli" },
-    { key: "farmer_category", label: "farmer_category" },
+    { key: "farmer_category", label: "Farmer Category" },
     { key: "village", label: "Village" },
     { key: "taluk", label: "Taluk" },
     { key: "district", label: "District" },
@@ -293,9 +307,6 @@ const Page = () => {
         return;
       }
 
-      // Log selected columns for debugging
-      console.log("Selected Columns for Download:", selectedColumns);
-
       const columnsParam = selectedColumns.join(",");
 
       const queryParams = new URLSearchParams({
@@ -308,7 +319,6 @@ const Page = () => {
       });
 
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
-      console.log("Download URL:", downloadUrl);
 
       const response = await fetch(downloadUrl, {
         method: "GET",
@@ -354,7 +364,7 @@ const Page = () => {
 
   const getPageNumbers = () => {
     let start = Math.max(1, currentPage - 2);
-    let end = Math.min(totalPages, start + 4);
+    const end = Math.min(totalPages, start + 4);
     if (end - start < 4) start = Math.max(1, end - 4);
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
@@ -364,7 +374,6 @@ const Page = () => {
       const newColumns = prev.includes(column)
         ? prev.filter((col) => col !== column)
         : [...prev, column];
-      console.log("Updated selectedColumns:", newColumns);
       return newColumns;
     });
   };
@@ -373,164 +382,259 @@ const Page = () => {
     setIsVisible((prev) => !prev);
   };
 
-  useEffect(() => {
-    if (dateFilter) {
-      const start = new Date(`${dateFilter}T00:00:00.000Z`);
-      const end = new Date(`${dateFilter}T23:59:59.999Z`);
-      console.log("Date filter query:", {
-        consent_date: { $gte: start, $lte: end },
-      });
-    }
-  }, [dateFilter]);
+  const getStatusColor = (status) => {
+    if (status === true) return "bg-green-100 text-green-800 border-green-300";
+    if (status === false) return "bg-blue-100 text-blue-800 border-blue-300";
+    return "bg-yellow-100 text-yellow-800 border-yellow-300";
+  };
+
+  const getStatusText = (status) => {
+    if (status === true) return "App";
+    if (status === false) return "On-board";
+    return "Lead";
+  };
+
+  const resetFilters = () => {
+    setTagFilter("");
+    setConsentFilter("");
+    setDateFilter("");
+    setDownloadedFilter("");
+    setSearchTerm("");
+  };
 
   const displayedFarmers = farmer;
 
   return (
-    <div>
-      <div className="">
-        <div
-          onClick={handleToggle}
-          className="cursor-pointer transition duration-300 w-10 h-10 flex items-center justify-center rounded-full"
-        >
-          {isVisible ? (
-            <FilterX className="text-green-600 mt-44 h-7" />
-          ) : (
-            <Filter className="text-green-600 mt-44 h-7" />
-          )}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Farmer Management</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggle}
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+          >
+            {isVisible ? (
+              <FilterX className="h-4 w-4" />
+            ) : (
+              <Filter className="h-4 w-4" />
+            )}
+            {isVisible ? "Hide Filters" : "Show Filters"}
+          </button>
+          <Update />
         </div>
-        <Update />
+      </div>
 
-        {isVisible && (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 bg-white p-6 rounded-lg shadow-md mt-4">
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold text-sm mb-1">
-                Consent Filter
-              </label>
-              <select
-                value={consentFilter}
-                onChange={(e) => setConsentFilter(e.target.value)}
-                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">All</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-            </div>
+      {isVisible && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-lg font-medium">Filter Options</h2>
+            <button
+              onClick={resetFilters}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Reset All
+            </button>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Consent Status
+                  </label>
+                </div>
+                <select
+                  value={consentFilter}
+                  onChange={(e) => setConsentFilter(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">All</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-black font-semibold text-sm mb-1">
-                Tag Filter
-              </label>
-              <select
-                value={tagFilter}
-                onChange={(e) => setTagFilter(e.target.value)}
-                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">All</option>
-                {tags.map((tag) => (
-                  <option key={tag} value={tag}>
-                    {tag}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-green-600" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Tags
+                  </label>
+                </div>
+                <select
+                  value={tagFilter}
+                  onChange={(e) => setTagFilter(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">All</option>
+                  {tags.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold text-sm mb-1">
-                Date Filter
-              </label>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="border border-gray-300 p-2 rounded-lg text-gray-800 w-full focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-green-600" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Date
+                  </label>
+                </div>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold text-sm mb-1">
-                Downloaded Filter
-              </label>
-              <select
-                value={downloadedFilter}
-                onChange={(e) => setDownloadedFilter(e.target.value)}
-                className="border border-green-500 p-2 rounded-lg text-black w-full focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">All</option>
-                <option value="yes">App</option>
-                <option value="no">On-board</option>
-                <option value="null">Lead</option>
-              </select>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <DownloadIcon className="h-4 w-4 text-green-600" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Download Status
+                  </label>
+                </div>
+                <select
+                  value={downloadedFilter}
+                  onChange={(e) => setDownloadedFilter(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">All</option>
+                  <option value="yes">App</option>
+                  <option value="no">On-board</option>
+                  <option value="null">Lead</option>
+                </select>
+              </div>
             </div>
 
             {(consentFilter || dateFilter || tagFilter || downloadedFilter) && (
-              <div className="mt-4">
+              <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleDownload}
                   disabled={downloading || selectedColumns.length === 0}
-                  className={`bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-300 h-11 mt-1 w-60 border border-gray-200 ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     downloading || selectedColumns.length === 0
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
                 >
+                  <Download className="h-4 w-4" />
                   {downloading ? "Downloading..." : "Download Filtered Data"}
                 </button>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="flex mt-3 gap-4">
-        <div className="flex-grow">
-          <label className="sr-only" htmlFor="search">
-            Search
-          </label>
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
-            id="search"
             type="text"
             placeholder="Search by name or number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 p-3 text-black rounded-lg w-full h-11 focus:ring-2 focus:ring-green-500 focus:outline-none shadow-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
 
-        <div className="relative inline-block">
-          <button
-            className="bg-white border text-black px-4 py-2 rounded-md flex items-center gap-2 shadow-md"
-            onClick={() => setShowFilter(!showFilter)}
-          >
-            <FilterIcon className="text-black" />
-            Columns
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            >
+              <FilterIcon className="h-4 w-4" />
+              Columns ({selectedColumns.length})
+            </button>
 
-          {showFilter && (
-            <div className="absolute right-0 mt-2 w-60 bg-white text-black shadow-lg border rounded-md p-3 z-50 overflow-y-auto max-h-64">
-              {allColumns.map((col) => (
-                <label
-                  key={col.key}
-                  className="flex items-center space-x-2 mb-1"
-                >
-                  <input
-                    type="checkbox"
-                    className="form-checkbox text-black"
-                    checked={selectedColumns.includes(col.key)}
-                    onChange={() => toggleColumn(col.key)}
-                  />
-                  <span>{col.label}</span>
-                </label>
-              ))}
-            </div>
-          )}
+            {showFilter && (
+              <div className="absolute right-0 mt-2 z-50 w-64 bg-white rounded-md shadow-lg border border-gray-200">
+                <div className="py-2 px-3 border-b border-gray-200 flex justify-between items-center">
+                  <span className="text-sm font-medium">Select Columns</span>
+                  <button
+                    onClick={() => setShowFilter(false)}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                  </button>
+                </div>
+                <div className="max-h-64 overflow-y-auto p-3">
+                  {allColumns.map((col) => (
+                    <div
+                      key={col.key}
+                      className="flex items-center space-x-2 py-1"
+                    >
+                      <input
+                        type="checkbox"
+                        id={`column-${col.key}`}
+                        checked={selectedColumns.includes(col.key)}
+                        onChange={() => toggleColumn(col.key)}
+                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
+                      <label
+                        htmlFor={`column-${col.key}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {col.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleDownload}
+            disabled={downloading || selectedColumns.length === 0}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+              downloading || selectedColumns.length === 0
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            <Download className="h-4 w-4" />
+            {downloading ? "Downloading..." : "Export CSV"}
+          </button>
         </div>
       </div>
 
-      <div className="border rounded-xl shadow-sm bg-white overflow-hidden mt-5">
-        <div className="border rounded-xl bg-white overflow-hidden">
-          <div id="table-container" className="max-h-[500px] overflow-auto">
-            <table className="w-full text-left border-collapse text-sm rounded-xl">
+      <div className="border-b border-gray-200">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setActiveTab("table")}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === "table"
+                ? "border-b-2 border-green-600 text-green-600"
+                : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Table View
+          </button>
+          <button
+            onClick={() => setActiveTab("cards")}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === "cards"
+                ? "border-b-2 border-green-600 text-green-600"
+                : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Card View
+          </button>
+        </div>
+      </div>
+
+      {activeTab === "table" && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div id="table-container" className="max-h-[400px] overflow-auto">
+            <table className="w-full text-left border-collapse text-sm">
               <thead className="sticky top-0 bg-green-50">
                 <tr className="border-b border-gray-200">
                   {selectedColumns.map((col) => (
@@ -541,8 +645,8 @@ const Page = () => {
                       {allColumns.find((c) => c.key === col)?.label}
                     </th>
                   ))}
-                  <th className="px-4 py-3 font-semibold text-gray-700">
-                    Edit
+                  <th className="px-4 py-3 font-semibold text-gray-700 text-right">
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -550,17 +654,14 @@ const Page = () => {
               <tbody>
                 {loading ? (
                   [...Array(5)].map((_, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-gray-200 animate-pulse"
-                    >
+                    <tr key={index} className="border-b border-gray-200">
                       {selectedColumns.map((_, colIndex) => (
                         <td key={colIndex} className="px-4 py-3">
-                          <div className="h-4 bg-gray-300 rounded w-full"></div>
+                          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                         </td>
                       ))}
                       <td className="px-4 py-3">
-                        <div className="h-4 bg-gray-300 rounded w-full"></div>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                       </td>
                     </tr>
                   ))
@@ -568,7 +669,7 @@ const Page = () => {
                   displayedFarmers.map((farmer, index) => (
                     <tr
                       key={index}
-                      className="border-b border-gray-200 hover:bg-green-50"
+                      className="border-b border-gray-200 hover:bg-green-50/50 transition-colors"
                     >
                       {selectedColumns.map((col) => {
                         let value = farmer[col];
@@ -588,37 +689,42 @@ const Page = () => {
                         }
 
                         return (
-                          <td key={col} className="px-4 py-3 text-gray-600">
+                          <td key={col} className="px-4 py-3 text-gray-700">
                             {col === "downloaded" ? (
                               <span
-                                className={`font-semibold ${
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                   farmer[col] === true
-                                    ? "text-green-600"
+                                    ? "bg-green-100 text-green-800"
                                     : farmer[col] === false
-                                    ? "text-red-500"
-                                    : "text-yellow-500"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-yellow-100 text-yellow-800"
                                 }`}
                               >
-                                {farmer[col] === true
-                                  ? "App"
-                                  : farmer[col] === false
-                                  ? "On-board"
-                                  : "Lead"}
+                                {getStatusText(farmer[col])}
                               </span>
                             ) : col === "consent" ? (
-                              value || "No"
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  value === "yes"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {value || "No"}
+                              </span>
                             ) : (
                               value || "-"
                             )}
                           </td>
                         );
                       })}
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleEditClick(farmer)}
-                          className="text-green-500 px-2 py-1 rounded"
+                          className="p-1 rounded-full text-green-600 hover:text-green-700 hover:bg-green-50"
                         >
-                          <PenIcon />
+                          <PenIcon className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
                         </button>
                       </td>
                     </tr>
@@ -627,297 +733,496 @@ const Page = () => {
                   <tr>
                     <td
                       colSpan={selectedColumns.length + 1}
-                      className="text-center py-4 text-gray-500"
+                      className="text-center py-8 text-gray-500"
                     >
-                      No Data Available
+                      No data available
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-        </div>
 
-        <div className="flex items-center justify-between p-4 bg-white border-t">
-          <span className="text-gray-600">
-            Showing {(currentPage - 1) * 50 + 1} to{" "}
-            {Math.min(currentPage * 50, totalUsers)} of {totalUsers} records
-          </span>
+          <div className="flex items-center justify-between p-4 border-t">
+            <span className="text-sm text-gray-600">
+              Showing {farmer.length > 0 ? (currentPage - 1) * 50 + 1 : 0} to{" "}
+              {Math.min(currentPage * 50, totalUsers)} of {totalUsers} records
+            </span>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-2 text-green-600 rounded disabled:text-gray-400"
-            >
-              {"<"}
-            </button>
-
-            {getPageNumbers().map((page) => (
+            <div className="flex items-center gap-1">
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 rounded ${
-                  currentPage === page
-                    ? "bg-green-100 text-green-700 font-semibold"
-                    : "text-green-600"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                {page}
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Previous page</span>
               </button>
-            ))}
 
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 text-green-600 rounded disabled:text-gray-400"
-            >
-              {">"}
-            </button>
+              {getPageNumbers().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`inline-flex items-center justify-center w-8 h-8 rounded-md ${
+                    currentPage === page
+                      ? "bg-green-600 text-white"
+                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+                  currentPage === totalPages
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">Next page</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === "cards" && (
+        <>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+                >
+                  <div className="p-4 pb-2">
+                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                  </div>
+                  <div className="p-4 pt-2">
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : displayedFarmers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {displayedFarmers.map((farmer, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="p-4 pb-2 flex flex-row items-start justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">
+                        {farmer.name || "Unnamed Farmer"}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {farmer.number || "No contact"}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        farmer.downloaded === true
+                          ? "bg-green-100 text-green-800"
+                          : farmer.downloaded === false
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {getStatusText(farmer.downloaded)}
+                    </span>
+                  </div>
+                  <div className="p-4 pt-2">
+                    <div className="space-y-2">
+                      {farmer.village && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Location:</span>
+                          <span className="text-gray-900">
+                            {farmer.village}, {farmer.taluk || "-"}
+                          </span>
+                        </div>
+                      )}
+                      {farmer.pincode && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Pincode:</span>
+                          <span className="text-gray-900">
+                            {farmer.pincode}
+                          </span>
+                        </div>
+                      )}
+                      {farmer.consent && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Consent:</span>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              farmer.consent === "yes"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {farmer.consent || "No"}
+                          </span>
+                        </div>
+                      )}
+                      {farmer.consent_date && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Consent Date:</span>
+                          <span className="text-gray-900">
+                            {formatDate(farmer.consent_date)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => handleEditClick(farmer)}
+                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100"
+                      >
+                        <PenIcon className="h-3 w-3 mr-1" />
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-gray-200">
+              No data available
+            </div>
+          )}
+
+          <div className="flex items-center justify-between p-4 mt-4 bg-white rounded-lg border border-gray-200">
+            <span className="text-sm text-gray-600">
+              Showing {farmer.length > 0 ? (currentPage - 1) * 50 + 1 : 0} to{" "}
+              {Math.min(currentPage * 50, totalUsers)} of {totalUsers} records
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Previous page</span>
+              </button>
+
+              {getPageNumbers().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`inline-flex items-center justify-center w-8 h-8 rounded-md ${
+                    currentPage === page
+                      ? "bg-green-600 text-white"
+                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+                  currentPage === totalPages
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">Next page</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-[800px] max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-semibold text-green-700 mb-4">
-              Farmer Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 space-x-2 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mt-5">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editFormData.name || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Mobile Number *
-                </label>
-                <input
-                  type="text"
-                  name="number"
-                  value={editFormData.number || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Pincode *
-                </label>
-                <input
-                  type="text"
-                  value={pincode}
-                  onChange={handlePincodeChange}
-                  maxLength={6}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                  placeholder="Enter 6-digit pincode"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Village *
-                </label>
-                <select
-                  name="village"
-                  value={editFormData.village || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-green-700">
+                  Edit Farmer Details
+                </h2>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-400 hover:text-gray-500"
                 >
-                  <option value="">Select Village</option>
-                  {villages.map((village) => (
-                    <option key={village} value={village}>
-                      {village}
-                    </option>
-                  ))}
-                </select>
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">Close</span>
+                </button>
               </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Taluk *
-                </label>
-                <input
-                  type="text"
-                  name="taluk"
-                  value={editFormData.taluk || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                  readOnly
-                />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    value={editFormData.name || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="number"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Mobile Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="number"
+                    name="number"
+                    value={editFormData.number || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="pincode"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Pincode <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="pincode"
+                    value={pincode}
+                    onChange={handlePincodeChange}
+                    maxLength={6}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter 6-digit pincode"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="village"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Village <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="village"
+                    name="village"
+                    value={editFormData.village || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Select Village</option>
+                    {villages.map((village) => (
+                      <option key={village} value={village}>
+                        {village}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="taluk"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Taluk <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="taluk"
+                    name="taluk"
+                    value={editFormData.taluk || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    readOnly
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="district"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    District <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="district"
+                    name="district"
+                    value={editFormData.district || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    readOnly
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="consent"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Consent <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="consent"
+                    name="consent"
+                    value={editFormData.consent || ""}
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Select Consent</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="consent_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Consent Date
+                  </label>
+                  <input
+                    id="consent_date"
+                    type="date"
+                    name="consent_date"
+                    value={
+                      editFormData.consent_date
+                        ? new Date(editFormData.consent_date)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="downloaded"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Downloaded <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="downloaded"
+                    value={
+                      editFormData.downloaded === true
+                        ? "app"
+                        : editFormData.downloaded === false
+                        ? "on-board"
+                        : "lead"
+                    }
+                    onChange={(e) =>
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        downloaded:
+                          e.target.value === "app"
+                            ? true
+                            : e.target.value === "on-board"
+                            ? false
+                            : null,
+                      }))
+                    }
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="lead">Lead</option>
+                    <option value="app">App</option>
+                    <option value="on-board">On-board</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="downloaded_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Downloaded Date
+                  </label>
+                  <input
+                    id="downloaded_date"
+                    type="date"
+                    name="downloaded_date"
+                    value={
+                      editFormData.downloaded_date
+                        ? new Date(editFormData.downloaded_date)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="onboarded_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Onboarded Date
+                  </label>
+                  <input
+                    id="onboarded_date"
+                    type="date"
+                    name="onboarded_date"
+                    value={
+                      editFormData.onboarded_date
+                        ? new Date(editFormData.onboarded_date)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleEditChange}
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  District *
-                </label>
-                <input
-                  type="text"
-                  name="district"
-                  value={editFormData.district || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                  readOnly
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Consent *
-                </label>
-                <select
-                  name="consent"
-                  value={editFormData.consent || ""}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
+
+              <div className="mt-6 flex justify-end space-x-4">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 rounded-md border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
-                  <option value="">Select Consent</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Consent Date
-                </label>
-                <input
-                  type="date"
-                  name="consent_date"
-                  value={
-                    editFormData.consent_date
-                      ? new Date(editFormData.consent_date)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Downloaded *
-                </label>
-                <select
-                  name="downloaded"
-                  value={
-                    editFormData.downloaded === true
-                      ? "app"
-                      : editFormData.downloaded === false
-                      ? "on-board"
-                      : "lead"
-                  }
-                  onChange={(e) =>
-                    setEditFormData((prev) => ({
-                      ...prev,
-                      downloaded:
-                        e.target.value === "app"
-                          ? true
-                          : e.target.value === "on-board"
-                          ? false
-                          : null,
-                    }))
-                  }
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSubmit}
+                  className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
                 >
-                  <option value="lead">Lead</option>
-                  <option value="app">App</option>
-                  <option value="on-board">On-board</option>
-                </select>
+                  Save Changes
+                </button>
               </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Downloaded Date
-                </label>
-                <input
-                  type="date"
-                  name="downloaded_date"
-                  value={
-                    editFormData.downloaded_date
-                      ? new Date(editFormData.downloaded_date)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Created At
-                </label>
-                <input
-                  type="date"
-                  name="createdAt"
-                  value={
-                    editFormData.createdAt
-                      ? new Date(editFormData.createdAt)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Updated At
-                </label>
-                <input
-                  type="date"
-                  name="updatedAt"
-                  value={
-                    editFormData.updatedAt
-                      ? new Date(editFormData.updatedAt)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-black font-medium">
-                  Onboarded Date
-                </label>
-                <input
-                  type="date"
-                  name="onboarded_date"
-                  value={
-                    editFormData.onboarded_date
-                      ? new Date(editFormData.onboarded_date)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full h-9 border-gray-300 rounded-md shadow-sm text-black"
-                />
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={handleCancelEdit}
-                className="bg-red-400 text-gray-700 px-4 py-2 rounded-md hover:bg-red-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEditSubmit}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-              >
-                Save
-              </button>
             </div>
           </div>
         </div>
