@@ -220,7 +220,7 @@ const Update = () => {
                 <button
                   onClick={() => setOpen(false)}
                   disabled={loading}
-                  className={`w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors ${
+                  className={`w-full px-4 py-2 text-black bg-gray-100 rounded-md hover:bg-gray-200 transition-colors ${
                     loading ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
@@ -288,25 +288,25 @@ const Update = () => {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-500">API Users:</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-black">
                     {formatNumber(data.totalApiUsers)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">DB Users:</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-black">
                     {formatNumber(data.totalDbUsers)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Updated:</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-black">
                     {formatNumber(data.updatedCount)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Inserted:</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-black">
                     {formatNumber(data.insertedCount)}
                   </span>
                 </div>

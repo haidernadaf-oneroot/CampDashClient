@@ -23,12 +23,12 @@ const Sidebar = () => {
   const router = useRouter();
 
   // ✅ Optimized state for instant UI updates
-  const [activeItem, setActiveItem] = useState("/Farmer");
+  const [activeItem, setActiveItem] = useState("/farmer");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedItem = localStorage.getItem("activeSidebarItem") || "/Farmer";
+      const savedItem = localStorage.getItem("activeSidebarItem") || "/farmer";
       setActiveItem(savedItem);
     }
   }, []);
