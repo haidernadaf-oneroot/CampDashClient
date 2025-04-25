@@ -63,11 +63,9 @@ const Update = () => {
   };
 
   const getProgress = () => {
-    if (!data || !data.totalDbUsers || data.totalDbUsers === 0) return 0;
-    const percentage = Math.round(
-      (data.totalApiUsers / data.totalDbUsers) * 100
-    );
-    return Math.min(percentage, 100);
+    if (!data || !data.totalDbUsers || data.totalDbUsers === 0) return "0.0%";
+    const percentage = (data.totalApiUsers / data.totalDbUsers) * 100;
+    return `${percentage.toFixed(1)}`;
   };
 
   const formatNumber = (num) => {
