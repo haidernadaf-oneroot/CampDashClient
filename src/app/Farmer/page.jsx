@@ -45,6 +45,7 @@ const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [consentFilter, setConsentFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [downloadedFilter, setDownloadedFilter] = useState("");
   const [editingFarmerId, setEditingFarmerId] = useState(null);
@@ -66,6 +67,7 @@ const Page = () => {
     "downloaded",
     "downloaded_date",
     "onboarded_date",
+    "farmer_category",
   ]);
 
   const [showFilter, setShowFilter] = useState(false);
@@ -122,6 +124,7 @@ const Page = () => {
           ...(dateFilter && { date: dateFilter }),
           ...(downloadedFilter && { downloaded: downloadedFilter }),
           ...(searchTerm && { search: searchTerm }),
+          ...(categoryFilter && { category: categoryFilter }),
         });
 
         const response = await fetch(
@@ -158,6 +161,7 @@ const Page = () => {
     dateFilter,
     downloadedFilter,
     searchTerm,
+    categoryFilter,
   ]);
 
   const fetchLocationData = async (pincodeValue) => {
@@ -255,6 +259,7 @@ const Page = () => {
         consent: editFormData.consent || "",
         consent_date: editFormData.consent_date || "",
         downloaded_date: editFormData.downloaded_date || "",
+        farmer_category: editFormData.farmer_category || "",
       };
 
       const response = await fetch(
@@ -315,6 +320,7 @@ const Page = () => {
         ...(dateFilter && { date: dateFilter }),
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
+        ...(categoryFilter && { category: categoryFilter }),
         columns: columnsParam,
       });
 
@@ -353,7 +359,14 @@ const Page = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [consentFilter, searchTerm, tagFilter, dateFilter, downloadedFilter]);
+  }, [
+    consentFilter,
+    searchTerm,
+    tagFilter,
+    dateFilter,
+    downloadedFilter,
+    categoryFilter,
+  ]);
 
   useEffect(() => {
     const tableContainer = document.getElementById("table-container");
@@ -400,6 +413,7 @@ const Page = () => {
     setDateFilter("");
     setDownloadedFilter("");
     setSearchTerm("");
+    setCategoryFilter("");
   };
 
   const displayedFarmers = farmer;
@@ -452,6 +466,25 @@ const Page = () => {
                   <option value="">All</option>
                   <option value="yes">Yes</option>
                   <option value="no">No</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    category
+                  </label>
+                </div>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">All</option>
+                  <option value="Margin Farmer">M</option>
+                  <option value="Small Farmer">S</option>
+                  <option value="Big Farmer">B</option>
                 </select>
               </div>
 
@@ -511,7 +544,11 @@ const Page = () => {
               </div>
             </div>
 
-            {(consentFilter || dateFilter || tagFilter || downloadedFilter) && (
+            {(consentFilter ||
+              dateFilter ||
+              tagFilter ||
+              downloadedFilter ||
+              categoryFilter) && (
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleDownload}
