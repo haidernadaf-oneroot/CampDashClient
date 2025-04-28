@@ -450,7 +450,7 @@ const Page = () => {
             </button>
           </div>
           <div className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600" />
@@ -482,9 +482,9 @@ const Page = () => {
                   className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="">All</option>
-                  <option value="Margin Farmer">M</option>
-                  <option value="Small Farmer">S</option>
-                  <option value="Big Farmer">B</option>
+                  <option value="Margin Farmer">Margin</option>
+                  <option value="Small Farmer">Small</option>
+                  <option value="Big Farmer">Big</option>
                 </select>
               </div>
 
