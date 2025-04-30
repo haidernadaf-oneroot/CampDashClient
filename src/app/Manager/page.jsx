@@ -112,9 +112,9 @@ const CsvUploadSection = () => {
     const total = Math.ceil(csvData.length / chunkSize);
     setTotalChunks(total);
     const summary = {
-      totalRecords: 0,
+      totalRows: 0,
       uniqueNumbers: 0,
-      existingNumbers: 0,
+      updatedRecords: 0,
       insertedRecords: 0,
     };
 
@@ -154,9 +154,9 @@ const CsvUploadSection = () => {
         const result = await response.json();
 
         if (response.ok) {
-          summary.totalRecords += result.totalRecords || 0;
+          summary.totalRows += result.totalRows || 0;
           summary.uniqueNumbers += result.uniqueNumbers || 0;
-          summary.existingNumbers += result.existingNumbers || 0;
+          summary.updatedRecords += result.updatedRecords || 0;
           summary.insertedRecords += result.insertedRecords || 0;
 
           setUploadStatus(`Uploaded chunk ${i + 1} of ${total}...`);
@@ -262,16 +262,17 @@ const CsvUploadSection = () => {
           <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
           <ul className="space-y-2">
             <li>
-              <strong>Total Records:</strong> {uploadStats.totalRecords}
+              <strong>Total Rows:</strong> {uploadStats.totalRows}
             </li>
             <li>
               <strong>Unique Numbers:</strong> {uploadStats.uniqueNumbers}
             </li>
-            <li>
-              <strong>Existing Numbers:</strong> {uploadStats.existingNumbers}
-            </li>
+
             <li>
               <strong>Inserted Records:</strong> {uploadStats.insertedRecords}
+            </li>
+            <li>
+              <strong>Update Records:</strong> {uploadStats.updatedRecords}
             </li>
           </ul>
         </div>
@@ -319,6 +320,7 @@ const ConsentUploadSection = () => {
           totalProcessed: result.totalProcessed,
           modifiedCount: result.modifiedCount,
           upsertedCount: result.upsertedCount,
+          skipped: result.skipped,
         });
         setFile(null);
       } else {
@@ -391,10 +393,13 @@ const ConsentUploadSection = () => {
               <strong>Total Records:</strong> {uploadSummary.totalProcessed}
             </li>
             <li>
-              <strong>modified Numbers:</strong> {uploadSummary.modifiedCount}
+              <strong>modified Counts:</strong> {uploadSummary.modifiedCount}
             </li>
             <li>
               <strong>upserted Numbers:</strong> {uploadSummary.upsertedCount}
+            </li>
+            <li>
+              <strong>Skipped:</strong> {uploadSummary.skipped}
             </li>
           </ul>
         </div>
