@@ -55,7 +55,6 @@ const Page = () => {
   const [villages, setVillages] = useState([]);
   const [locationData, setLocationData] = useState(null);
   const [activeTab, setActiveTab] = useState("table");
-
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
     "number",
@@ -69,8 +68,13 @@ const Page = () => {
     "onboarded_date",
     "farmer_category",
   ]);
-
   const [showFilter, setShowFilter] = useState(false);
+  // New state for download range modal
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadRange, setDownloadRange] = useState({
+    from: 0,
+    to: totalUsers,
+  });
 
   const allColumns = [
     { key: "name", label: "Name" },
@@ -143,11 +147,14 @@ const Page = () => {
         setFarmer(data.users || []);
         setTotalPages(data.totalPages || 1);
         setTotalUsers(data.totalUsers || 0);
+        // Update download range 'to' default when totalUsers changes
+        setDownloadRange((prev) => ({ ...prev, to: data.totalUsers || 0 }));
       } catch (error) {
         console.error("Error fetching users:", error);
         setFarmer([]);
         setTotalPages(1);
         setTotalUsers(0);
+        setDownloadRange({ from: 0, to: 0 });
       } finally {
         setLoading(false);
       }
@@ -305,7 +312,6 @@ const Page = () => {
         throw new Error("API URL is not defined in environment variables");
       }
 
-      // Ensure at least one column is selected
       if (!selectedColumns || selectedColumns.length === 0) {
         alert("Please select at least one column to download.");
         setDownloading(false);
@@ -313,7 +319,6 @@ const Page = () => {
       }
 
       const columnsParam = selectedColumns.join(",");
-
       const queryParams = new URLSearchParams({
         ...(tagFilter && { tag: tagFilter }),
         ...(consentFilter && { consent: consentFilter }),
@@ -322,6 +327,8 @@ const Page = () => {
         ...(searchTerm && { search: searchTerm }),
         ...(categoryFilter && { category: categoryFilter }),
         columns: columnsParam,
+        from: downloadRange.from.toString(),
+        to: downloadRange.to.toString(),
       });
 
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
@@ -344,7 +351,9 @@ const Page = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `users_${tagFilter || "all"}_${Date.now()}.csv`;
+      link.download = `users_${tagFilter || "all"}_from_${
+        downloadRange.from
+      }_to_${downloadRange.to}_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -354,6 +363,7 @@ const Page = () => {
       alert(`Failed to download users: ${error.message}`);
     } finally {
       setDownloading(false);
+      setShowDownloadModal(false); // Close the modal after download
     }
   };
 
@@ -473,7 +483,7 @@ const Page = () => {
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <label className="block text-sm font-medium text-gray-700">
-                    category
+                    Category
                   </label>
                 </div>
                 <select
@@ -551,7 +561,7 @@ const Page = () => {
               categoryFilter) && (
               <div className="mt-6 flex justify-end">
                 <button
-                  onClick={handleDownload}
+                  onClick={() => setShowDownloadModal(true)}
                   disabled={downloading || selectedColumns.length === 0}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     downloading || selectedColumns.length === 0
@@ -629,7 +639,7 @@ const Page = () => {
           </div>
 
           <button
-            onClick={handleDownload}
+            onClick={() => setShowDownloadModal(true)}
             disabled={downloading || selectedColumns.length === 0}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
               downloading || selectedColumns.length === 0
@@ -1260,6 +1270,101 @@ const Page = () => {
                   Save Changes
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Download Range Modal */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Select Download Range
+              </h2>
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="from"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  From Record
+                </label>
+                <input
+                  id="from"
+                  type="number"
+                  min="0"
+                  value={downloadRange.from}
+                  onChange={(e) =>
+                    setDownloadRange((prev) => ({
+                      ...prev,
+                      from: parseInt(e.target.value),
+                    }))
+                  }
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="to"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  To Record (Max: {totalUsers})
+                </label>
+                <input
+                  id="to"
+                  type="number"
+                  min={downloadRange.from}
+                  max={totalUsers}
+                  value={downloadRange.to}
+                  onChange={(e) =>
+                    setDownloadRange((prev) => ({
+                      ...prev,
+                      to: parseInt(e.target.value),
+                    }))
+                  }
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="px-4 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDownload}
+                disabled={
+                  downloading ||
+                  downloadRange.from < 0 ||
+                  downloadRange.to > totalUsers ||
+                  downloadRange.from >= downloadRange.to
+                }
+                className={`px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 ${
+                  downloading ||
+                  downloadRange.from < 0 ||
+                  downloadRange.to > totalUsers ||
+                  downloadRange.from >= downloadRange.to
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {downloading ? "Downloading..." : "Download"}
+              </button>
             </div>
           </div>
         </div>
