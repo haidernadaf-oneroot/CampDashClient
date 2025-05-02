@@ -451,7 +451,7 @@ const Page = () => {
       {isVisible && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-medium">Filter Options</h2>
+            <h2 className="text-lg font-medium text-black">Filter Options</h2>
             <button
               onClick={resetFilters}
               className="text-sm text-gray-500 hover:text-gray-700"
@@ -603,7 +603,9 @@ const Page = () => {
             {showFilter && (
               <div className="absolute right-0 mt-2 z-50 w-64 bg-white rounded-md shadow-lg border border-gray-200">
                 <div className="py-2 px-3 border-b border-gray-200 flex justify-between items-center">
-                  <span className="text-sm font-medium">Select Columns</span>
+                  <span className="text-sm font-medium text-black">
+                    Select Columns
+                  </span>
                   <button
                     onClick={() => setShowFilter(false)}
                     className="text-gray-400 hover:text-gray-500"
