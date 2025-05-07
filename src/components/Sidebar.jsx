@@ -58,7 +58,7 @@ const Sidebar = () => {
     { label: "Tasks", icon: ListTodo, href: "/tasks" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "IVR", icon: PhoneCall, href: "/Pressed" },
-    { label: "Waiting", icon: ShieldCheck, href: "/waiting" },
+    { label: "Waiting-List", icon: ShieldCheck, href: "/waiting" },
     { label: "Requirement", icon: FileText, href: "/requirement" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
   ];

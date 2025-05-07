@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { FiUploadCloud } from "react-icons/fi";
 
 const CsvUploader = () => {
   const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -16,6 +18,7 @@ const CsvUploader = () => {
       return;
     }
 
+    setUploading(true);
     const formData = new FormData();
     formData.append("csv", file);
 
@@ -43,22 +46,50 @@ const CsvUploader = () => {
       link.remove();
     } catch (error) {
       console.error("Error uploading CSV:", error);
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <div className="p-4 border rounded max-w-md mx-auto space-y-4">
-      <input
-        type="file"
-        accept=".csv"
-        onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500"
-      />
+    <div className="max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg p-8 space-y-6">
+      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+        <FiUploadCloud className="text-green-600 text-2xl" />
+        Upload and Download CSV
+      </h2>
+
+      <label className="block">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="block w-full text-sm text-gray-500
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-lg file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-blue-50 file:text-green-700
+                     hover:file:bg-blue-100 cursor-pointer"
+        />
+      </label>
+
+      {file && (
+        <div className="text-sm text-gray-600">
+          Selected file: <span className="font-medium">{file.name}</span>
+        </div>
+      )}
+
       <button
         onClick={handleUpload}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        disabled={!file || uploading}
+        className={`w-full flex justify-center items-center gap-2 px-4 py-2 rounded-lg transition-all
+          text-white font-semibold
+          ${
+            uploading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
       >
-        Upload and Download Processed CSV
+        {uploading ? "Processing..." : "Upload & Download CSV"}
       </button>
     </div>
   );
