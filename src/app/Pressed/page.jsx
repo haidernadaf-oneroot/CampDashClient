@@ -107,7 +107,7 @@ const TableView = () => {
               <select
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
               >
                 <option value="">All Tags</option>
                 {uniqueTags.map((tag) => (
@@ -123,21 +123,21 @@ const TableView = () => {
               placeholder="Filter by pressed"
               value={pressedFilter}
               onChange={(e) => setPressedFilter(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
 
             <input
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
 
             <div className="relative">
               <select
                 value={timeRangeFilter}
                 onChange={(e) => setTimeRangeFilter(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
               >
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
