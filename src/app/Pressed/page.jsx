@@ -107,7 +107,7 @@ const TableView = () => {
               <select
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
-                className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
               >
                 <option value="">All Tags</option>
                 {uniqueTags.map((tag) => (
@@ -123,21 +123,21 @@ const TableView = () => {
               placeholder="Filter by pressed"
               value={pressedFilter}
               onChange={(e) => setPressedFilter(e.target.value)}
-              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             />
 
             <input
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             />
 
             <div className="relative">
               <select
                 value={timeRangeFilter}
                 onChange={(e) => setTimeRangeFilter(e.target.value)}
-                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
               >
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
@@ -148,7 +148,7 @@ const TableView = () => {
 
             <button
               onClick={downloadCSV}
-              className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all"
+              className="w-full p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all"
             >
               Download CSV
             </button>
@@ -157,7 +157,7 @@ const TableView = () => {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full bg-white border border-gray-200 rounded-lg">
-              <thead className="bg-green-50">
+              <thead className="bg-purple-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
                     Phone Number

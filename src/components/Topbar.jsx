@@ -3,7 +3,7 @@ import { LogOut, User } from "lucide-react"; // Modern icons
 
 const Topbar = () => {
   return (
-    <header className="fixed top-0 right-0 z-30 h-16 bg-green-800 shadow-md transition-all duration-300 ease-in-out flex items-center px-6 left-48">
+    <header className="fixed top-0 right-0 z-30 h-16 bg-purple-950 shadow-md transition-all duration-300 ease-in-out flex items-center px-6 left-48">
       {/* Page Name */}
       <h1 className="text-lg font-semibold text-white">Dashboard</h1>
 

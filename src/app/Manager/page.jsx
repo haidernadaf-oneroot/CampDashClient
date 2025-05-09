@@ -20,14 +20,14 @@ const CsvFieldMapper = ({
             {field === "tag" || field === "identity" ? (
               <input
                 type="text"
-                className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent"
                 placeholder={`Enter ${field}`}
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               />
             ) : (
               <select
-                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent text-black"
                 value={mapping[field] || ""}
                 onChange={(e) => onChange(field, e.target.value)}
               >
@@ -46,7 +46,7 @@ const CsvFieldMapper = ({
       </div>
       <button
         onClick={onUpload}
-        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-48 mt-11"
+        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition duration-300 w-48 mt-11"
       >
         Upload to Backend
       </button>
@@ -214,7 +214,7 @@ const CsvUploadSection = () => {
           type="file"
           accept=".csv"
           onChange={handleFileChange}
-          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-green-700 hover:file:bg-green-200"
+          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-90 file:text-purple-700 hover:file:bg-purple-200"
         />
       </div>
 
@@ -233,7 +233,7 @@ const CsvUploadSection = () => {
           className={`mt-4 text-center font-medium ${
             uploadStatus.includes("Error") || uploadStatus.includes("Failed")
               ? "text-red-600"
-              : "text-green-600"
+              : "text-purple-600"
           }`}
         >
           {uploadStatus}
@@ -250,7 +250,7 @@ const CsvUploadSection = () => {
         <div className="px-72">
           <button
             onClick={handleDownloadCsv}
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 w-52 h-12"
+            className="mt-4 bg-purple-900 text-white px-6 py-3 rounded-lg hover:bg-purple-950 transition duration-300 w-52 h-12"
           >
             Download CSV
           </button>
@@ -339,8 +339,10 @@ const ConsentUploadSection = () => {
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Consent User Upload
       </h1>
-      <label className="flex flex-col items-center w-full px-4 py-3 bg-green-100 border-2 border-green-300 rounded-lg cursor-pointer hover:bg-green-200 transition duration-300">
-        <span className="text-green-700 font-semibold">Select Consent CSV</span>
+      <label className="flex flex-col items-center w-full px-4 py-3 bg-purple-100 border-2 border-purple-300 rounded-lg cursor-pointer hover:bg-purple-200 transition duration-300">
+        <span className="text-purple-700 font-semibold">
+          Select Consent CSV
+        </span>
         <input
           type="file"
           accept=".csv"
@@ -365,7 +367,7 @@ const ConsentUploadSection = () => {
         onClick={handleConsentUpload}
         className={`mt-6 w-full px-6 py-3 rounded-lg text-white font-semibold transition duration-300 ${
           file
-            ? "bg-green-500 hover:bg-green-600"
+            ? "bg-purple-500 hover:bg-purple-600"
             : "bg-gray-400 cursor-not-allowed"
         }`}
         disabled={!file}
@@ -378,7 +380,7 @@ const ConsentUploadSection = () => {
           className={`mt-4 text-center font-medium ${
             uploadMessage.includes("Error") || uploadMessage.includes("Failed")
               ? "text-red-600"
-              : "text-green-600"
+              : "text-purple-600"
           }`}
         >
           {uploadMessage}

@@ -47,7 +47,7 @@ export default function AuthPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-green-500 ">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-400 via-purple-500 to-purple-500 ">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-4 text-center text-black">
           Authentication
@@ -58,7 +58,7 @@ export default function AuthPage() {
           placeholder="Enter Name"
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-blacks focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-blacks focus:ring-2 focus:ring-purple-500"
         />
 
         <input
@@ -66,12 +66,12 @@ export default function AuthPage() {
           placeholder="Enter Number"
           value={numberInput}
           onChange={(e) => setNumberInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-purple-500"
         />
 
         <button
           onClick={handleAuthenticate}
-          className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition"
+          className="w-full bg-purple-500 text-white p-2 rounded-md hover:bg-purple-600 transition"
         >
           Submit
         </button>

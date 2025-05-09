@@ -71,8 +71,8 @@ const Page = () => {
             onClick={() => handleTabChange("TODAY")}
             className={`px-4 py-2 font-semibold transition ${
               showToday
-                ? "border-b-2 border-green-500 text-green-600"
-                : "text-gray-500 hover:text-green-600"
+                ? "border-b-2 border-purple-500 text-purple-600"
+                : "text-gray-500 hover:text-purple-600"
             }`}
           >
             TODAY
@@ -81,8 +81,8 @@ const Page = () => {
             onClick={() => handleTabChange("NEXT-4")}
             className={`px-4 py-2 font-semibold transition ${
               !showToday
-                ? "border-b-2 border-blue-500 text-blue-600"
-                : "text-gray-500 hover:text-blue-600"
+                ? "border-b-2 border-purple-500 text-purple-600"
+                : "text-gray-500 hover:text-purple-600"
             }`}
           >
             Pre-RTH
@@ -93,7 +93,7 @@ const Page = () => {
       <div className="border rounded-xl shadow-sm bg-white overflow-hidden mt-5">
         <div id="table-container" className="max-h-[500px] overflow-auto">
           <table className="w-full text-left border-collapse text-sm rounded-xl">
-            <thead className="sticky top-0 bg-green-50 z-10">
+            <thead className="sticky top-0 bg-purple-50 z-10">
               <tr className="border-b border-gray-200">
                 <th className="px-4 py-3 font-semibold text-gray-700">
                   Number
@@ -128,7 +128,7 @@ const Page = () => {
                 data.map((farmer, index) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-200 hover:bg-green-50"
+                    className="border-b border-gray-200 hover:bg-purple-50"
                   >
                     <td className="px-4 py-3 text-gray-600">{farmer.number}</td>
                     <td className="px-4 py-3 text-gray-600">

@@ -102,7 +102,7 @@ const Update = () => {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                   <RefreshCw
-                    className={`h-5 w-5 text-green-600 ${
+                    className={`h-5 w-5 text-purple-600 ${
                       loading ? "animate-spin" : ""
                     }`}
                   />
@@ -129,7 +129,7 @@ const Update = () => {
                       {
                         label: "API Users",
                         value: data.totalApiUsers,
-                        color: "text-green-600",
+                        color: "text-purple-600",
                       },
                       {
                         label: "Database Users",
@@ -164,13 +164,13 @@ const Update = () => {
                     <span className="font-medium text-gray-700">
                       Sync Progress
                     </span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-purple-600">
                       {getProgress()}%
                     </span>
                   </div>
                   <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
+                      className="h-full bg-gradient-to-r bg-purple-900 transition-all duration-700 ease-out"
                       style={{ width: `${getProgress()}%` }}
                     ></div>
                   </div>
@@ -178,8 +178,8 @@ const Update = () => {
               )}
 
               {updateSuccess && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-100 rounded-md flex items-center gap-2 text-green-700">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                <div className="mb-4 p-3 bg-purple-50 border border-purple-100 rounded-md flex items-center gap-2 text-purple-700">
+                  <CheckCircle className="h-5 w-5 text-purple-500" />
                   <span>Database synchronized successfully!</span>
                 </div>
               )}
@@ -199,7 +199,7 @@ const Update = () => {
                     ${
                       loading
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700 active:bg-green-800"
+                        : "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800"
                     }`}
                 >
                   {loading ? (
@@ -234,7 +234,7 @@ const Update = () => {
       {data && showStatus && (
         <div className="fixed bottom-4 right-4 z-40">
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-64 transform transition-all hover:scale-105">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-white flex justify-between items-center">
+            <div className="bg-gradient-to-r bg-purple-900 px-4 py-3 text-white flex justify-between items-center">
               <h3 className="font-medium text-sm">Database Status</h3>
               <div className="flex gap-2">
                 <button
@@ -279,7 +279,7 @@ const Update = () => {
               </div>
               <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
                 <div
-                  className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
+                  className="h-full bg-gradient-to-r bg-purple-950 transition-all duration-700 ease-out"
                   style={{ width: `${getProgress()}%` }}
                 ></div>
               </div>

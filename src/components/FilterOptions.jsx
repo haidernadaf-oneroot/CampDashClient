@@ -46,7 +46,7 @@ const FilterOptions = ({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-purple-600" />
             <label className="block text-sm font-medium text-gray-700">
               Consent Status
             </label>
@@ -54,7 +54,7 @@ const FilterOptions = ({
           <select
             value={consentFilter}
             onChange={(e) => setConsentFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="">All</option>
             <option value="yes">Yes</option>
@@ -64,7 +64,7 @@ const FilterOptions = ({
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-purple-600" />
             <label className="block text-sm font-medium text-gray-700">
               Category
             </label>
@@ -72,7 +72,7 @@ const FilterOptions = ({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="">All</option>
             <option value="Margin Farmer">Margin</option>
@@ -83,7 +83,7 @@ const FilterOptions = ({
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-green-600" />
+            <Tag className="h-4 w-4 text-purple-600" />
             <label className="block text-sm font-medium text-gray-700">
               Tags
             </label>
@@ -91,7 +91,7 @@ const FilterOptions = ({
           <select
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="">All</option>
             {tags.map((tag) => (
@@ -104,7 +104,7 @@ const FilterOptions = ({
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-green-600" />
+            <Calendar className="h-4 w-4 text-purple-600" />
             <label className="block text-sm font-medium text-gray-700">
               Date
             </label>
@@ -113,13 +113,13 @@ const FilterOptions = ({
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <DownloadIcon className="h-4 w-4 text-green-600" />
+            <DownloadIcon className="h-4 w-4 text-purple-600" />
             <label className="block text-sm font-medium text-gray-700">
               Download Status
             </label>
@@ -127,7 +127,7 @@ const FilterOptions = ({
           <select
             value={downloadedFilter}
             onChange={(e) => setDownloadedFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="">All</option>
             <option value="yes">App</option>
@@ -146,7 +146,7 @@ const FilterOptions = ({
           <button
             onClick={() => setShowDownloadModal(true)}
             disabled={downloading || selectedColumns.length === 0}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
               downloading || selectedColumns.length === 0
                 ? "opacity-50 cursor-not-allowed"
                 : ""

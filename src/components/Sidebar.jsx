@@ -67,10 +67,10 @@ const Sidebar = () => {
     <aside
       className={`fixed top-0 left-0 z-40 h-screen ${
         isCollapsed ? "w-16" : "w-52"
-      } bg-green-800 text-white shadow-xl border-r border-green-700 transition-all duration-150 ease-in-out`}
+      } bg-purple-950 text-white shadow-xl border-r border-purple-700 transition-all duration-150 ease-in-out`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between h-16  bg-gradient-to-r from-green-700 to-green-600 shadow-md">
+      <div className="flex items-center justify-between h-16  bg-gradient-to-r bg-purple-900 shadow-md">
         <Image
           src="/marKhet  Logo white.png"
           width={isCollapsed ? 41 : 150}
@@ -78,15 +78,15 @@ const Sidebar = () => {
           alt="market logo"
           className="transition-all duration-150"
         />
-        <button
+        {/* <button
           onClick={toggleSidebar}
-          className="p-2 rounded-full bg-green-700 hover:bg-green-800  transition-all duration-150"
+          className="p-2 rounded-full bg-purple-900 hover:bg-purple-950  transition-all duration-150"
         >
           <ChevronLeft
             size={20}
             className={`${isCollapsed ? "rotate-180" : ""} transition`}
           />
-        </button>
+        </button> */}
       </div>
       {/* Navigation */}
       <nav className="mt-8 space-y-2 px-4">
@@ -96,8 +96,8 @@ const Sidebar = () => {
             href={item.href}
             className={`flex items-center p-2 rounded-md transition-all duration-150 ease-in-out hover:scale-105 ${
               activeItem === item.href || pathname === item.href
-                ? "bg-green-600 text-white shadow-lg"
-                : "text-green-100 hover:bg-green-700"
+                ? "bg-purple-900 text-white shadow-lg"
+                : "text-green-100 hover:bg-purple-900"
             }`}
             onClick={() => setActiveItem(item.href)}
           >
@@ -116,7 +116,7 @@ const Sidebar = () => {
 
       {/* Footer */}
       {!isCollapsed && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-r from-green-700 to-green-600">
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-r bg-purple-900">
           <p className="text-sm font-medium">Markhet Dashboard</p>
           <p className="text-xs text-green-200">markhet.farm</p>
         </div>

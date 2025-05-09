@@ -17,8 +17,8 @@ const TableView = ({
   <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
     <div id="table-container" className="max-h-[400px] overflow-auto">
       <table className="w-full text-left border-collapse text-sm">
-        <thead className="sticky top-0 bg-green-50">
-          <tr className="border-b border-gray-200">
+        <thead className="sticky top-0 bg-purple-50">
+          <tr className="border-b border-purple-200">
             {selectedColumns.map((col) => (
               <th key={col} className="px-4 py-3 font-semibold text-gray-700">
                 {allColumns.find((c) => c.key === col)?.label}
@@ -48,7 +48,7 @@ const TableView = ({
             displayedFarmers.map((farmer, index) => (
               <tr
                 key={index}
-                className="border-b border-gray-200 hover:bg-green-50/50 transition-colors"
+                className="border-b border-gray-200 hover:bg-purple-50/50 transition-colors"
               >
                 {selectedColumns.map((col) => {
                   let value = farmer[col];
@@ -73,7 +73,7 @@ const TableView = ({
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             farmer[col] === true
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-purple-100 text-purple-800"
                               : farmer[col] === false
                               ? "bg-blue-100 text-blue-800"
                               : "bg-yellow-100 text-yellow-800"
@@ -85,7 +85,7 @@ const TableView = ({
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             value === "yes"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-purple-100 text-purple-800"
                               : "bg-red-100 text-red-800"
                           }`}
                         >
@@ -100,7 +100,7 @@ const TableView = ({
                 <td className="px-4 py-3 text-right">
                   <button
                     onClick={() => handleEditClick(farmer)}
-                    className="p-1 rounded-full text-green-600 hover:text-green-700 hover:bg-green-50"
+                    className="p-1 rounded-full text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                   >
                     <PenIcon className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
@@ -148,7 +148,7 @@ const TableView = ({
             onClick={() => setCurrentPage(page)}
             className={`inline-flex items-center justify-center w-8 h-8 rounded-md ${
               currentPage === page
-                ? "bg-green-600 text-white"
+                ? "bg-purple-600 text-white"
                 : "border border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >

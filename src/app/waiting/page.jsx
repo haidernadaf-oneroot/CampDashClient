@@ -54,7 +54,7 @@ const CsvUploader = () => {
   return (
     <div className="max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg p-8 space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-        <FiUploadCloud className="text-green-600 text-2xl" />
+        <FiUploadCloud className="text-purple-600 text-2xl" />
         Upload and Download CSV
       </h2>
 
@@ -67,7 +67,7 @@ const CsvUploader = () => {
                      file:mr-4 file:py-2 file:px-4
                      file:rounded-lg file:border-0
                      file:text-sm file:font-semibold
-                     file:bg-blue-50 file:text-green-700
+                     file:bg-blue-50 file:text-purple-700
                      hover:file:bg-blue-100 cursor-pointer"
         />
       </label>
@@ -86,7 +86,7 @@ const CsvUploader = () => {
           ${
             uploading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
+              : "bg-purple-600 hover:bg-purple-700"
           }`}
       >
         {uploading ? "Processing..." : "Upload & Download CSV"}

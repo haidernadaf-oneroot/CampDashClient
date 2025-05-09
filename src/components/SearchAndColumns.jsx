@@ -74,7 +74,7 @@ const SearchAndColumns = ({
       <button
         onClick={() => setShowDownloadModal(true)}
         disabled={downloading || selectedColumns.length === 0}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-purple-900 text-white hover:bg-purple-950 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
           downloading || selectedColumns.length === 0
             ? "opacity-50 cursor-not-allowed"
             : ""
