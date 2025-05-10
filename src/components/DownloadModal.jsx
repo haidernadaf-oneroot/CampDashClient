@@ -45,7 +45,7 @@ const DownloadModal = ({
                     from: parseInt(e.target.value),
                   }))
                 }
-                className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
 
@@ -68,7 +68,7 @@ const DownloadModal = ({
                     to: parseInt(e.target.value),
                   }))
                 }
-                className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -88,7 +88,7 @@ const DownloadModal = ({
                 downloadRange.to > totalUsers ||
                 downloadRange.from >= downloadRange.to
               }
-              className={`px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 ${
+              className={`px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 ${
                 downloading ||
                 downloadRange.from < 0 ||
                 downloadRange.to > totalUsers ||
