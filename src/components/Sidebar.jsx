@@ -54,7 +54,7 @@ const Sidebar = () => {
     { label: "Reservation", icon: Calendar, href: "/reservation" },
     { label: "Crops", icon: Leaf, href: "/crops" },
     { label: "Farmers", icon: User2, href: "/Farmer" },
-    { label: "Buyers", icon: UserCheck2, href: "/Buyer" },
+    { label: "Buyers", icon: UserCheck2, href: "/buyer" },
     { label: "Tasks", icon: ListTodo, href: "/tasks" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "IVR", icon: PhoneCall, href: "/Pressed" },
