@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // for campaign_report
+  const [noOfPickups, setNoOfPickups] = useState(0); // NEW state for pickups
   const [loading, setLoading] = useState(false);
   const [showToday, setShowToday] = useState(true);
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -22,6 +23,14 @@ const Page = () => {
       const result = await response.json();
       const resultArray = Array.isArray(result) ? result : [result];
 
+      // Set no_of_pickups if exists
+      if (resultArray.length > 0 && resultArray[0].no_of_pickups) {
+        setNoOfPickups(resultArray[0].no_of_pickups);
+      } else {
+        setNoOfPickups(0);
+      }
+
+      // Flatten and format campaign report data
       const formatted = resultArray.flatMap((entry) =>
         entry.campaign_report?.length
           ? entry.campaign_report.map((report) => ({
@@ -39,6 +48,7 @@ const Page = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       setData([]);
+      setNoOfPickups(0);
     } finally {
       setLoading(false);
     }
@@ -72,25 +82,12 @@ const Page = () => {
               📞
             </div>
             <div>
-              <div className="text-sm text-gray-500"></div>
+              <div className="text-sm text-gray-500">Total Pickups</div>
               <div className="text-xl font-semibold text-purple-700">
-                {data.no_of_pickups}
+                {noOfPickups}
               </div>
             </div>
           </div>
-
-          {/* Picked
-          <div className="flex items-center gap-3 bg-gradient-to-r from-green-100 to-green-50 px-4 py-3 rounded-xl shadow-sm">
-            <div className="flex items-center justify-center bg-green-500 text-white w-10 h-10 rounded-full font-bold">
-              ✅
-            </div>
-            <div>
-              <div className="text-sm text-gray-500"></div>
-              <div className="text-xl font-semibold text-green-700">
-                {data.no_of_picked || "4"}
-              </div>
-            </div>
-          </div> */}
         </div>
 
         {/* Tab Buttons */}
