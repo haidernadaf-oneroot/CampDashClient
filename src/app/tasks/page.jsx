@@ -65,6 +65,34 @@ const Page = () => {
           />
         </div>
 
+        <div className="flex gap-6 flex-wrap">
+          {/* Called */}
+          <div className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-3 rounded-xl shadow-sm">
+            <div className="flex items-center justify-center bg-purple-500 text-white w-10 h-10 rounded-full font-bold">
+              📞
+            </div>
+            <div>
+              <div className="text-sm text-gray-500"></div>
+              <div className="text-xl font-semibold text-purple-700">
+                {data.no_of_pickups}
+              </div>
+            </div>
+          </div>
+
+          {/* Picked
+          <div className="flex items-center gap-3 bg-gradient-to-r from-green-100 to-green-50 px-4 py-3 rounded-xl shadow-sm">
+            <div className="flex items-center justify-center bg-green-500 text-white w-10 h-10 rounded-full font-bold">
+              ✅
+            </div>
+            <div>
+              <div className="text-sm text-gray-500"></div>
+              <div className="text-xl font-semibold text-green-700">
+                {data.no_of_picked || "4"}
+              </div>
+            </div>
+          </div> */}
+        </div>
+
         {/* Tab Buttons */}
         <div className="flex border-b border-gray-300">
           <button
