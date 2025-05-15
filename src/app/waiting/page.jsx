@@ -55,7 +55,7 @@ const CsvUploader = () => {
     <div className="max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg p-8 space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
         <FiUploadCloud className="text-purple-600 text-2xl" />
-        Upload and Download CSV
+        Upload Waiting List and Download CSV
       </h2>
 
       <label className="block">
@@ -109,8 +109,8 @@ const CsvDownloader = () => {
   return (
     <div className="max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg p-8 space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-        <FiDownload className="text-black text-2xl" />
-        Download CSV from API
+        <FiDownload className="text-black text-2xl" />[ Status ON ] Download CSV
+        from API
       </h2>
 
       <button
