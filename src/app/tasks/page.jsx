@@ -66,12 +66,14 @@ const Page = () => {
     <div className="p-6">
       <div className="mb-4 flex flex-wrap justify-between items-center gap-4">
         <div className="flex items-center gap-4">
-          <span className="text-lg font-semibold">Plivo Daily Report</span>
+          <span className="text-lg font-semibold text-black">
+            Plivo Daily Report
+          </span>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="border px-2 py-1 rounded text-sm"
+            className="border px-2 py-1 rounded text-sm text-black"
           />
         </div>
 
