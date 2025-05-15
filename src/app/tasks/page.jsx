@@ -1,9 +1,11 @@
 "use client";
+import { PhoneCall } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
   const [data, setData] = useState([]); // for campaign_report
   const [noOfPickups, setNoOfPickups] = useState(0); // NEW state for pickups
+  const [Totalcalls, setTotalcalls] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showToday, setShowToday] = useState(true);
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -28,6 +30,13 @@ const Page = () => {
         setNoOfPickups(resultArray[0].no_of_pickups);
       } else {
         setNoOfPickups(0);
+      }
+
+      // Set no_of_pickups if exists
+      if (resultArray.length > 0 && resultArray[0].calls_placed) {
+        setTotalcalls(resultArray[0].calls_placed);
+      } else {
+        setTotalcalls(0);
       }
 
       // Flatten and format campaign report data
@@ -80,13 +89,28 @@ const Page = () => {
         <div className="flex gap-6 flex-wrap">
           {/* Called */}
           <div className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-3 rounded-xl shadow-sm">
-            <div className="flex items-center justify-center bg-purple-500 text-white w-10 h-10 rounded-full font-bold">
-              📞
+            <div className="flex items-center justify-center bg-purple-100 text-white w-10 h-10 rounded-full font-bold">
+              <PhoneCall className="text-black" />
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">Total Calls</div>
+              <div className="text-xl font-semibold text-purple-700">
+                {noOfPickups}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-6 flex-wrap">
+          {/* Called */}
+          <div className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-3 rounded-xl shadow-sm">
+            <div className="flex items-center justify-center bg-purple-100 text-white w-10 h-10 rounded-full font-bold">
+              <PhoneCall className="text-green-500" />
             </div>
             <div>
               <div className="text-sm text-gray-500">Total Pickups</div>
               <div className="text-xl font-semibold text-purple-700">
-                {noOfPickups}
+                {Totalcalls}
               </div>
             </div>
           </div>
