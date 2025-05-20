@@ -1,5 +1,5 @@
 "use client";
-import { PhoneCall } from "lucide-react";
+import { PhoneCall, ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
@@ -9,7 +9,7 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [showToday, setShowToday] = useState(true);
   const [readyFilter, setReadyFilter] = useState("ALL");
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -69,10 +69,25 @@ const Page = () => {
           readyFilter === "YES" ? item.ready : !item.ready
         );
 
+  const totalUsers = filteredData.length;
+  const totalPages = Math.ceil(totalUsers / 50);
+  const displayedFarmers = filteredData.slice(
+    (currentPage - 1) * 50,
+    currentPage * 50
+  );
+
+  const getPageNumbers = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
   return (
     <div className="p-6 min-h-screen bg-gray-50">
+      {/* Top Section */}
       <div className="mb-4 flex flex-wrap justify-between items-center gap-4">
-        {/* Header and Date */}
         <div className="flex items-center gap-4">
           <span className="text-lg font-semibold text-black">
             Plivo Daily Report
@@ -85,9 +100,7 @@ const Page = () => {
           />
         </div>
 
-        {/* Summary Stats */}
         <div className="flex gap-4 flex-wrap">
-          {/* Total Calls */}
           <div className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-3 rounded-xl shadow-sm">
             <div className="flex items-center justify-center bg-purple-100 w-10 h-10 rounded-full font-bold">
               <PhoneCall className="text-black" />
@@ -100,7 +113,6 @@ const Page = () => {
             </div>
           </div>
 
-          {/* Total Pickups */}
           <div className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-3 rounded-xl shadow-sm">
             <div className="flex items-center justify-center bg-purple-100 w-10 h-10 rounded-full font-bold">
               <PhoneCall className="text-green-500" />
@@ -114,7 +126,6 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b border-gray-300">
           <button
             onClick={() => handleTabChange("TODAY")}
@@ -139,7 +150,6 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Filter + Count */}
       <div className="flex justify-between items-center my-4 flex-wrap gap-4">
         <div className="text-sm text-gray-700">
           Showing {filteredData.length}{" "}
@@ -162,7 +172,6 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="border rounded-xl shadow-sm bg-white overflow-hidden flex-1 max-h-[calc(100vh-260px)]">
         <div id="table-container" className="overflow-auto h-full">
           <table className="w-full text-left border-collapse text-sm">
@@ -197,8 +206,8 @@ const Page = () => {
                     ))}
                   </tr>
                 ))
-              ) : filteredData.length > 0 ? (
-                filteredData.map((farmer, index) => (
+              ) : displayedFarmers.length > 0 ? (
+                displayedFarmers.map((farmer, index) => (
                   <tr
                     key={index}
                     className="border-b border-gray-200 hover:bg-purple-50"
@@ -227,6 +236,57 @@ const Page = () => {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between p-4 border-t">
+        <span className="text-sm text-gray-600">
+          Showing {displayedFarmers.length > 0 ? (currentPage - 1) * 50 + 1 : 0}{" "}
+          to {Math.min(currentPage * 50, totalUsers)} of {totalUsers} records
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+              currentPage === 1
+                ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span className="sr-only">Previous page</span>
+          </button>
+
+          {getPageNumbers().map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`inline-flex items-center justify-center w-8 h-8 rounded-md ${
+                currentPage === page
+                  ? "bg-purple-600 text-white"
+                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className={`inline-flex items-center justify-center w-8 h-8 rounded-md border ${
+              currentPage === totalPages
+                ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <ChevronRight className="h-4 w-4" />
+            <span className="sr-only">Next page</span>
+          </button>
         </div>
       </div>
     </div>
