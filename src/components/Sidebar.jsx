@@ -55,11 +55,11 @@ const Sidebar = () => {
     { label: "Crops", icon: Leaf, href: "/crops" },
     { label: "Farmers", icon: User2, href: "/Farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/buyer" },
-    { label: "Tasks", icon: ListTodo, href: "/tasks" },
+    { label: "Daily_RTH", icon: ListTodo, href: "/Daily_RTH" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "IVR", icon: PhoneCall, href: "/Pressed" },
     { label: "Waiting-List", icon: ShieldCheck, href: "/waiting" },
-    { label: "Requirement", icon: FileText, href: "/requirement" },
+    { label: "tasks", icon: FileText, href: "/taskss" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
   ];
 
