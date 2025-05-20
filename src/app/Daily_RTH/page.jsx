@@ -151,11 +151,6 @@ const Page = () => {
       </div>
 
       <div className="flex justify-between items-center my-4 flex-wrap gap-4">
-        <div className="text-sm text-gray-700">
-          Showing {filteredData.length}{" "}
-          {filteredData.length === 1 ? "entry" : "entries"}
-        </div>
-
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600 font-medium">
             Ready Filter:
