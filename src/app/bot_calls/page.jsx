@@ -644,11 +644,6 @@ const RecordingTable = () => {
                               <div className="font-medium text-slate-900">
                                 {formatDate(rec.Date)}
                               </div>
-                              <div className="text-slate-500 text-xs">
-                                {rec.createdAt
-                                  ? new Date(rec.createdAt).toLocaleTimeString()
-                                  : ""}
-                              </div>
                             </div>
                           </td>
                           <td className="p-4 min-w-[140px]">
