@@ -37,6 +37,29 @@ const RecordingTable = () => {
     return token;
   };
 
+  // Parse date from DD-MM-YYYY format to Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    // Handle DD-MM-YYYY format
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      const day = Number.parseInt(parts[0], 10);
+      const month = Number.parseInt(parts[1], 10) - 1; // Month is 0-indexed
+      const year = Number.parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+    // Fallback to standard Date parsing
+    return new Date(dateStr);
+  };
+
+  // Convert Date object to DD-MM-YYYY format for comparison
+  const formatDateForComparison = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   // Download all "To" numbers as CSV with proper filtering and duplicate analysis
   const downloadAllNumbers = async () => {
     const token = getToken();
@@ -80,8 +103,13 @@ const RecordingTable = () => {
       // Apply date filter
       if (filterDate) {
         filteredAllRecordings = filteredAllRecordings.filter((rec) => {
-          const recDate = new Date(rec.Date).toISOString().split("T")[0];
-          return recDate === filterDate;
+          const recDate = parseDate(rec.Date);
+          if (!recDate) return false;
+          const filterDateObj = new Date(filterDate);
+          return (
+            formatDateForComparison(recDate) ===
+            formatDateForComparison(filterDateObj)
+          );
         });
       }
 
@@ -232,7 +260,11 @@ const RecordingTable = () => {
 
       const { data, meta } = await res.json();
       const formattedData = Array.isArray(data)
-        ? data.sort((a, b) => new Date(b.Date) - new Date(a.Date))
+        ? data.sort((a, b) => {
+            const dateA = parseDate(a.Date);
+            const dateB = parseDate(b.Date);
+            return dateB - dateA; // Sort by date descending
+          })
         : [];
 
       setRecordings(formattedData);
@@ -309,8 +341,13 @@ const RecordingTable = () => {
 
     if (filterDate) {
       filtered = filtered.filter((rec) => {
-        const recDate = new Date(rec.Date).toISOString().split("T")[0];
-        return recDate === filterDate;
+        const recDate = parseDate(rec.Date);
+        if (!recDate) return false;
+        const filterDateObj = new Date(filterDate);
+        return (
+          formatDateForComparison(recDate) ===
+          formatDateForComparison(filterDateObj)
+        );
       });
     }
 
@@ -344,10 +381,11 @@ const RecordingTable = () => {
     return pages;
   };
 
-  // Format date for display
+  // Format date for display - handles DD-MM-YYYY format
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    if (isNaN(date)) return "";
+    const date = parseDate(dateStr);
+    if (!date || isNaN(date)) return dateStr; // Return original if parsing fails
+
     const day = date.getDate().toString().padStart(2, "0");
     const month = [
       "Jan",
@@ -368,7 +406,9 @@ const RecordingTable = () => {
     const minutes = date.getMinutes().toString().padStart(2, "0");
     const ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12 || 12;
-    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+
+    // For DD-MM-YYYY format, we don't have time info, so just show date
+    return `${day} ${month} ${year}`;
   };
 
   // Handle copy number to clipboard
@@ -551,9 +591,9 @@ const RecordingTable = () => {
                   <thead>
                     <tr className="border-b bg-slate-50">
                       <th className="text-left p-4 font-semibold text-slate-700 min-w-[140px]">
-                        Date & Time
+                        Date
                       </th>
-                      <th className="text-left p-4 font-semibold text-slate-700 min-w-[100px]">
+                      <th className="text-left p-4 font-semibold text-slate-700 min-w-[140px]">
                         From
                       </th>
                       <th className="text-left p-4 font-semibold text-slate-700 min-w-[120px]">
@@ -602,20 +642,16 @@ const RecordingTable = () => {
                           <td className="p-4 min-w-[140px]">
                             <div className="text-sm">
                               <div className="font-medium text-slate-900">
-                                {formatDate(rec.Date)
-                                  .split(" ")
-                                  .slice(0, 3)
-                                  .join(" ")}
+                                {formatDate(rec.Date)}
                               </div>
-                              <div className="text-slate-500">
-                                {formatDate(rec.Date)
-                                  .split(" ")
-                                  .slice(3)
-                                  .join(" ")}
+                              <div className="text-slate-500 text-xs">
+                                {rec.createdAt
+                                  ? new Date(rec.createdAt).toLocaleTimeString()
+                                  : ""}
                               </div>
                             </div>
                           </td>
-                          <td className="p-4 min-w-[100px]">
+                          <td className="p-4 min-w-[140px]">
                             <span className="font-mono text-sm bg-slate-100 px-2 py-1 rounded">
                               {rec.From}
                             </span>
