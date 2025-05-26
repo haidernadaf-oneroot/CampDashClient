@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { Filter, FilterX } from "lucide-react";
 import Update from "@/components/Update";
-
 import FilterOptions from "@/components/FilterOptions";
 import SearchAndColumns from "@/components/SearchAndColumns";
 import TableView from "@/components/TableView";
 import CardView from "@/components/CardView";
 import EditModal from "@/components/EditModal";
 import DownloadModal from "@/components/DownloadModal";
+import CreateTicketForm from "@/components/CreateTicketForm ";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -67,6 +67,8 @@ const Page = () => {
     from: 0,
     to: totalUsers,
   });
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
 
   const allColumns = [
     { key: "name", label: "Name" },
@@ -197,6 +199,16 @@ const Page = () => {
     setPincode("");
     setVillages([]);
     setLocationData(null);
+  };
+
+  const handleTaskClick = (farmer) => {
+    setSelectedFarmer(farmer);
+    setShowTicketForm(true);
+  };
+
+  const handleCloseTicketForm = () => {
+    setShowTicketForm(false);
+    setSelectedFarmer(null);
   };
 
   const handleEditChange = (e) => {
@@ -473,7 +485,7 @@ const Page = () => {
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === "table"
                 ? "border-b-2 border-purple-600 text-purple-600"
-                : "text-gray- inexperienced hover:text-gray-700 hover:border-gray-300"
+                : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
             Table View
@@ -500,6 +512,7 @@ const Page = () => {
           formatDate={formatDate}
           getStatusText={getStatusText}
           handleEditClick={handleEditClick}
+          handleTaskClick={handleTaskClick}
           currentPage={currentPage}
           totalUsers={totalUsers}
           totalPages={totalPages}
@@ -515,12 +528,24 @@ const Page = () => {
           formatDate={formatDate}
           getStatusText={getStatusText}
           handleEditClick={handleEditClick}
+          handleTaskClick={handleTaskClick}
           currentPage={currentPage}
           totalUsers={totalUsers}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
           getPageNumbers={getPageNumbers}
         />
+      )}
+
+      {showTicketForm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-lg w-full">
+            <CreateTicketForm
+              farmer={selectedFarmer}
+              onClose={handleCloseTicketForm}
+            />
+          </div>
+        </div>
       )}
 
       <EditModal

@@ -1,81 +1,111 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 
-export default function AuthPage() {
-  const [nameInput, setNameInput] = useState("");
-  const [numberInput, setNumberInput] = useState("");
+export default function Login() {
   const router = useRouter();
+  const [formData, setFormData] = useState({ phoneNumber: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Handle authentication
-  const handleAuthenticate = () => {
-    const storedName = localStorage.getItem("auth_name");
-    const storedNumber = localStorage.getItem("auth_number");
-
-    if (!storedName || !storedNumber) {
-      alert("No credentials found. Please contact the administrator.");
-      return;
-    }
-
-    if (
-      nameInput.trim().toLowerCase() === storedName.toLowerCase() &&
-      numberInput.trim() === storedNumber
-    ) {
-      localStorage.setItem("isAuthenticated", "true");
-      router.push("/Farmer");
-    } else {
-      alert("Incorrect name or number. Try again.");
-    }
-
-    resetInputs();
-  };
-
-  const resetInputs = () => {
-    setNameInput("");
-    setNumberInput("");
-  };
-
-  // Set credentials (for development/testing)
   useEffect(() => {
-    if (!localStorage.getItem("auth_name")) {
-      localStorage.setItem("auth_name", "dummy");
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        // Call a backend endpoint to validate token (can be a "profile" or "validate" route)
+        await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/agent/token/:token`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Token is valid, redirect to Farmer page
+        router.replace("/Farmer");
+      } catch (err) {
+        // Token invalid or expired
+        localStorage.clear();
+        router.replace("/auth");
+      }
+    };
+
+    validateToken();
+  }, [router]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      let phone = formData.phoneNumber.trim();
+      if (!phone.startsWith("+91")) {
+        phone = "+91" + phone;
+      }
+
+      const payload = {
+        ...formData,
+        phoneNumber: phone,
+      };
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/agent/login`,
+        payload
+      );
+
+      const { token, agent } = res.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("isAuthenticated", "true");
+
+      router.replace("/Farmer");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
-    if (!localStorage.getItem("auth_number")) {
-      localStorage.setItem("auth_number", "9900");
-    }
-  }, []);
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-400 via-purple-500 to-purple-500 ">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-4 text-center text-black">
-          Authentication
-        </h2>
+    <div className="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
 
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          type="text"
-          placeholder="Enter Name"
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-blacks focus:ring-2 focus:ring-purple-500"
+          type="tel"
+          name="phoneNumber"
+          placeholder="Phone Number"
+          value={formData.phoneNumber}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
         />
-
         <input
           type="password"
-          placeholder="Enter Number"
-          value={numberInput}
-          onChange={(e) => setNumberInput(e.target.value)}
-          className="w-full p-2 mb-4 border rounded-md focus:outline-none text-black focus:ring-2 focus:ring-purple-500"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
         />
-
         <button
-          onClick={handleAuthenticate}
-          className="w-full bg-purple-500 text-white p-2 rounded-md hover:bg-purple-600 transition"
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          disabled={loading}
         >
-          Submit
+          {loading ? "Logging in..." : "Login"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }

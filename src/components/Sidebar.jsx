@@ -16,6 +16,7 @@ import {
   FileText,
   MapPinned,
   ChevronLeft,
+  BotIcon,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -59,8 +60,10 @@ const Sidebar = () => {
     { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "IVR", icon: PhoneCall, href: "/Pressed" },
     { label: "Waiting-List", icon: ShieldCheck, href: "/waiting" },
-    { label: "tasks", icon: FileText, href: "/taskss" },
+    { label: "tasks", icon: FileText, href: "/tasks" },
+    { label: "Bot_Calls", icon: BotIcon, href: "/bot_calls" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
+    { label: "Ticket", icon: MapPinned, href: "/create-ticket" },
   ];
 
   return (

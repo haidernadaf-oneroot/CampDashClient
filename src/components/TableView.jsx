@@ -1,4 +1,4 @@
-import { PenIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { PenIcon, ChevronLeft, ChevronRight, PenSquare } from "lucide-react";
 
 const TableView = ({
   loading,
@@ -13,6 +13,7 @@ const TableView = ({
   totalPages,
   setCurrentPage,
   getPageNumbers,
+  handleTaskClick,
 }) => (
   <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
     <div id="table-container" className="max-h-[400px] overflow-auto">
@@ -26,6 +27,9 @@ const TableView = ({
             ))}
             <th className="px-4 py-3 font-semibold text-gray-700 text-right">
               Actions
+            </th>
+            <th className="px-4 py-3 font-semibold text-gray-700 text-right">
+              tasks
             </th>
           </tr>
         </thead>
@@ -104,6 +108,16 @@ const TableView = ({
                   >
                     <PenIcon className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
+                  </button>
+                </td>
+
+                <td className="px-4 py-3 text-right">
+                  <button
+                    onClick={() => handleTaskClick(farmer)}
+                    className="p-1 rounded-full text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                  >
+                    <PenSquare className="h-4 w-4" />
+                    <span className="sr-only">change</span>
                   </button>
                 </td>
               </tr>
