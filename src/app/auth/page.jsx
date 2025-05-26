@@ -76,10 +76,10 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center text-black">Login</h2>
       {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 text-black">
         <input
           type="tel"
           name="phoneNumber"

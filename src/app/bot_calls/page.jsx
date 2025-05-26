@@ -647,11 +647,11 @@ const RecordingTable = () => {
                             </div>
                           </td>
                           <td className="p-4 min-w-[140px]">
-                            <span className="font-mono text-sm bg-slate-100 px-2 py-1 rounded">
+                            <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
                               {rec.From}
                             </span>
                           </td>
-                          <td className="p-4 min-w-[120px]">
+                          <td className="p-4 min-w-[120px] text-black">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-sm">
                                 {rec.To?.replace(/^(\+91|91)/, "")}
@@ -665,7 +665,7 @@ const RecordingTable = () => {
                               </button>
                             </div>
                           </td>
-                          <td className="p-4 min-w-[200px]">
+                          <td className="p-4 min-w-[200px] text-red-500">
                             <div className="flex items-center gap-2">
                               <audio
                                 controls
@@ -685,7 +685,7 @@ const RecordingTable = () => {
                               </button>
                             </div>
                           </td>
-                          <td className="p-4 min-w-[80px]">
+                          <td className="p-4 min-w-[80px] text-black">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-sm bg-slate-100 px-2 py-1 rounded">
                                 {rec.no_of_trees || 0}
