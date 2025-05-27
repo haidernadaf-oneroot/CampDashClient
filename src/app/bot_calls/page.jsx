@@ -459,30 +459,10 @@ const RecordingTable = () => {
               <span>total recordings</span>
             </div>
 
-            {/* Download Info Display */}
             <div className="flex items-center gap-2 text-sm text-slate-600 bg-blue-50 px-4 py-2 rounded-lg shadow-sm border border-blue-200">
               <span className="font-medium text-blue-900">
                 Download: {getFilterSummary()}
               </span>
-            </div>
-
-            {/* Download Limit Selector */}
-            <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border">
-              <label className="text-sm text-slate-600 font-medium">
-                Limit:
-              </label>
-              <select
-                value={downloadLimit}
-                onChange={(e) => setDownloadLimit(Number(e.target.value))}
-                className="text-sm border-0 focus:ring-1 focus:ring-purple-500 rounded px-2 py-1 bg-slate-50"
-              >
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={250}>250</option>
-                <option value={500}>500</option>
-                <option value={1000}>1000</option>
-                <option value={999999}>All</option>
-              </select>
             </div>
 
             <button
@@ -531,11 +511,11 @@ const RecordingTable = () => {
                   placeholder="Search by phone number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                  className="w-full pl-10 text-black pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
                 />
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-black">
               <Calendar className="h-4 w-4 text-slate-500" />
               <input
                 type="date"
@@ -546,13 +526,13 @@ const RecordingTable = () => {
               {filterDate && (
                 <button
                   onClick={() => setFilterDate("")}
-                  className="px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium"
+                  className="px-3 py-2 text-black hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium"
                 >
                   Clear
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-black">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
