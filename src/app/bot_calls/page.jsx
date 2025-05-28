@@ -1,25 +1,21 @@
-// RecordingTable.js - Main Component
 "use client";
 
 import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
-  lazy,
-  Suspense,
   useRef,
+  useMemo,
 } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Copy,
   Search,
   Calendar,
   Filter,
-  Volume2,
   Download,
   TreePine,
+  Play,
+  Pause,
+  X,
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -49,7 +45,7 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
-// FilterSection Component - Optimized
+// FilterSection Component - Memoized
 const FilterSection = React.memo(
   ({
     searchTerm,
@@ -130,8 +126,8 @@ const FilterSection = React.memo(
                 className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
               >
                 <option value="">All Status</option>
-                <option value="Pending">Pending Only</option>
-                <option value="Done">Done Only</option>
+                <option value="true">Done Only</option>
+                <option value="false">Pending Only</option>
               </select>
               {statusFilter && (
                 <button
@@ -236,14 +232,14 @@ const TableHeader = React.memo(({ sortByTrees }) => {
   );
 });
 
-// Optimized StatusDropdown Component
+// StatusDropdown Component - Memoized
 const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleChange = useCallback(
     async (e) => {
       e.preventDefault();
-      const newValue = e.target.value;
+      const newValue = e.target.value === "true";
       setIsUpdating(true);
 
       try {
@@ -257,7 +253,7 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
     [recording._id, onStatusChange]
   );
 
-  const currentStatus = recording.has_added ? "Done" : "Pending";
+  const currentStatus = recording.has_added ? "true" : "false";
 
   return (
     <div className="relative">
@@ -273,8 +269,8 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
             : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
         }`}
       >
-        <option value="Pending">Pending</option>
-        <option value="Done">Done</option>
+        <option value="false">Pending</option>
+        <option value="true">Done</option>
       </select>
       {isUpdating && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -285,7 +281,163 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
   );
 });
 
-// Main RecordingTable Component - Heavily Optimized
+// Enhanced AudioPlayer Component - Fixed
+const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Cleanup on unmount or when recording changes
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        setCurrentTime(0);
+      }
+    };
+  }, [recording]);
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      setIsLoading(true);
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Audio playback error:", error);
+          toast.error("Failed to play audio. Please try again.");
+          setIsLoading(false);
+        });
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const newTime = percent * duration;
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-80 z-50">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span className="text-sm font-medium text-slate-900">
+            Now Playing
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            if (audioRef.current) {
+              audioRef.current.pause();
+              setIsPlaying(false);
+            }
+            onClose();
+          }}
+          className="text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="mb-3">
+        <div className="text-sm font-medium text-slate-900 truncate">
+          Call: {recording.From} → {recording.To?.replace(/^(\+91|91)/, "")}
+        </div>
+        <div className="text-xs text-slate-500">
+          {formatDate(recording.Date)} • {recording.no_of_trees || 0} trees
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 mb-3">
+        <button
+          onClick={handlePlayPause}
+          disabled={isLoading}
+          className="flex items-center justify-center w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-colors disabled:opacity-50"
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          ) : isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4 ml-0.5" />
+          )}
+        </button>
+
+        <div className="flex-1">
+          <div
+            className="h-2 bg-slate-200 rounded-full cursor-pointer"
+            onClick={handleSeek}
+          >
+            <div
+              className="h-full bg-purple-600 rounded-full transition-all duration-150"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-slate-500 mt-1">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => window.open(recording.RecordingURL, "_blank")}
+          className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+          title="Download audio"
+        >
+          <Download className="h-4 w-4" />
+        </button>
+      </div>
+
+      <audio
+        ref={audioRef}
+        src={recording.RecordingURL}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={() => {
+          setCurrentTime(0);
+          setIsPlaying(false);
+        }}
+        preload="metadata"
+      />
+    </div>
+  );
+});
+
+// Main RecordingTable Component
 const RecordingTable = () => {
   const router = useRouter();
   const [recordings, setRecordings] = useState([]);
@@ -295,117 +447,73 @@ const RecordingTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [limit, setLimit] = useState(50);
+  const [limit] = useState(50);
   const [filterDate, setFilterDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [treesFilter, setTreesFilter] = useState("");
   const [treesOperator, setTreesOperator] = useState("gte");
   const [sortByTrees, setSortByTrees] = useState(false);
-  const [playingAudio, setPlayingAudio] = useState(null);
+  const [currentlyPlayingRecording, setCurrentlyPlayingRecording] =
+    useState(null);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Reduced debounce time
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const abortControllerRef = useRef();
 
   const getToken = useCallback(() => {
     return localStorage.getItem("token");
   }, []);
 
-  // Optimized date parsing with caching
-  const dateCache = useRef(new Map());
-  const parseDate = useCallback((dateStr) => {
-    if (!dateStr) return null;
-
-    if (dateCache.current.has(dateStr)) {
-      return dateCache.current.get(dateStr);
-    }
-
-    let date;
-    const parts = dateStr.split("-");
-    if (parts.length === 3) {
-      const day = Number.parseInt(parts[0], 10);
-      const month = Number.parseInt(parts[1], 10) - 1;
-      const year = Number.parseInt(parts[2], 10);
-      date = new Date(year, month, day);
-    } else {
-      date = new Date(dateStr);
-    }
-
-    dateCache.current.set(dateStr, date);
-    return date;
-  }, []);
-
-  const formatDateForComparison = useCallback((date) => {
+  // Format date for API (DD-MM-YYYY)
+  const formatDateForAPI = useCallback((dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date)) return "";
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   }, []);
 
-  // Optimized filtering with early returns
-  const filteredRecordings = useMemo(() => {
-    let filtered = recordings;
+  // Build query parameters for API
+  const buildQueryParams = useCallback(() => {
+    const params = new URLSearchParams({
+      page: currentPage,
+      limit,
+    });
 
-    // Apply filters in order of selectivity (most selective first)
-    if (debouncedSearchTerm) {
-      const searchLower = debouncedSearchTerm.toLowerCase();
-      filtered = filtered.filter((rec) =>
-        rec.To?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (statusFilter) {
-      const isStatusDone = statusFilter === "Done";
-      filtered = filtered.filter(
-        (rec) => Boolean(rec.has_added) === isStatusDone
-      );
-    }
-
-    if (treesFilter) {
-      const filterValue = Number.parseInt(treesFilter, 10);
-      if (!isNaN(filterValue)) {
-        filtered = filtered.filter((rec) => {
-          const recordTrees = Number.parseInt(rec.no_of_trees || 0, 10);
-          switch (treesOperator) {
-            case "gte":
-              return recordTrees >= filterValue;
-            case "lte":
-              return recordTrees <= filterValue;
-            case "eq":
-              return recordTrees === filterValue;
-            default:
-              return true;
-          }
-        });
+    if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
+    if (filterDate) params.append("date", formatDateForAPI(filterDate));
+    if (statusFilter) params.append("hasAdded", statusFilter);
+    if (treesFilter && !isNaN(Number.parseInt(treesFilter))) {
+      if (treesOperator === "gte") params.append("minTrees", treesFilter);
+      if (treesOperator === "lte") params.append("maxTrees", treesFilter);
+      if (treesOperator === "eq") {
+        params.append("minTrees", treesFilter);
+        params.append("maxTrees", treesFilter);
       }
     }
-
-    if (filterDate) {
-      const filterDateObj = new Date(filterDate);
-      const filterDateStr = formatDateForComparison(filterDateObj);
-      filtered = filtered.filter((rec) => {
-        const recDate = parseDate(rec.Date);
-        if (!recDate) return false;
-        return formatDateForComparison(recDate) === filterDateStr;
-      });
+    if (sortByTrees) {
+      params.append("sortBy", "no_of_trees");
+      params.append("order", "desc");
     }
 
-    return filtered;
+    return params.toString();
   }, [
-    recordings,
+    currentPage,
+    limit,
     debouncedSearchTerm,
+    filterDate,
     statusFilter,
     treesFilter,
     treesOperator,
-    filterDate,
-    parseDate,
-    formatDateForComparison,
+    sortByTrees,
+    formatDateForAPI,
   ]);
 
-  // Optimized fetch with abort controller
+  // Fetch recordings from backend
   const fetchRecordings = useCallback(
     async (page = 1, resetLoading = true) => {
-      // Abort previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -422,10 +530,9 @@ const RecordingTable = () => {
       if (resetLoading) setLoading(true);
 
       try {
-        const endpoint = sortByTrees
-          ? `${process.env.NEXT_PUBLIC_API_URL}/aibot/sort-by-trees`
-          : `${process.env.NEXT_PUBLIC_API_URL}/aibot?page=${page}&limit=${limit}`;
-
+        const endpoint = `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/aibot?${buildQueryParams()}`;
         const res = await fetch(endpoint, {
           method: "GET",
           headers: {
@@ -445,20 +552,14 @@ const RecordingTable = () => {
           throw new Error("Failed to fetch recordings");
         }
 
-        const { data, meta } = await res.json();
-
-        // Optimized data processing
-        const formattedData = Array.isArray(data) ? data : [];
-
-        setRecordings(formattedData);
-        setTotalPages(meta?.totalPages || 1);
-        setTotalRecords(meta?.total || formattedData.length);
-        setCurrentPage(meta?.page || page);
+        const data = await res.json();
+        setRecordings(data.calls || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalRecords(data.totalCalls || 0);
+        setCurrentPage(data.currentPage || page);
         setError(null);
       } catch (error) {
-        if (error.name === "AbortError") {
-          return; // Request was aborted, ignore
-        }
+        if (error.name === "AbortError") return;
         console.error("Failed to fetch recordings:", error);
         setError(error.message);
         setRecordings([]);
@@ -468,10 +569,10 @@ const RecordingTable = () => {
         if (resetLoading) setLoading(false);
       }
     },
-    [getToken, router, limit, sortByTrees]
+    [getToken, router, buildQueryParams]
   );
 
-  // Optimized download function
+  // Download all numbers
   const downloadAllNumbers = useCallback(async () => {
     const token = getToken();
     if (!token) {
@@ -483,53 +584,44 @@ const RecordingTable = () => {
     const loadingToast = toast.loading("Preparing download...");
 
     try {
-      // Use current filtered data if it's reasonable size, otherwise fetch all
-      let numbersToProcess;
+      const endpoint = `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/aibot?${buildQueryParams()}&limit=999999`;
+      const res = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (filteredRecordings.length > 0 && filteredRecordings.length < 1000) {
-        // Use current filtered data
-        numbersToProcess = filteredRecordings
-          .map((rec) => rec.To?.replace(/^(\+91|91)/, ""))
-          .filter(Boolean);
-      } else {
-        // Fetch all data
-        const endpoint = sortByTrees
-          ? `${process.env.NEXT_PUBLIC_API_URL}/aibot/sort-by-trees?page=1&limit=999999`
-          : `${process.env.NEXT_PUBLIC_API_URL}/aibot`;
+      if (!res.ok) throw new Error("Failed to fetch all recordings");
 
-        const res = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const { calls } = await res.json();
+      const numbers = Array.isArray(calls)
+        ? [
+            ...new Set(
+              calls
+                .map((rec) => rec.To?.replace(/^(\+91|91)/, ""))
+                .filter(Boolean)
+            ),
+          ]
+        : [];
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch all recordings");
-        }
-
-        const { data } = await res.json();
-        numbersToProcess = Array.isArray(data)
-          ? data.map((rec) => rec.To?.replace(/^(\+91|91)/, "")).filter(Boolean)
-          : [];
-      }
-
-      const uniqueNumbers = [...new Set(numbersToProcess)];
-
-      if (uniqueNumbers.length === 0) {
+      if (numbers.length === 0) {
         toast.dismiss(loadingToast);
         toast.error("No phone numbers found");
         return;
       }
 
-      const csvContent = ["Phone Number", ...uniqueNumbers].join("\n");
+      const csvContent = ["Phone Number", ...numbers].join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
 
       let filename = `phone_numbers_${new Date().toISOString().split("T")[0]}`;
-      if (statusFilter) filename += `_${statusFilter.toLowerCase()}`;
+      if (statusFilter)
+        filename += `_${statusFilter === "true" ? "done" : "pending"}`;
       if (filterDate) filename += `_${filterDate}`;
       if (treesFilter) filename += `_trees_${treesOperator}_${treesFilter}`;
       filename += ".csv";
@@ -543,7 +635,7 @@ const RecordingTable = () => {
       URL.revokeObjectURL(url);
 
       toast.dismiss(loadingToast);
-      toast.success(`Downloaded ${uniqueNumbers.length} unique phone numbers`, {
+      toast.success(`Downloaded ${numbers.length} unique phone numbers`, {
         duration: 3000,
       });
     } catch (error) {
@@ -555,17 +647,16 @@ const RecordingTable = () => {
     }
   }, [
     getToken,
-    sortByTrees,
-    filteredRecordings,
+    buildQueryParams,
     statusFilter,
     filterDate,
     treesFilter,
     treesOperator,
   ]);
 
-  // Optimized status change with optimistic updates
+  // Handle status change
   const handleStatusChange = useCallback(
-    async (recordingId, newStatusText) => {
+    async (recordingId, newStatus) => {
       const token = getToken();
       if (!token) {
         setError("Please log in to update status.");
@@ -573,9 +664,6 @@ const RecordingTable = () => {
         return;
       }
 
-      const newStatus = newStatusText === "Done";
-
-      // Optimistic update
       setRecordings((prev) =>
         prev.map((rec) =>
           rec._id === recordingId ? { ...rec, has_added: newStatus } : rec
@@ -595,13 +683,9 @@ const RecordingTable = () => {
           }
         );
 
-        if (!res.ok) {
-          throw new Error("Failed to update status");
-        }
+        if (!res.ok) throw new Error("Failed to update status");
 
         const result = await res.json();
-
-        // Update with server response
         setRecordings((prev) =>
           prev.map((rec) =>
             rec._id === recordingId
@@ -610,17 +694,16 @@ const RecordingTable = () => {
           )
         );
 
-        toast.success(`Status updated to ${newStatusText}`, { duration: 2000 });
+        toast.success(`Status updated to ${newStatus ? "Done" : "Pending"}`, {
+          duration: 2000,
+        });
       } catch (error) {
         console.error("Failed to update status:", error);
-
-        // Revert optimistic update
         setRecordings((prev) =>
           prev.map((rec) =>
             rec._id === recordingId ? { ...rec, has_added: !newStatus } : rec
           )
         );
-
         toast.error("Failed to update status. Please try again.");
       }
     },
@@ -636,44 +719,36 @@ const RecordingTable = () => {
     [currentPage, totalPages]
   );
 
-  // Optimized date formatting with caching
-  const formatDateCache = useRef(new Map());
-  const formatDate = useCallback(
-    (dateStr) => {
-      if (formatDateCache.current.has(dateStr)) {
-        return formatDateCache.current.get(dateStr);
-      }
-
-      const date = parseDate(dateStr);
-      if (!date || isNaN(date)) {
-        formatDateCache.current.set(dateStr, dateStr);
-        return dateStr;
-      }
-
-      const day = date.getDate().toString().padStart(2, "0");
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const month = monthNames[date.getMonth()];
-      const year = date.getFullYear();
-
-      const formatted = `${day} ${month} ${year}`;
-      formatDateCache.current.set(dateStr, formatted);
-      return formatted;
-    },
-    [parseDate]
-  );
+  // Format date for display
+  const formatDate = useCallback((dateStr) => {
+    if (!dateStr) return dateStr;
+    // Assuming backend returns date in DD-MM-YYYY format
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    const day = Number.parseInt(parts[0], 10);
+    const month = Number.parseInt(parts[1], 10) - 1;
+    const year = Number.parseInt(parts[2], 10);
+    const date = new Date(year, month, day);
+    if (isNaN(date)) return dateStr;
+    const dayStr = date.getDate().toString().padStart(2, "0");
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const monthStr = monthNames[date.getMonth()];
+    const yearStr = date.getFullYear();
+    return `${dayStr} ${monthStr} ${yearStr}`;
+  }, []);
 
   const handleCopy = useCallback((number) => {
     const cleanNumber = number?.replace(/^(\+91|91)/, "");
@@ -681,13 +756,24 @@ const RecordingTable = () => {
     toast.success(`Number copied: ${cleanNumber}`, { duration: 2000 });
   }, []);
 
-  const handleAudioToggle = useCallback((audioId) => {
-    setPlayingAudio((prev) => (prev === audioId ? null : audioId));
+  const handleAudioToggle = useCallback(
+    (audioId, recording) => {
+      // If a different recording is selected, update the currently playing recording
+      if (currentlyPlayingRecording?._id !== audioId) {
+        setCurrentlyPlayingRecording(recording);
+      }
+    },
+    [currentlyPlayingRecording]
+  );
+
+  const handleCloseAudioPlayer = useCallback(() => {
+    setCurrentlyPlayingRecording(null);
   }, []);
 
   const filterSummary = useMemo(() => {
     const filters = [];
-    if (statusFilter) filters.push(`Status: ${statusFilter}`);
+    if (statusFilter)
+      filters.push(`Status: ${statusFilter === "true" ? "Done" : "Pending"}`);
     if (filterDate) filters.push(`Date: ${filterDate}`);
     if (debouncedSearchTerm) filters.push(`Search: "${debouncedSearchTerm}"`);
     if (treesFilter) {
@@ -704,16 +790,33 @@ const RecordingTable = () => {
     treesOperator,
   ]);
 
-  // Effects
+  // Fetch data when filters or page change
   useEffect(() => {
     fetchRecordings(currentPage);
-  }, [currentPage, sortByTrees, fetchRecordings]);
+  }, [
+    currentPage,
+    debouncedSearchTerm,
+    filterDate,
+    statusFilter,
+    treesFilter,
+    treesOperator,
+    sortByTrees,
+    fetchRecordings,
+  ]);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [sortByTrees]);
+  }, [
+    debouncedSearchTerm,
+    filterDate,
+    statusFilter,
+    treesFilter,
+    treesOperator,
+    sortByTrees,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -797,11 +900,11 @@ const RecordingTable = () => {
             <TableHeader sortByTrees={sortByTrees} />
             <TableBody
               loading={loading}
-              filteredRecordings={filteredRecordings}
+              filteredRecordings={recordings}
               formatDate={formatDate}
               handleCopy={handleCopy}
               handleAudioToggle={handleAudioToggle}
-              playingAudio={playingAudio}
+              playingAudio={currentlyPlayingRecording?._id}
               StatusDropdown={StatusDropdown}
               handleStatusChange={handleStatusChange}
             />
@@ -817,6 +920,13 @@ const RecordingTable = () => {
             />
           )}
         </div>
+        {currentlyPlayingRecording && (
+          <AudioPlayer
+            recording={currentlyPlayingRecording}
+            onClose={handleCloseAudioPlayer}
+            formatDate={formatDate}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
-import { Copy, Download, Volume2 } from "lucide-react";
-import React, { useRef, useState, memo, useCallback, useEffect } from "react";
+"use client";
+
+import { Copy, Download, Volume2, Play } from "lucide-react";
+import { memo } from "react";
 
 const TableBody = memo(
   ({
@@ -7,54 +9,11 @@ const TableBody = memo(
     filteredRecordings,
     formatDate,
     handleCopy,
-    handleAudioToggle,
+    handleAudioToggle, // Now expects (id, recording)
     playingAudio,
     StatusDropdown,
     handleStatusChange,
   }) => {
-    const audioRef = useRef(null);
-    const [durations, setDurations] = useState({});
-
-    const playAudio = useCallback(
-      (src, id) => {
-        if (audioRef.current) {
-          audioRef.current.src = src;
-          audioRef.current.play();
-          handleAudioToggle(id);
-        }
-      },
-      [handleAudioToggle]
-    );
-
-    const pauseAudio = useCallback(() => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        handleAudioToggle(null);
-      }
-    }, [handleAudioToggle]);
-
-    // Capture audio duration on metadata load
-    const handleLoadedMetadata = () => {
-      const id = audioRef.current?.dataset?.id;
-      if (audioRef.current && id) {
-        const duration = audioRef.current.duration;
-        setDurations((prev) => ({
-          ...prev,
-          [id]: formatDuration(duration),
-        }));
-      }
-    };
-
-    const formatDuration = (seconds) => {
-      const mins = Math.floor(seconds / 60)
-        .toString()
-        .padStart(2, "0");
-      const secs = Math.floor(seconds % 60)
-        .toString()
-        .padStart(2, "0");
-      return `${mins}:${secs}`;
-    };
-
     if (loading) {
       return (
         <div className="flex items-center justify-center py-12">
@@ -68,13 +27,6 @@ const TableBody = memo(
 
     return (
       <div className="flex-1 overflow-auto">
-        <audio
-          ref={audioRef}
-          className="hidden"
-          onEnded={pauseAudio}
-          onLoadedMetadata={handleLoadedMetadata}
-          data-id={playingAudio}
-        />
         <table className="w-full">
           <tbody>
             {filteredRecordings.length === 0 ? (
@@ -128,19 +80,35 @@ const TableBody = memo(
                   <td className="p-4 min-w-[240px] text-red-500">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() =>
+                        onClick={() => handleAudioToggle(rec._id, rec)}
+                        className={`relative p-2 rounded-lg transition-all duration-200 text-sm font-medium ${
                           playingAudio === rec._id
-                            ? pauseAudio()
-                            : playAudio(rec.RecordingURL, rec._id)
-                        }
-                        className="p-1 hover:bg-slate-200 rounded transition-colors text-sm font-medium"
+                            ? "bg-purple-100 text-purple-700 shadow-md"
+                            : "hover:bg-slate-200 text-slate-600"
+                        }`}
                         title={playingAudio === rec._id ? "Pause" : "Play"}
                       >
-                        {playingAudio === rec._id ? "⏸" : "▶"}
+                        <div className="flex items-center gap-2">
+                          {playingAudio === rec._id ? (
+                            <>
+                              <div className="flex items-center gap-1">
+                                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse"></div>
+                                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse delay-75"></div>
+                                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse delay-150"></div>
+                              </div>
+                              <span className="text-xs font-medium">Pause</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4" />
+                              <span className="text-xs">Play</span>
+                            </>
+                          )}
+                        </div>
+                        {playingAudio === rec._id && (
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        )}
                       </button>
-                      <span className="text-xs text-slate-600">
-                        {durations[rec._id] || "00:00"}
-                      </span>
                       <button
                         onClick={() => window.open(rec.RecordingURL, "_blank")}
                         className="p-1 hover:bg-slate-200 rounded transition-colors"
