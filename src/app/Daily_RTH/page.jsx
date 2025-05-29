@@ -167,10 +167,11 @@ const Page = () => {
         </div>
       </div>
 
+      {/* Table with scroll */}
       <div className="border rounded-xl shadow-sm bg-white flex-1">
         <div
           id="table-container"
-          className="overflow-y-auto max-h-[400px] custom-scrollbar"
+          className="overflow-y-auto max-h-[700px] custom-scrollbar"
         >
           <table className="w-full text-left border-collapse text-sm">
             <thead className="sticky top-0 bg-purple-50 z-10">
@@ -237,6 +238,7 @@ const Page = () => {
         </div>
       </div>
 
+      {/* Pagination */}
       <div className="flex items-center justify-between p-4 border-t">
         <span className="text-sm text-gray-600">
           Showing {displayedFarmers.length > 0 ? (currentPage - 1) * 50 + 1 : 0}{" "}
@@ -254,7 +256,6 @@ const Page = () => {
             }`}
           >
             <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Previous page</span>
           </button>
 
           {getPageNumbers().map((page) => (
@@ -283,7 +284,6 @@ const Page = () => {
             }`}
           >
             <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Next page</span>
           </button>
         </div>
       </div>
