@@ -25,6 +25,16 @@ const TableBody = memo(
       );
     }
 
+    function formatDuration(sec) {
+      const m = Math.floor(sec / 60)
+        .toString()
+        .padStart(2, "0");
+      const s = Math.floor(sec % 60)
+        .toString()
+        .padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
     return (
       <div className="flex-1 overflow-auto">
         <table className="w-full">
@@ -77,6 +87,13 @@ const TableBody = memo(
                       </button>
                     </div>
                   </td>
+
+                  <td className="p-4 min-w-[140px]">
+                    <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
+                      {rec.crop}
+                    </span>
+                  </td>
+
                   <td className="p-4 min-w-[240px] text-red-500">
                     <div className="flex items-center gap-2">
                       <button
@@ -96,12 +113,22 @@ const TableBody = memo(
                                 <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse delay-75"></div>
                                 <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse delay-150"></div>
                               </div>
-                              <span className="text-xs font-medium">Pause</span>
+                              <span className="text-xs font-medium text-purple-600">
+                                Pause
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {formatDuration(rec.duration)}
+                              </span>
                             </>
                           ) : (
                             <>
-                              <Play className="h-4 w-4" />
-                              <span className="text-xs">Play</span>
+                              <Play className="h-4 w-4 text-purple-600" />
+                              <span className="text-xs font-medium text-gray-800">
+                                Play
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {formatDuration(rec.duration)}
+                              </span>
                             </>
                           )}
                         </div>
@@ -109,13 +136,9 @@ const TableBody = memo(
                           <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                         )}
                       </button>
-                      <button
-                        onClick={() => window.open(rec.RecordingURL, "_blank")}
-                        className="p-1 hover:bg-slate-200 rounded transition-colors"
-                        title="Download audio"
-                      >
-                        <Download className="h-3 w-3 text-slate-600" />
-                      </button>
+                      {/* <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
+                        {rec.duration}-sec
+                      </span> */}
                     </div>
                   </td>
                   <td className="p-4 min-w-[80px] text-black">

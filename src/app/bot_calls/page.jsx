@@ -210,6 +210,9 @@ const TableHeader = React.memo(({ sortByTrees }) => {
             <th className="text-left p-4 font-semibold text-slate-700 min-w-[120px]">
               To
             </th>
+            <th className="text-left p-4 font-semibold text-slate-700 min-w-[120px]">
+              Crop
+            </th>
             <th className="text-left p-4 font-semibold text-slate-700 min-w-[200px]">
               Audio
             </th>

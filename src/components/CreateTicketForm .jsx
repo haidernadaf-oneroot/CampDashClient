@@ -21,7 +21,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
     status: "Opened",
     name: farmer?.name || "",
     number: farmer?.number || "",
-    cropName: farmer?.cropName || "",
+    cropName: "Tender Coconut",
   });
 
   const [agents, setAgents] = useState([]);
@@ -85,12 +85,21 @@ const CreateTicketForm = ({ farmer, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate required fields, including cropName
     if (
       !formData.task.trim() ||
       !formData.dueDate ||
-      !formData.assigned_to.length
+      !formData.assigned_to.length ||
+      !formData.cropName
     ) {
-      showMessage("Please fill all required fields", true);
+      showMessage("Please fill all required fields, including crop name", true);
+      return;
+    }
+
+    // Validate cropName against allowed values
+    const validCrops = ["Tender Coconut", "Banana", "Dry Coconut", "Turmeric"];
+    if (!validCrops.includes(formData.cropName)) {
+      showMessage("Invalid crop name selected", true);
       return;
     }
 
@@ -198,10 +207,26 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Crop *
+          {/* Crop Selection */}
+          <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
+            <label
+              htmlFor="cropName"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Crop Name *
             </label>
+            <select
+              name="cropName"
+              value={formData.cropName}
+              onChange={handleChange}
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-purple-500 focus:outline-none text-sm text-gray-800 bg-white"
+              required
+            >
+              <option value="Tender Coconut">Tender Coconut</option>
+              <option value="Banana">Banana</option>
+              <option value="Dry Coconut">Dry Coconut</option>
+              <option value="Turmeric">Turmeric</option>
+            </select>
           </div>
 
           {/* Agent Assignment */}
@@ -210,7 +235,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
               <Users size={14} />
               Assign Agents * ({formData.assigned_to.length})
             </label>
-
             {loading ? (
               <div className="p-3 text-center text-gray-500 text-sm">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600 mx-auto mb-1"></div>
@@ -243,7 +267,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
                     </label>
                   ))}
                 </div>
-
                 {formData.assigned_to.length > 0 && (
                   <div className="p-2 bg-purple-50 border-t">
                     <div className="flex flex-wrap gap-1">

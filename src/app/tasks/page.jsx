@@ -12,7 +12,14 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle,
+  Phone,
+  CircleCheck,
+  Flag,
+  Copy,
+  Palmtree,
+  Flame,
 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const TicketManagement = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -62,6 +69,32 @@ const TicketManagement = () => {
   const showErrorMessage = (message) => {
     setError(message);
     setTimeout(() => setError(""), 5000);
+  };
+
+  // Copy ticket number to clipboard
+  const copyToClipboard = async (ticketId, number) => {
+    try {
+      const textToCopy = number || ticketId.slice(-8);
+      await navigator.clipboard.writeText(textToCopy);
+      toast.success("Ticket number copied!", {
+        style: {
+          background: "#ECFDF5",
+          color: "#065F46",
+          border: "1px solid #6EE7B7",
+        },
+        icon: <CheckCircle size={20} />,
+      });
+    } catch (err) {
+      toast.error("Failed to copy ticket number.", {
+        style: {
+          background: "#FEF2F2",
+          color: "#991B1B",
+          border: "1px solid #FECACA",
+        },
+        icon: <AlertCircle size={20} />,
+      });
+      console.error("Error copying to clipboard:", err);
+    }
   };
 
   // Fetch agents
@@ -196,7 +229,7 @@ const TicketManagement = () => {
         : "",
       assignedTo: ticket.assigned_to || [],
       status: ticket.status || "Opened",
-      remarks: "", // Initialize remarks for editing
+      remarks: "",
     });
     setIsEditing(false);
   };
@@ -216,7 +249,7 @@ const TicketManagement = () => {
       priority: editData.priority,
       task: editData.task,
       assigned_to: editData.assignedTo,
-      remarks: editData.remarks || undefined, // Only include remarks if provided
+      remarks: editData.remarks || undefined,
     };
 
     const success = await updateTicket(selectedTicket._id, updateData);
@@ -231,14 +264,14 @@ const TicketManagement = () => {
               ...(selectedTicket.remarks || []),
               {
                 remark: editData.remarks,
-                by: localStorage.getItem("userId"), // Assuming userId is stored
+                by: localStorage.getItem("userId"),
                 time: new Date(),
               },
             ]
           : selectedTicket.remarks,
       });
-      setEditData((prev) => ({ ...prev, remarks: "" })); // Clear remarks input
-      fetchTickets(); // Refresh tickets list
+      setEditData((prev) => ({ ...prev, remarks: "" }));
+      fetchTickets();
     }
   };
 
@@ -302,13 +335,43 @@ const TicketManagement = () => {
     }
   };
 
+  // Render crop name with icon
+  const renderCropName = (cropName) => {
+    switch (cropName) {
+      case "Tender Coconut":
+        return (
+          <div className="flex items-center gap-1 text-green-700 font-medium">
+            <Palmtree className="w-4 h-4" />
+            Tender Coconut
+          </div>
+        );
+      case "Dry Coconut":
+        return (
+          <div className="flex items-center gap-1 text-yellow-700 font-medium">
+            <span className="text-lg">🥥</span>
+            Dry Coconut
+          </div>
+        );
+      case "Turmeric":
+        return (
+          <div className="flex items-center gap-1 text-orange-600 font-medium">
+            <Flame className="w-4 h-4" />
+            Turmeric
+          </div>
+        );
+      default:
+        return <p className="text-gray-700">{cropName || "Not specified"}</p>;
+    }
+  };
+
   if (selectedTicket) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+        <Toaster position="top-right" />
         <div className="max-w-4xl mx-auto">
           {/* Success Message */}
           {successMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
               <CheckCircle className="text-green-600" size={20} />
               <span className="text-green-800">{successMessage}</span>
             </div>
@@ -316,7 +379,7 @@ const TicketManagement = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
               <AlertCircle className="text-red-600" size={20} />
               <span className="text-red-800">{error}</span>
             </div>
@@ -326,15 +389,28 @@ const TicketManagement = () => {
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={handleBackToList}
-              className="text-purple-600 hover:text-purple-800 font-medium"
+              className="flex items-center gap-2 text-purple-600 hover:text-purple-800 font-medium transition-colors"
             >
-              ← Back to Tickets
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Back to Tickets
             </button>
             <div className="flex gap-2">
               {!isEditing ? (
                 <button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
                 >
                   <Edit3 size={16} />
                   Edit
@@ -344,7 +420,7 @@ const TicketManagement = () => {
                   <button
                     onClick={handleSave}
                     disabled={updating}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 shadow-sm"
                   >
                     {updating ? (
                       <Loader2 className="animate-spin" size={16} />
@@ -356,7 +432,7 @@ const TicketManagement = () => {
                   <button
                     onClick={handleCancel}
                     disabled={updating}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 shadow-sm"
                   >
                     <X size={16} />
                     Cancel
@@ -367,66 +443,77 @@ const TicketManagement = () => {
           </div>
 
           {/* Ticket Details */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
             {/* Ticket Header */}
             <div className="mb-6">
               <div className="flex items-center gap-4 mb-4">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {selectedTicket.name || "Untitled Ticket"}
                 </h1>
-                <span className="text-gray-500">
-                  Ticket #
-                  {selectedTicket.number || selectedTicket._id.slice(-8)}
-                </span>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <span>
+                    Ticket #
+                    {selectedTicket.number || selectedTicket._id.slice(-8)}
+                  </span>
+                  <button
+                    onClick={() =>
+                      copyToClipboard(selectedTicket._id, selectedTicket.number)
+                    }
+                    className="p-1 text-gray-500 hover:text-purple-600 transition-colors"
+                    title="Copy Ticket Number"
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-4">
                 {isEditing ? (
-                  <select
-                    value={editData.priority}
-                    onChange={(e) =>
-                      handleInputChange("priority", e.target.value)
-                    }
-                    className="px-3 py-1 rounded-full text-xs font-medium border focus:outline-none focus:ring-2 focus:ring-purple-300"
-                  >
-                    {priorities.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority.toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
+                  <>
+                    <select
+                      value={editData.priority}
+                      onChange={(e) =>
+                        handleInputChange("priority", e.target.value)
+                      }
+                      className="px-3 py-1 rounded-full text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    >
+                      {priorities.map((priority) => (
+                        <option key={priority} value={priority}>
+                          {priority.toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={editData.status}
+                      onChange={(e) =>
+                        handleInputChange("status", e.target.value)
+                      }
+                      className="px-3 py-1 rounded-full text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    >
+                      {statuses.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </>
                 ) : (
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                      selectedTicket.priority
-                    )}`}
-                  >
-                    {selectedTicket.priority?.toUpperCase() || "MEDIUM"}
-                  </span>
-                )}
-
-                {isEditing ? (
-                  <select
-                    value={editData.status}
-                    onChange={(e) =>
-                      handleInputChange("status", e.target.value)
-                    }
-                    className="px-3 py-1 rounded-full text-xs font-medium border focus:outline-none focus:ring-2 focus:ring-purple-300"
-                  >
-                    {statuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      selectedTicket.status
-                    )}`}
-                  >
-                    {selectedTicket.status || "Opened"}
-                  </span>
+                  <>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                        selectedTicket.priority
+                      )}`}
+                    >
+                      {selectedTicket.priority?.toUpperCase() || "MEDIUM"}
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        selectedTicket.status
+                      )}`}
+                    >
+                      {selectedTicket.status || "Opened"}
+                    </span>
+                  </>
                 )}
               </div>
 
@@ -439,15 +526,23 @@ const TicketManagement = () => {
                   <textarea
                     value={editData.task}
                     onChange={(e) => handleInputChange("task", e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    rows="3"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    rows="4"
                     placeholder="Task description..."
                   />
                 ) : (
-                  <p className="text-gray-700">
+                  <p className="text-sm text-gray-700">
                     {selectedTicket.task || "No task description"}
                   </p>
                 )}
+              </div>
+
+              {/* Crop Name */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Crop Name
+                </label>
+                {renderCropName(selectedTicket.cropName)}
               </div>
 
               {/* Remarks Input (Edit Mode Only) */}
@@ -461,8 +556,8 @@ const TicketManagement = () => {
                     onChange={(e) =>
                       handleInputChange("remarks", e.target.value)
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    rows="3"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    rows="4"
                     placeholder="Add a remark..."
                   />
                 </div>
@@ -470,7 +565,7 @@ const TicketManagement = () => {
             </div>
 
             {/* Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div className="flex items-center gap-3">
                 <Calendar className="text-gray-400" size={20} />
                 <div>
@@ -510,7 +605,7 @@ const TicketManagement = () => {
 
             {/* Assignment Section */}
             <div className="border-t pt-6 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-3">
                     Reassign To:
@@ -537,14 +632,9 @@ const TicketManagement = () => {
                       ))}
                     </div>
                   ) : (
-                    <select
-                      disabled
-                      className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100"
-                    >
-                      <option>
-                        {getAssignedAgentNames(selectedTicket.assigned_to)}
-                      </option>
-                    </select>
+                    <p className="text-sm text-gray-600">
+                      {getAssignedAgentNames(selectedTicket.assigned_to)}
+                    </p>
                   )}
                 </div>
 
@@ -585,10 +675,9 @@ const TicketManagement = () => {
                       <p className="text-sm text-gray-700">{remark.remark}</p>
                       <p className="text-xs text-gray-500 mt-1 flex gap-1">
                         By{" "}
-                        <p className="font-bold text-black">
-                          {" "}
+                        <span className="font-bold text-black">
                           {getAgentNameById(remark.by)}
-                        </p>{" "}
+                        </span>{" "}
                         on
                         {new Date(remark.time).toLocaleString()}
                       </p>
@@ -606,15 +695,16 @@ const TicketManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-8xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+    <div className="min-h-screen bg-gray-100 p-4">
+      <Toaster position="top-right" />
+      <div className="max-w-7xl ml-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
           Ticket Management
         </h1>
 
         {/* Success Message */}
         {successMessage && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
             <CheckCircle className="text-green-600" size={20} />
             <span className="text-green-800">{successMessage}</span>
           </div>
@@ -622,7 +712,7 @@ const TicketManagement = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
             <AlertCircle className="text-red-600" size={20} />
             <span className="text-red-800">{error}</span>
           </div>
@@ -640,7 +730,7 @@ const TicketManagement = () => {
 
         {/* Empty State */}
         {!loading && !error && tickets.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <User className="text-gray-400" size={32} />
             </div>
@@ -655,52 +745,80 @@ const TicketManagement = () => {
 
         {/* Tickets List */}
         {!loading && tickets.length > 0 && (
-          <div className="bg-white rounded-lg shadow">
+          <div className="grid grid-cols-1 gap-4">
             {tickets.map((ticket) => (
               <div
                 key={ticket._id}
                 onClick={() => handleTicketClick(ticket)}
-                className="flex items-center p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                className="bg-white rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
               >
-                {/* <input
-                  type="checkbox"
-                  className="mr-4"
-                  onClick={(e) => e.stopPropagation()}
-                />
+                <div className="flex items-start justify-between">
+                  {/* Left Section */}
+                  <div className="flex items-start gap-4 flex-1">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                      {ticket.name?.[0]?.toUpperCase() || "👤"}
+                    </div>
 
-                <div className="mr-4">
-                  <Star className="text-gray-300" size={18} />
-                </div> */}
+                    {/* Info */}
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                        <User className="w-4 h-4 text-gray-400" />
+                        {ticket.name || "Untitled Ticket"}
+                      </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-4">
-                    <span className="font-medium text-gray-900">
-                      {ticket.name || "Untitled Ticket"}
-                    </span>
-                    {/* <span className="text-gray-500">
-                      #{ticket.number || ticket._id.slice(-8)}
-                    </span> */}
-                    <span className="text-gray-500 ">{ticket.dueDate}</span>
-
-                    <span className="text-gray-600 flex-1">
-                      {ticket.task || "No description"}
-                    </span>
+                      <div className="flex flex-wrap items-center gap-10 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span>{ticket.number || ticket._id.slice(-8)}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(ticket._id, ticket.number);
+                            }}
+                            className="p-1 text-gray-500 hover:text-purple-600 transition-colors"
+                            title="Copy Ticket Number"
+                          >
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          {ticket.dueDate
+                            ? new Date(ticket.dueDate).toLocaleDateString()
+                            : "No Date"}
+                        </div>
+                        <div className="flex items-center gap-1 max-w-sm">
+                          <CircleCheck className="w-4 h-4 text-gray-400" />
+                          <span
+                            className="line-clamp-2 text-sm text-gray-700 leading-snug"
+                            title={ticket.task || "No Task"}
+                          >
+                            {ticket.task || "No Task"}
+                          </span>
+                        </div>
+                        {renderCropName(ticket.cropName)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex grid-cols-4 gap-4 ">
-                  <div
-                    className={`px-2 py-1 text-xs w-20 text-center rounded font-medium ${getStatusColor(
-                      ticket.status
-                    )}`}
-                  >
-                    {ticket.status || "Opened"}
-                  </div>
-                  <div
-                    className={`px-6 py-1 text-xs  w-20 text-center rounded font-medium ${getPriorityColor(
-                      ticket.priority
-                    )}`}
-                  >
-                    {ticket.priority?.toUpperCase() || "MEDIUM"}
+
+                  {/* Right Section: Status and Priority */}
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusColor(
+                        ticket.status
+                      )}`}
+                    >
+                      {ticket.status || "Opened"}
+                    </span>
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full font-semibold ${getPriorityColor(
+                        ticket.priority
+                      )}`}
+                    >
+                      <Flag className="w-3 h-3 inline-block mr-1" />
+                      {ticket.priority?.toUpperCase() || "MEDIUM"}
+                    </span>
                   </div>
                 </div>
               </div>
