@@ -167,8 +167,11 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="border rounded-xl shadow-sm bg-white overflow-hidden flex-1 max-h-[calc(100vh-260px)]">
-        <div id="table-container" className="overflow-auto h-full">
+      <div className="border rounded-xl shadow-sm bg-white flex-1">
+        <div
+          id="table-container"
+          className="overflow-y-auto max-h-[400px] custom-scrollbar"
+        >
           <table className="w-full text-left border-collapse text-sm">
             <thead className="sticky top-0 bg-purple-50 z-10">
               <tr className="border-b border-gray-200">
