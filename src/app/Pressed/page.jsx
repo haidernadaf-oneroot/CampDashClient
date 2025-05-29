@@ -155,55 +155,60 @@ const TableView = () => {
           </div>
 
           {/* Table */}
+          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full bg-white border border-gray-200 rounded-lg">
-              <thead className="bg-purple-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
-                    Phone Number
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
-                    Pressed
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
-                    Tag
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
-                    Called Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item, index) => (
-                    <tr
-                      key={item._id}
-                      className={`border-b hover:bg-gray-50 transition-colors ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }`}
-                    >
-                      <td className="px-6 py-4 text-gray-600">{item.number}</td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.pressed || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">{item.tag}</td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.called_date || "—"}
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="w-full bg-white border border-gray-200 rounded-lg">
+                <thead className="bg-purple-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b bg-purple-50">
+                      Phone Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b bg-purple-50">
+                      Pressed
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b bg-purple-50">
+                      Tag
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b bg-purple-50">
+                      Called Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItems.length > 0 ? (
+                    currentItems.map((item, index) => (
+                      <tr
+                        key={item._id}
+                        className={`border-b hover:bg-gray-50 transition-colors ${
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }`}
+                      >
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.number}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.pressed || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">{item.tag}</td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.called_date || "—"}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="text-center px-6 py-8 text-gray-500"
+                      >
+                        No records found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="text-center px-6 py-8 text-gray-500"
-                    >
-                      No records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination Controls */}
