@@ -95,7 +95,7 @@ const TableView = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto">
+      <div className="mx-auto ">
         <div className="bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-3xl font-semibold text-gray-800 mb-6">
             IVR Call Records
@@ -157,7 +157,7 @@ const TableView = () => {
           {/* Table */}
           {/* Table */}
           <div className="overflow-x-auto">
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className=" overflow-y-auto">
               <table className="w-full bg-white border border-gray-200 rounded-lg">
                 <thead className="bg-purple-50 sticky top-0 z-10">
                   <tr>
@@ -212,27 +212,44 @@ const TableView = () => {
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-6 flex justify-between items-center">
+
+          <div className="mt-6 flex justify-end space-x-2 flex-wrap">
+            {/* < button */}
             <button
               onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              className="px-3 py-2 rounded-lg border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:opacity-50"
               disabled={currentPage === 1}
             >
-              Previous
+              {"<"}
             </button>
 
-            <span className="text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, index) => {
+              const pageNumber = index + 1;
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`px-3 py-2 rounded-lg border ${
+                    currentPage === pageNumber
+                      ? "bg-purple-600 text-white border-purple-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
 
+            {/* > button */}
             <button
               onClick={() =>
                 setCurrentPage(Math.min(currentPage + 1, totalPages))
               }
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              className="px-3 py-2 rounded-lg border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:opacity-50"
               disabled={currentPage === totalPages}
             >
-              Next
+              {">"}
             </button>
           </div>
         </div>
