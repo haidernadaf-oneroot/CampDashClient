@@ -94,6 +94,12 @@ const TableBody = memo(
                     </span>
                   </td>
 
+                  <td className="p-4 min-w-[140px]">
+                    <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
+                      {rec.harvest}
+                    </span>
+                  </td>
+
                   <td className="p-4 min-w-[240px] text-red-500">
                     <div className="flex items-center gap-2">
                       <button

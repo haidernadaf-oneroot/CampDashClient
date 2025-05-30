@@ -368,7 +368,9 @@ const TicketManagement = () => {
     return (
       <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
         <Toaster position="top-right" />
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl">
+          {" "}
+          {/*max-auto}
           {/* Success Message */}
           {successMessage && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
@@ -376,7 +378,6 @@ const TicketManagement = () => {
               <span className="text-green-800">{successMessage}</span>
             </div>
           )}
-
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
@@ -384,7 +385,6 @@ const TicketManagement = () => {
               <span className="text-red-800">{error}</span>
             </div>
           )}
-
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <button
@@ -441,7 +441,6 @@ const TicketManagement = () => {
               )}
             </div>
           </div>
-
           {/* Ticket Details */}
           <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
             {/* Ticket Header */}
@@ -670,17 +669,21 @@ const TicketManagement = () => {
                   {selectedTicket.remarks.map((remark, index) => (
                     <div
                       key={index}
-                      className="border-l-4 border-purple-500 pl-4"
+                      className="border-l-4 border-purple-500 bg-gray-50 p-4 rounded-md shadow-sm mb-4"
                     >
-                      <p className="text-sm text-gray-700">{remark.remark}</p>
-                      <p className="text-xs text-gray-500 mt-1 flex gap-1">
-                        By{" "}
-                        <span className="font-bold text-black">
-                          {getAgentNameById(remark.by)}
-                        </span>{" "}
-                        on
-                        {new Date(remark.time).toLocaleString()}
-                      </p>
+                      <p className="text-sm text-gray-800">{remark.remark}</p>
+
+                      <div className="flex justify-between items-center mt-2 text-xs text-gray-600">
+                        <p>
+                          By{" "}
+                          <span className="font-semibold text-gray-900">
+                            {getAgentNameById(remark.by)}
+                          </span>
+                        </p>
+                        <p className="text-right">
+                          {new Date(remark.time).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -697,7 +700,7 @@ const TicketManagement = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <Toaster position="top-right" />
-      <div className="max-w-7xl ml-6">
+      <div className="max-w-[1400px] ml-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
           Ticket Management
         </h1>
@@ -749,25 +752,27 @@ const TicketManagement = () => {
             {tickets.map((ticket) => (
               <div
                 key={ticket._id}
-                onClick={() => handleTicketClick(ticket)}
                 className="bg-white rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
               >
                 <div className="flex items-start justify-between">
                   {/* Left Section */}
-                  <div className="flex items-start gap-4 flex-1">
+                  <div className="flex items-start gap-6 flex-1">
                     {/* Avatar */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
                       {ticket.name?.[0]?.toUpperCase() || "👤"}
                     </div>
 
                     {/* Info */}
                     <div className="flex flex-col gap-2 w-full">
-                      <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                      <div
+                        onClick={() => handleTicketClick(ticket)}
+                        className="flex items-center w-40 gap-2 text-lg font-semibold text-gray-900"
+                      >
                         <User className="w-4 h-4 text-gray-400" />
                         {ticket.name || "Untitled Ticket"}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-10 text-sm text-gray-600">
+                      <div className="flex flex-wrap items-center  text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Phone className="w-4 h-4 text-gray-400" />
                           <span>{ticket.number || ticket._id.slice(-8)}</span>
@@ -782,13 +787,13 @@ const TicketManagement = () => {
                             <Copy size={16} />
                           </button>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center px-14">
                           <Calendar className="w-4 h-4 text-gray-400" />
                           {ticket.dueDate
                             ? new Date(ticket.dueDate).toLocaleDateString()
                             : "No Date"}
                         </div>
-                        <div className="flex items-center gap-1 max-w-sm">
+                        <div className="flex items-center w-[600px] max-w-sm ">
                           <CircleCheck className="w-4 h-4 text-gray-400" />
                           <span
                             className="line-clamp-2 text-sm text-gray-700 leading-snug"
