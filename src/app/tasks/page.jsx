@@ -1,41 +1,35 @@
 "use client";
 import { useState, useEffect } from "react";
 import {
-  Star,
   User,
-  Calendar,
-  Clock,
-  Users,
-  Edit3,
-  Save,
-  X,
-  Loader2,
-  AlertCircle,
   CheckCircle,
-  Phone,
-  CircleCheck,
-  Flag,
-  Copy,
-  Palmtree,
-  Flame,
+  AlertCircle,
+  Loader2,
+  Bookmark,
 } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import ToastNotifications from "@/components/ticket/ToastNotifications";
+import TicketDetails from "@/components/ticket/TicketDetails";
+import TicketActions from "@/components/ticket/TicketActions";
+import ActivityLog from "@/components/ticket/ActivityLog";
+import TicketList from "@/components/ticket/TicketList";
+import UserInformation from "@/components/ticket/UserInformation";
 
 const TicketManagement = () => {
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [selectedTickets, setSelectedTickets] = useState([]);
   const [editData, setEditData] = useState({});
+  const [editingTicketId, setEditingTicketId] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [openTicketId, setOpenTicketId] = useState(null);
+  const [agentId, setAgentId] = useState(null); // Current user’s agent ID
 
   const statuses = ["Opened", "Waiting For", "Closed"];
-  const priorities = ["ASAP", "high", "medium", "low"];
+  const priorities = ["ASAP", "High", "Medium", "Low"];
 
-  // Helper function to get auth token
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("token");
@@ -43,68 +37,61 @@ const TicketManagement = () => {
     return null;
   };
 
-  // Helper function to get agent name by ID
+  useEffect(() => {
+    // Initialize agentId from localStorage
+    if (typeof window !== "undefined") {
+      setAgentId(localStorage.getItem("userId"));
+    }
+  }, []);
+
   const getAgentNameById = (agentId) => {
     const agent = agents.find((agent) => agent._id === agentId);
     return agent ? agent.name : "Finding Agent";
   };
 
-  // Helper function to get assigned agent names
-  const getAssignedAgentNames = (assignedToArray) => {
-    if (!assignedToArray || assignedToArray.length === 0) {
-      return "Not Assigned";
+  const getAssignedAgentNames = (assignedToArray, agents) => {
+    if (
+      !assignedToArray ||
+      !Array.isArray(assignedToArray) ||
+      assignedToArray.length === 0
+    ) {
+      return "No agents assigned";
     }
     return assignedToArray
-      .map((agentId) => getAgentNameById(agentId))
+      .map((agentId) => {
+        const agent = agents.find((agent) => agent._id === agentId);
+        return agent ? agent.name : "Unknown";
+      })
       .join(", ");
   };
 
-  // Show success message temporarily
   const showSuccessMessage = (message) => {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  // Show error message temporarily
   const showErrorMessage = (message) => {
     setError(message);
     setTimeout(() => setError(""), 5000);
   };
 
-  // Copy ticket number to clipboard
   const copyToClipboard = async (ticketId, number) => {
     try {
       const textToCopy = number || ticketId.slice(-8);
       await navigator.clipboard.writeText(textToCopy);
-      toast.success("Ticket number copied!", {
-        style: {
-          background: "#ECFDF5",
-          color: "#065F46",
-          border: "1px solid #6EE7B7",
-        },
-        icon: <CheckCircle size={20} />,
-      });
+      showSuccessMessage("Ticket number copied!");
     } catch (err) {
-      toast.error("Failed to copy ticket number.", {
-        style: {
-          background: "#FEF2F2",
-          color: "#991B1B",
-          border: "1px solid #FECACA",
-        },
-        icon: <AlertCircle size={20} />,
-      });
+      showErrorMessage("Failed to copy ticket number.");
       console.error("Error copying to clipboard:", err);
     }
   };
 
-  // Fetch agents
   const fetchAgents = async () => {
     try {
       const token = getAuthToken();
       if (!token) {
         throw new Error("No authentication token found. Please log in.");
       }
-
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/agent`, {
         method: "GET",
         headers: {
@@ -112,12 +99,10 @@ const TicketManagement = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to fetch agents");
       }
-
       const data = await response.json();
       setAgents(data || []);
     } catch (err) {
@@ -126,19 +111,16 @@ const TicketManagement = () => {
     }
   };
 
-  // Fetch tickets
   const fetchTickets = async () => {
     try {
       setLoading(true);
       setError("");
-
       const token = getAuthToken();
       if (!token) {
         showErrorMessage("User not authenticated.");
         setTickets([]);
         return;
       }
-
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/ticket/get-opened-tickets`,
         {
@@ -149,11 +131,9 @@ const TicketManagement = () => {
           },
         }
       );
-
       if (!response.ok) {
         throw new Error("Failed to fetch tickets");
       }
-
       const data = await response.json();
       setTickets(data.data || []);
     } catch (err) {
@@ -165,17 +145,14 @@ const TicketManagement = () => {
     }
   };
 
-  // Update ticket
   const updateTicket = async (ticketId, updateData) => {
     try {
       setUpdating(true);
-
       const token = getAuthToken();
       if (!token) {
         showErrorMessage("User not authenticated.");
         return false;
       }
-
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/ticket`,
         {
@@ -190,11 +167,9 @@ const TicketManagement = () => {
           }),
         }
       );
-
       if (!response.ok) {
         throw new Error("Failed to update ticket");
       }
-
       const data = await response.json();
       if (data.success) {
         showSuccessMessage("Ticket updated successfully!");
@@ -210,7 +185,6 @@ const TicketManagement = () => {
     }
   };
 
-  // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       await fetchAgents();
@@ -220,30 +194,45 @@ const TicketManagement = () => {
   }, []);
 
   const handleTicketClick = (ticket) => {
-    setSelectedTicket(ticket);
+    setSelectedTickets([ticket]);
     setEditData({
       task: ticket.task || "",
-      priority: ticket.priority || "medium",
+      priority: ticket.priority || "Medium",
       dueDate: ticket.dueDate
         ? new Date(ticket.dueDate).toISOString().split("T")[0]
         : "",
-      assignedTo: ticket.assigned_to || [],
+      assignedTo: Array.isArray(ticket.assigned_to) ? ticket.assigned_to : [],
       status: ticket.status || "Opened",
-      remarks: "",
+      remarks: "", // Initialize as empty string
     });
-    setIsEditing(false);
+    setEditingTicketId(null);
+  };
+
+  const handleUserClick = (userTickets) => {
+    setSelectedTickets(userTickets);
+    setEditingTicketId(null);
   };
 
   const handleBackToList = () => {
-    setSelectedTicket(null);
-    setIsEditing(false);
+    setSelectedTickets([]);
+    setEditingTicketId(null);
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
+  const handleEdit = (ticket) => {
+    setEditingTicketId(ticket._id);
+    setEditData({
+      task: ticket.task || "",
+      priority: ticket.priority || "Medium",
+      dueDate: ticket.dueDate
+        ? new Date(ticket.dueDate).toISOString().split("T")[0]
+        : "",
+      assignedTo: Array.isArray(ticket.assigned_to) ? ticket.assigned_to : [],
+      status: ticket.status || "Opened",
+      remarks: "", // Initialize as empty string
+    });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (ticketId) => {
     const updateData = {
       status: editData.status,
       priority: editData.priority,
@@ -251,42 +240,49 @@ const TicketManagement = () => {
       assigned_to: editData.assignedTo,
       remarks: editData.remarks || undefined,
     };
-
-    const success = await updateTicket(selectedTicket._id, updateData);
-
+    const success = await updateTicket(ticketId, updateData);
     if (success) {
-      setIsEditing(false);
-      setSelectedTicket({
-        ...selectedTicket,
-        ...editData,
-        remarks: editData.remarks
-          ? [
-              ...(selectedTicket.remarks || []),
-              {
-                remark: editData.remarks,
-                by: localStorage.getItem("userId"),
-                time: new Date(),
-              },
-            ]
-          : selectedTicket.remarks,
-      });
+      setEditingTicketId(null);
+      setSelectedTickets((prev) =>
+        prev.map((ticket) =>
+          ticket._id === ticketId
+            ? {
+                ...ticket,
+                ...editData,
+                remarks: editData.remarks
+                  ? [
+                      ...(Array.isArray(ticket.remarks) ? ticket.remarks : []),
+                      {
+                        remark: editData.remarks,
+                        by: agentId,
+                        time: new Date(),
+                      },
+                    ]
+                  : ticket.remarks,
+              }
+            : ticket
+        )
+      );
       setEditData((prev) => ({ ...prev, remarks: "" }));
       fetchTickets();
     }
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
-    setEditData({
-      task: selectedTicket.task || "",
-      priority: selectedTicket.priority || "medium",
-      dueDate: selectedTicket.dueDate
-        ? new Date(selectedTicket.dueDate).toISOString().split("T")[0]
-        : "",
-      assignedTo: selectedTicket.assigned_to || [],
-      status: selectedTicket.status || "Opened",
-      remarks: "",
-    });
+    setEditingTicketId(null);
+    const ticket = selectedTickets.find((t) => t._id === editingTicketId);
+    if (ticket) {
+      setEditData({
+        task: ticket.task || "",
+        priority: ticket.priority || "Medium",
+        dueDate: ticket.dueDate
+          ? new Date(ticket.dueDate).toISOString().split("T")[0]
+          : "",
+        assignedTo: Array.isArray(ticket.assigned_to) ? ticket.assigned_to : [],
+        status: ticket.status || "Opened",
+        remarks: "",
+      });
+    }
   };
 
   const handleInputChange = (field, value) => {
@@ -299,19 +295,38 @@ const TicketManagement = () => {
   const handleAssignedAgentToggle = (agentId) => {
     setEditData((prev) => ({
       ...prev,
-      assignedTo: prev.assignedTo.includes(agentId)
-        ? prev.assignedTo.filter((id) => id !== agentId)
-        : [...prev.assignedTo, agentId],
+      assignedTo: (Array.isArray(prev.assignedTo)
+        ? prev.assignedTo
+        : []
+      ).includes(agentId)
+        ? (Array.isArray(prev.assignedTo) ? prev.assignedTo : []).filter(
+            (id) => id !== agentId
+          )
+        : [...(Array.isArray(prev.assignedTo) ? prev.assignedTo : []), agentId],
     }));
   };
 
-  // Get priority color
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
-      case "asap":
-        return "bg-red-500 text-white";
+      case "ASAP":
+        return "text-red-800";
       case "high":
+        return "text-red-400";
+      case "medium":
+        return "text-yellow-600";
+      case "low":
+        return "text-green-500";
+      default:
+        return "text-gray-500";
+    }
+  };
+
+  const getPriorityBgColor = (priority) => {
+    switch (priority?.toLowerCase()) {
+      case "ASAP":
         return "bg-red-100 text-red-800";
+      case "high":
+        return "bg-red-50 text-red-400";
       case "medium":
         return "bg-yellow-100 text-yellow-800";
       case "low":
@@ -321,517 +336,195 @@ const TicketManagement = () => {
     }
   };
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "opened":
-        return "bg-purple-100 text-purple-800";
-      case "waiting for":
-        return "bg-orange-100 text-orange-800";
-      case "closed":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  // Format date as day/month/year
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
-
-  // Render crop name with icon
-  const renderCropName = (cropName) => {
-    switch (cropName) {
-      case "Tender Coconut":
-        return (
-          <div className="flex items-center gap-1 text-green-700 font-medium">
-            <Palmtree className="w-4 h-4" />
-            Tender Coconut
-          </div>
-        );
-      case "Dry Coconut":
-        return (
-          <div className="flex items-center gap-1 text-yellow-700 font-medium">
-            <span className="text-lg">🥥</span>
-            Dry Coconut
-          </div>
-        );
-      case "Turmeric":
-        return (
-          <div className="flex items-center gap-1 text-orange-600 font-medium">
-            <Flame className="w-4 h-4" />
-            Turmeric
-          </div>
-        );
-      default:
-        return <p className="text-gray-700">{cropName || "Not specified"}</p>;
-    }
-  };
-
-  if (selectedTicket) {
-    return (
-      <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-        <Toaster position="top-right" />
-        <div className="max-w-7xl">
-          {" "}
-          {/*max-auto}
-          {/* Success Message */}
-          {successMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
-              <CheckCircle className="text-green-600" size={20} />
-              <span className="text-green-800">{successMessage}</span>
-            </div>
-          )}
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
-              <AlertCircle className="text-red-600" size={20} />
-              <span className="text-red-800">{error}</span>
-            </div>
-          )}
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={handleBackToList}
-              className="flex items-center gap-2 text-purple-600 hover:text-purple-800 font-medium transition-colors"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Tickets
-            </button>
-            <div className="flex gap-2">
-              {!isEditing ? (
-                <button
-                  onClick={handleEdit}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
-                >
-                  <Edit3 size={16} />
-                  Edit
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleSave}
-                    disabled={updating}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 shadow-sm"
-                  >
-                    {updating ? (
-                      <Loader2 className="animate-spin" size={16} />
-                    ) : (
-                      <Save size={16} />
-                    )}
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    disabled={updating}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 shadow-sm"
-                  >
-                    <X size={16} />
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* Ticket Details */}
-          <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-            {/* Ticket Header */}
-            <div className="mb-6">
-              <div className="flex items-center gap-4 mb-4">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {selectedTicket.name || "Untitled Ticket"}
-                </h1>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <span>
-                    Ticket #
-                    {selectedTicket.number || selectedTicket._id.slice(-8)}
-                  </span>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(selectedTicket._id, selectedTicket.number)
-                    }
-                    className="p-1 text-gray-500 hover:text-purple-600 transition-colors"
-                    title="Copy Ticket Number"
-                  >
-                    <Copy size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {isEditing ? (
-                  <>
-                    <select
-                      value={editData.priority}
-                      onChange={(e) =>
-                        handleInputChange("priority", e.target.value)
-                      }
-                      className="px-3 py-1 rounded-full text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                    >
-                      {priorities.map((priority) => (
-                        <option key={priority} value={priority}>
-                          {priority.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={editData.status}
-                      onChange={(e) =>
-                        handleInputChange("status", e.target.value)
-                      }
-                      className="px-3 py-1 rounded-full text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                    >
-                      {statuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                ) : (
-                  <>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                        selectedTicket.priority
-                      )}`}
-                    >
-                      {selectedTicket.priority?.toUpperCase() || "MEDIUM"}
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        selectedTicket.status
-                      )}`}
-                    >
-                      {selectedTicket.status || "Opened"}
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* Task Description */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Task Description
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={editData.task}
-                    onChange={(e) => handleInputChange("task", e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                    rows="4"
-                    placeholder="Task description..."
-                  />
-                ) : (
-                  <p className="text-sm text-gray-700">
-                    {selectedTicket.task || "No task description"}
-                  </p>
-                )}
-              </div>
-
-              {/* Crop Name */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Crop Name
-                </label>
-                {renderCropName(selectedTicket.cropName)}
-              </div>
-
-              {/* Remarks Input (Edit Mode Only) */}
-              {isEditing && (
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Add Remark
-                  </label>
-                  <textarea
-                    value={editData.remarks}
-                    onChange={(e) =>
-                      handleInputChange("remarks", e.target.value)
-                    }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                    rows="4"
-                    placeholder="Add a remark..."
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Info Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="flex items-center gap-3">
-                <Calendar className="text-gray-400" size={20} />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Due Date</p>
-                  <p className="text-sm text-gray-600">
-                    {selectedTicket.dueDate
-                      ? new Date(selectedTicket.dueDate).toLocaleDateString()
-                      : "Not set"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Users className="text-gray-400" size={20} />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    Assigned To
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {getAssignedAgentNames(selectedTicket.assigned_to)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Clock className="text-gray-400" size={20} />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Created</p>
-                  <p className="text-sm text-gray-600">
-                    {selectedTicket.createdAt
-                      ? new Date(selectedTicket.createdAt).toLocaleDateString()
-                      : "Unknown"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Assignment Section */}
-            <div className="border-t pt-6 mb-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-3">
-                    Reassign To:
-                  </label>
-                  {isEditing ? (
-                    <div className="space-y-2">
-                      {agents.map((agent) => (
-                        <label
-                          key={agent._id}
-                          className="flex items-center gap-2"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={editData.assignedTo.includes(agent._id)}
-                            onChange={() =>
-                              handleAssignedAgentToggle(agent._id)
-                            }
-                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {agent.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-600">
-                      {getAssignedAgentNames(selectedTicket.assigned_to)}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-3">
-                    Change Status:
-                  </label>
-                  <select
-                    value={isEditing ? editData.status : selectedTicket.status}
-                    onChange={(e) =>
-                      isEditing && handleInputChange("status", e.target.value)
-                    }
-                    disabled={!isEditing}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
-                  >
-                    {statuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Remarks History */}
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Activity Log
-              </h3>
-              {selectedTicket.remarks && selectedTicket.remarks.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedTicket.remarks.map((remark, index) => (
-                    <div
-                      key={index}
-                      className="border-l-4 border-purple-500 bg-gray-50 p-4 rounded-md shadow-sm mb-4"
-                    >
-                      <p className="text-sm text-gray-800">{remark.remark}</p>
-
-                      <div className="flex justify-between items-center mt-2 text-xs text-gray-600">
-                        <p>
-                          By{" "}
-                          <span className="font-semibold text-gray-900">
-                            {getAgentNameById(remark.by)}
-                          </span>
-                        </p>
-                        <p className="text-right">
-                          {new Date(remark.time).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No remarks yet.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <Toaster position="top-right" />
-      <div className="max-w-[1400px] ml-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
-          Ticket Management
-        </h1>
-
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
-            <CheckCircle className="text-green-600" size={20} />
-            <span className="text-green-800">{successMessage}</span>
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
-            <AlertCircle className="text-red-600" size={20} />
-            <span className="text-red-800">{error}</span>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="flex items-center gap-3 text-purple-600">
-              <Loader2 className="animate-spin" size={24} />
-              <span className="text-lg">Loading tickets...</span>
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && !error && tickets.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <User className="text-gray-400" size={32} />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No tickets found
-            </h3>
-            <p className="text-gray-500">
-              There are currently no tickets to display.
-            </p>
-          </div>
-        )}
-
-        {/* Tickets List */}
-        {!loading && tickets.length > 0 && (
-          <div className="grid grid-cols-1 gap-4">
-            {tickets.map((ticket) => (
-              <div
-                key={ticket._id}
-                className="bg-white rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+    <>
+      {selectedTickets.length > 0 ? (
+        <div className="min-h-screen bg-gray-100 p-3 sm:p-4 lg:p-6">
+          <ToastNotifications />
+          <div className="max-w-7xl mx-auto">
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
+                <CheckCircle className="text-green-600" size={18} />
+                <span className="text-green-800 text-sm">{successMessage}</span>
+              </div>
+            )}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
+                <AlertCircle className="text-red-600" size={18} />
+                <span className="text-red-800 text-sm">{error}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={handleBackToList}
+                className="flex items-center gap-1 text-purple-600 hover:text-purple-800 font-medium transition-colors text-sm"
               >
-                <div className="flex items-start justify-between">
-                  {/* Left Section */}
-                  <div className="flex items-start gap-6 flex-1">
-                    {/* Avatar */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
-                      {ticket.name?.[0]?.toUpperCase() || "👤"}
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back to Tickets
+              </button>
+            </div>
+            <div>
+              <UserInformation
+                selectedTickets={selectedTickets}
+                copyToClipboard={copyToClipboard}
+              />
+            </div>
+
+            {selectedTickets.map((ticket) => {
+              const isOpen = openTicketId === ticket._id;
+              return (
+                <div
+                  key={ticket._id}
+                  className="border mt-3 rounded-lg shadow-sm bg-white overflow-hidden"
+                >
+                  {/* Preview Row */}
+                  <div
+                    className="cursor-pointer p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition"
+                    onClick={() =>
+                      setOpenTicketId((prev) =>
+                        prev === ticket._id ? null : ticket._id
+                      )
+                    }
+                  >
+                    <div className="truncate w-3/4 text-sm flex font-medium text-gray-800">
+                      <div className="relative group">
+                        <Bookmark
+                          className={`w-5 h-5 ${getPriorityColor(
+                            ticket.priority
+                          )}`}
+                        />
+                        <div
+                          className={`absolute left-0 top-6 hidden group-hover:block ${getPriorityBgColor(
+                            ticket.priority
+                          )} text-xs font-medium px-2 py-1 rounded-md shadow-sm z-10 whitespace-nowrap`}
+                        >
+                          Priority: {ticket.priority.toUpperCase()}
+                        </div>
+                      </div>
+                      <span className="ml-5">
+                        {ticket.task || "No task provided"}
+                      </span>
                     </div>
 
-                    {/* Info */}
-                    <div className="flex flex-col gap-2 w-full">
-                      <div
-                        onClick={() => handleTicketClick(ticket)}
-                        className="flex items-center w-40 gap-2 text-lg font-semibold text-gray-900"
-                      >
-                        <User className="w-4 h-4 text-gray-400" />
-                        {ticket.name || "Untitled Ticket"}
-                      </div>
-
-                      <div className="flex flex-wrap items-center  text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          <span>{ticket.number || ticket._id.slice(-8)}</span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(ticket._id, ticket.number);
-                            }}
-                            className="p-1 text-gray-500 hover:text-purple-600 transition-colors"
-                            title="Copy Ticket Number"
-                          >
-                            <Copy size={16} />
-                          </button>
-                        </div>
-                        <div className="flex items-center px-14">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          {ticket.dueDate
-                            ? new Date(ticket.dueDate).toLocaleDateString()
-                            : "No Date"}
-                        </div>
-                        <div className="flex items-center w-[600px] max-w-sm ">
-                          <CircleCheck className="w-4 h-4 text-gray-400" />
-                          <span
-                            className="line-clamp-2 text-sm text-gray-700 leading-snug"
-                            title={ticket.task || "No Task"}
-                          >
-                            {ticket.task || "No Task"}
-                          </span>
-                        </div>
-                        {renderCropName(ticket.cropName)}
-                      </div>
+                    <div className="text-xs text-purple-600 underline">
+                      {formatDate(ticket.createdAt)}
+                    </div>
+                    <div className="text-xs text-purple-600 underline">
+                      View Details
                     </div>
                   </div>
 
-                  {/* Right Section: Status and Priority */}
-                  <div className="flex flex-col items-end gap-2">
-                    <span
-                      className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusColor(
-                        ticket.status
-                      )}`}
-                    >
-                      {ticket.status || "Opened"}
-                    </span>
-                    <span
-                      className={`px-3 py-1 text-xs rounded-full font-semibold ${getPriorityColor(
-                        ticket.priority
-                      )}`}
-                    >
-                      <Flag className="w-3 h-3 inline-block mr-1" />
-                      {ticket.priority?.toUpperCase() || "MEDIUM"}
-                    </span>
+                  {/* Collapsible Section */}
+                  <div
+                    className={`transition-all duration-300 ease-in-out ${
+                      isOpen ? "max-h-[1000px] p-4" : "max-h-0"
+                    } overflow-hidden`}
+                  >
+                    <TicketDetails
+                      ticket={ticket}
+                      editData={editData}
+                      handleInputChange={handleInputChange}
+                      handleSave={handleSave}
+                      updating={updating}
+                      handleAssignedAgentToggle={handleAssignedAgentToggle}
+                      getAssignedAgentNames={getAssignedAgentNames}
+                      agents={agents}
+                      priorities={["Low", "Medium", "High", "ASAP"]}
+                      agentId={agentId} // Use agentId state
+                      onDeleteSuccess={(deletedId) => {
+                        setTickets((prev) =>
+                          prev.filter((t) => t._id !== deletedId)
+                        );
+                      }}
+                    />
+
+                    <div className="mt-4">
+                      <ActivityLog
+                        ticket={ticket}
+                        getAgentNameById={getAgentNameById}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+          <ToastNotifications />
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
+              Ticket Management
+            </h1>
+            {successMessage && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
+                <CheckCircle className="text-green-600" size={18} />
+                <span className="text-green-800 text-sm">{successMessage}</span>
+              </div>
+            )}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-slide-in">
+                <AlertCircle className="text-red-600" size={18} />
+                <span className="text-red-800 text-sm">{error}</span>
+              </div>
+            )}
+            {loading && (
+              <div className="flex items-center justify-center py-10">
+                <div className="flex items-center gap-2 text-purple-600">
+                  <Loader2 className="animate-spin" size={20} />
+                  <span className="text-base">Loading tickets...</span>
+                </div>
+              </div>
+            )}
+            {!loading && !error && tickets.length === 0 && (
+              <div className="text-center py-10 bg-white rounded-lg shadow-sm">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                  <User className="text-gray-400" size={24} />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">
+                  No tickets found
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  There are currently no tickets to display.
+                </p>
+              </div>
+            )}
+            {!loading && tickets.length > 0 && (
+              <TicketList
+                tickets={tickets}
+                handleUserClick={handleUserClick}
+                handleTicketClick={handleTicketClick}
+                getPriorityColor={getPriorityColor}
+                getPriorityBgColor={getPriorityBgColor}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

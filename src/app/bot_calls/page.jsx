@@ -61,6 +61,8 @@ const FilterSection = React.memo(
     setTreesOperator,
     sortByTrees,
     setSortByTrees,
+    cropFilter,
+    setCropFilter,
   }) => {
     return (
       <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -167,6 +169,30 @@ const FilterSection = React.memo(
               {treesFilter && (
                 <button
                   onClick={() => setTreesFilter("")}
+                  className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Filter by Crop */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Filter by Crop
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Enter crop name..."
+                value={cropFilter}
+                onChange={(e) => setCropFilter(e.target.value)}
+                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-black"
+              />
+              {cropFilter && (
+                <button
+                  onClick={() => setCropFilter("")}
                   className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
                 >
                   Clear
@@ -460,10 +486,12 @@ const RecordingTable = () => {
   const [treesFilter, setTreesFilter] = useState("");
   const [treesOperator, setTreesOperator] = useState("gte");
   const [sortByTrees, setSortByTrees] = useState(false);
+  const [cropFilter, setCropFilter] = useState("");
   const [currentlyPlayingRecording, setCurrentlyPlayingRecording] =
     useState(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedCropFilter = useDebounce(cropFilter, 300);
   const abortControllerRef = useRef();
 
   const getToken = useCallback(() => {
@@ -499,6 +527,7 @@ const RecordingTable = () => {
         params.append("maxTrees", treesFilter);
       }
     }
+    if (debouncedCropFilter) params.append("crop", debouncedCropFilter);
     if (sortByTrees) {
       params.append("sortBy", "no_of_trees");
       params.append("order", "desc");
@@ -513,6 +542,7 @@ const RecordingTable = () => {
     statusFilter,
     treesFilter,
     treesOperator,
+    debouncedCropFilter,
     sortByTrees,
     formatDateForAPI,
   ]);
@@ -630,6 +660,7 @@ const RecordingTable = () => {
         filename += `_${statusFilter === "true" ? "done" : "pending"}`;
       if (filterDate) filename += `_${filterDate}`;
       if (treesFilter) filename += `_trees_${treesOperator}_${treesFilter}`;
+      if (debouncedCropFilter) filename += `_crop_${debouncedCropFilter}`;
       filename += ".csv";
 
       link.setAttribute("href", url);
@@ -658,6 +689,7 @@ const RecordingTable = () => {
     filterDate,
     treesFilter,
     treesOperator,
+    debouncedCropFilter,
   ]);
 
   // Handle status change
@@ -787,6 +819,7 @@ const RecordingTable = () => {
         treesOperator === "gte" ? "≥" : treesOperator === "lte" ? "≤" : "=";
       filters.push(`Trees: ${operatorText} ${treesFilter}`);
     }
+    if (debouncedCropFilter) filters.push(`Crop: ${debouncedCropFilter}`);
     return filters.length > 0 ? filters.join(" | ") : "No filters applied";
   }, [
     statusFilter,
@@ -794,6 +827,7 @@ const RecordingTable = () => {
     debouncedSearchTerm,
     treesFilter,
     treesOperator,
+    debouncedCropFilter,
   ]);
 
   // Fetch data when filters or page change
@@ -806,6 +840,7 @@ const RecordingTable = () => {
     statusFilter,
     treesFilter,
     treesOperator,
+    debouncedCropFilter,
     sortByTrees,
     fetchRecordings,
   ]);
@@ -821,6 +856,7 @@ const RecordingTable = () => {
     statusFilter,
     treesFilter,
     treesOperator,
+    debouncedCropFilter,
     sortByTrees,
   ]);
 
@@ -899,6 +935,8 @@ const RecordingTable = () => {
           setTreesOperator={setTreesOperator}
           sortByTrees={sortByTrees}
           setSortByTrees={setSortByTrees}
+          cropFilter={cropFilter}
+          setCropFilter={setCropFilter}
         />
 
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
