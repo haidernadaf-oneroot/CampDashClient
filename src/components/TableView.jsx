@@ -8,12 +8,12 @@ const TableView = ({
   formatDate,
   getStatusText,
   handleEditClick,
+  handleTaskClick,
   currentPage,
   totalUsers,
   totalPages,
   setCurrentPage,
   getPageNumbers,
-  handleTaskClick,
 }) => (
   <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
     <div id="table-container" className="max-h-[400px] overflow-auto">
@@ -29,7 +29,7 @@ const TableView = ({
               Actions
             </th>
             <th className="px-4 py-3 font-semibold text-gray-700 text-right">
-              tasks
+              Tasks
             </th>
           </tr>
         </thead>
@@ -43,6 +43,9 @@ const TableView = ({
                     <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                   </td>
                 ))}
+                <td className="px-4 py-3">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                </td>
                 <td className="px-4 py-3">
                   <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                 </td>
@@ -117,7 +120,7 @@ const TableView = ({
                     className="p-1 rounded-full text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                   >
                     <PenSquare className="h-4 w-4" />
-                    <span className="sr-only">change</span>
+                    <span className="sr-only">Change</span>
                   </button>
                 </td>
               </tr>
@@ -125,7 +128,7 @@ const TableView = ({
           ) : (
             <tr>
               <td
-                colSpan={selectedColumns.length + 1}
+                colSpan={selectedColumns.length + 2}
                 className="text-center py-8 text-gray-500"
               >
                 No data available

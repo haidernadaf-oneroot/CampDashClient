@@ -1,21 +1,20 @@
-// components/FilterOptions.jsx
 import {
   Filter,
   FilterX,
-  PenIcon,
   Download,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  X,
   Calendar,
   Tag,
   CheckCircle,
   DownloadIcon,
+  MapPin,
 } from "lucide-react";
 
 const FilterOptions = ({
   tags,
+  districts,
+  talukas,
+  hoblis,
+  villages,
   consentFilter,
   setConsentFilter,
   categoryFilter,
@@ -26,6 +25,14 @@ const FilterOptions = ({
   setDateFilter,
   downloadedFilter,
   setDownloadedFilter,
+  districtFilter,
+  setDistrictFilter,
+  talukaFilter,
+  setTalukaFilter,
+  hobliFilter,
+  setHobliFilter,
+  villageFilter,
+  setVillageFilter,
   resetFilters,
   showDownloadModal,
   setShowDownloadModal,
@@ -135,13 +142,101 @@ const FilterOptions = ({
             <option value="null">Lead</option>
           </select>
         </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-purple-600" />
+            <label className="block text-sm font-medium text-gray-700">
+              District
+            </label>
+          </div>
+          <select
+            value={districtFilter}
+            onChange={(e) => setDistrictFilter(e.target.value)}
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="">All</option>
+            {districts.map((district) => (
+              <option key={district} value={district}>
+                {district}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-purple-600" />
+            <label className="block text-sm font-medium text-gray-700">
+              Taluka
+            </label>
+          </div>
+          <select
+            value={talukaFilter}
+            onChange={(e) => setTalukaFilter(e.target.value)}
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="">All</option>
+            {talukas.map((taluka) => (
+              <option key={taluka} value={taluka}>
+                {taluka}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-purple-600" />
+            <label className="block text-sm font-medium text-gray-700">
+              Hobli
+            </label>
+          </div>
+          <select
+            value={hobliFilter}
+            onChange={(e) => setHobliFilter(e.target.value)}
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="">All</option>
+            {hoblis.map((hobli) => (
+              <option key={hobli} value={hobli}>
+                {hobli}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-purple-600" />
+            <label className="block text-sm font-medium text-gray-700">
+              Village
+            </label>
+          </div>
+          <select
+            value={villageFilter}
+            onChange={(e) => setVillageFilter(e.target.value)}
+            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="">All</option>
+            {villages.map((village) => (
+              <option key={village} value={village}>
+                {village}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {(consentFilter ||
         dateFilter ||
         tagFilter ||
         downloadedFilter ||
-        categoryFilter) && (
+        categoryFilter ||
+        districtFilter ||
+        talukaFilter ||
+        hobliFilter ||
+        villageFilter) && (
         <div className="mt-6 flex justify-end">
           <button
             onClick={() => setShowDownloadModal(true)}

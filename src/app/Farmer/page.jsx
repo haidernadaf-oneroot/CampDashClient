@@ -29,7 +29,19 @@ const formatDate = (dateString) => {
 const Page = () => {
   const [farmer, setFarmer] = useState([]);
   const [tags, setTags] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [talukas, setTalukas] = useState([]);
+  const [hoblis, setHoblis] = useState([]);
+  const [villages, setVillages] = useState([]);
   const [tagFilter, setTagFilter] = useState("");
+  const [consentFilter, setConsentFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [downloadedFilter, setDownloadedFilter] = useState("");
+  const [districtFilter, setDistrictFilter] = useState("");
+  const [talukaFilter, setTalukaFilter] = useState("");
+  const [hobliFilter, setHobliFilter] = useState("");
+  const [villageFilter, setVillageFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -37,15 +49,10 @@ const Page = () => {
   const [downloading, setDownloading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const [consentFilter, setConsentFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-  const [downloadedFilter, setDownloadedFilter] = useState("");
   const [editingFarmerId, setEditingFarmerId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
   const [pincode, setPincode] = useState("");
-  const [villages, setVillages] = useState([]);
   const [locationData, setLocationData] = useState(null);
   const [activeTab, setActiveTab] = useState("table");
   const [selectedColumns, setSelectedColumns] = useState([
@@ -60,6 +67,10 @@ const Page = () => {
     "downloaded_date",
     "onboarded_date",
     "farmer_category",
+    "district",
+    "taluk",
+    "hobli",
+    "village",
   ]);
   const [showFilter, setShowFilter] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
@@ -108,8 +119,29 @@ const Page = () => {
         setTags(["Error loading tags"]);
       }
     };
+
     fetchTags();
   }, []);
+
+  // Derive location filter options from farmer data
+  useEffect(() => {
+    const uniqueDistricts = [
+      ...new Set(farmer.map((f) => f.district).filter(Boolean)),
+    ];
+    const uniqueTalukas = [
+      ...new Set(farmer.map((f) => f.taluk).filter(Boolean)),
+    ];
+    const uniqueHoblis = [
+      ...new Set(farmer.map((f) => f.hobli).filter(Boolean)),
+    ];
+    const uniqueVillages = [
+      ...new Set(farmer.map((f) => f.village).filter(Boolean)),
+    ];
+    setDistricts(uniqueDistricts);
+    setTalukas(uniqueTalukas);
+    setHoblis(uniqueHoblis);
+    setVillages(uniqueVillages);
+  }, [farmer]);
 
   useEffect(() => {
     const getdata = async () => {
@@ -123,7 +155,13 @@ const Page = () => {
           ...(downloadedFilter && { downloaded: downloadedFilter }),
           ...(searchTerm && { search: searchTerm }),
           ...(categoryFilter && { category: categoryFilter }),
+          ...(districtFilter && { district: districtFilter }),
+          ...(talukaFilter && { taluk: talukaFilter }),
+          ...(hobliFilter && { hobli: hobliFilter }),
+          ...(villageFilter && { village: villageFilter }),
         });
+
+        console.log("Fetching users with query:", queryParams.toString());
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/users?${queryParams}`,
@@ -162,6 +200,10 @@ const Page = () => {
     downloadedFilter,
     searchTerm,
     categoryFilter,
+    districtFilter,
+    talukaFilter,
+    hobliFilter,
+    villageFilter,
   ]);
 
   const fetchLocationData = async (pincodeValue) => {
@@ -329,10 +371,16 @@ const Page = () => {
         ...(downloadedFilter && { downloaded: downloadedFilter }),
         ...(searchTerm && { search: searchTerm }),
         ...(categoryFilter && { category: categoryFilter }),
+        ...(districtFilter && { district: districtFilter }),
+        ...(talukaFilter && { taluk: talukaFilter }),
+        ...(hobliFilter && { hobli: hobliFilter }),
+        ...(villageFilter && { village: villageFilter }),
         columns: columnsParam,
         from: downloadRange.from.toString(),
         to: downloadRange.to.toString(),
       });
+
+      console.log("Downloading with query:", queryParams.toString());
 
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/download-users?${queryParams}`;
 
@@ -379,6 +427,10 @@ const Page = () => {
     dateFilter,
     downloadedFilter,
     categoryFilter,
+    districtFilter,
+    talukaFilter,
+    hobliFilter,
+    villageFilter,
   ]);
 
   useEffect(() => {
@@ -421,9 +473,19 @@ const Page = () => {
     setDownloadedFilter("");
     setSearchTerm("");
     setCategoryFilter("");
+    setDistrictFilter("");
+    setTalukaFilter("");
+    setHobliFilter("");
+    setVillageFilter("");
   };
 
   const displayedFarmers = farmer;
+
+  // Debug handleCancelEdit
+  console.log(
+    "handleCancelEdit defined:",
+    typeof handleCancelEdit === "function"
+  );
 
   return (
     <div className="space-y-6">
@@ -448,6 +510,10 @@ const Page = () => {
       {isVisible && (
         <FilterOptions
           tags={tags}
+          districts={districts}
+          talukas={talukas}
+          hoblis={hoblis}
+          villages={villages}
           consentFilter={consentFilter}
           setConsentFilter={setConsentFilter}
           categoryFilter={categoryFilter}
@@ -458,6 +524,14 @@ const Page = () => {
           setDateFilter={setDateFilter}
           downloadedFilter={downloadedFilter}
           setDownloadedFilter={setDownloadedFilter}
+          districtFilter={districtFilter}
+          setDistrictFilter={setDistrictFilter}
+          talukaFilter={talukaFilter}
+          setTalukaFilter={setTalukaFilter}
+          hobliFilter={hobliFilter}
+          setHobliFilter={setHobliFilter}
+          villageFilter={villageFilter}
+          setVillageFilter={setVillageFilter}
           resetFilters={resetFilters}
           showDownloadModal={showDownloadModal}
           setShowDownloadModal={setShowDownloadModal}
