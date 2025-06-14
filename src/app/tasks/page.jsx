@@ -1,12 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  User,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Bookmark,
-} from "lucide-react";
+import { User, CheckCircle, AlertCircle, Loader2, Tag } from "lucide-react";
 import ToastNotifications from "@/components/ticket/ToastNotifications";
 import TicketDetails from "@/components/ticket/TicketDetails";
 import TicketActions from "@/components/ticket/TicketActions";
@@ -410,7 +404,7 @@ const TicketManagement = () => {
                   >
                     <div className="truncate w-3/4 text-sm flex font-medium text-gray-800">
                       <div className="relative group">
-                        <Bookmark
+                        <Tag
                           className={`w-5 h-5 ${getPriorityColor(
                             ticket.priority
                           )}`}

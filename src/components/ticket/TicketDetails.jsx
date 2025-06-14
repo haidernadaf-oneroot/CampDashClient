@@ -1,6 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, ChevronDown, Loader2, Save, X } from "lucide-react";
+import {
+  ChevronDown,
+  Loader2,
+  Save,
+  X,
+  Check,
+  Users,
+  MessageSquare,
+  Tags,
+  Tag,
+} from "lucide-react";
 
 const TicketDetails = ({
   ticket,
@@ -19,6 +29,10 @@ const TicketDetails = ({
   const agentDropdownRef = useRef(null);
   const priorityDropdownRef = useRef(null);
   const [selectedTicket, setSelectedTicket] = useState(ticket);
+  const [isFocused, setIsFocused] = useState({
+    task: false,
+    remarks: false,
+  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -48,35 +62,56 @@ const TicketDetails = ({
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case "low":
-        return "text-green-500";
+        return "text-emerald-400";
       case "medium":
-        return "text-yellow-500";
+        return "text-amber-400";
       case "high":
         return "text-orange-500";
-      case "ASAP":
+      case "asap":
         return "text-red-500";
       default:
-        return "text-gray-500";
+        return "text-gray-400";
     }
   };
 
   const getPriorityBgColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case "low":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-50 text-emerald-700";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-50 text-amber-700";
       case "high":
-        return "bg-orange-100 text-orange-800";
-      case "ASAP":
-        return "bg-red-100 text-red-800";
+        return "bg-orange-50 text-orange-700";
+      case "asap":
+        return "bg-red-50 text-red-700";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-50 text-gray-700";
+    }
+  };
+
+  const getPriorityBorderColor = (priority) => {
+    switch (priority?.toLowerCase()) {
+      case "low":
+        return "border-emerald-200";
+      case "medium":
+        return "border-amber-200";
+      case "high":
+        return "border-orange-200";
+      case "asap":
+        return "border-red-200";
+      default:
+        return "border-gray-200";
     }
   };
 
   if (!ticket)
-    return <div className="text-red-600">Error: Ticket data missing.</div>;
+    return (
+      <div className="p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 shadow-sm">
+        <div className="text-red-500 font-medium">
+          Error: Ticket data missing
+        </div>
+      </div>
+    );
 
   // Normalize priority for display
   const currentPriority = (
@@ -88,162 +123,236 @@ const TicketDetails = ({
     currentPriority.charAt(0).toUpperCase() + currentPriority.slice(1);
 
   return (
-    <div className="rounded-t-lg mt-4 bg-white p-4 shadow-sm space-y-4">
-      <div className="flex flex-wrap gap-4 items-start">
-        {/* Status Checkbox */}
-        <div className="flex items-center space-x-2 mt-1">
-          <input
-            type="checkbox"
-            checked={editData?.status === "Closed"}
-            onChange={(e) =>
-              handleInputChange("status", e.target.checked ? "Closed" : "")
-            }
-            className="w-5 h-5 text-purple-600 border-gray-300 rounded"
-          />
+    <div className="rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 border border-gray-200 shadow-sm space-y-6 transition-all duration-200 hover:shadow-md">
+      {/* Header Row */}
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Status Toggle */}
+        <div className="relative inline-flex items-center">
+          <label className="relative flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={editData?.status === "Closed"}
+              onChange={(e) =>
+                handleInputChange("status", e.target.checked ? "Closed" : "")
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            <span className="ml-3 text-sm font-medium text-gray-700">
+              {editData?.status === "Closed" ? "Closed" : "Open"}
+            </span>
+          </label>
         </div>
 
         {/* Priority Dropdown */}
-        <div className="relative mt-1" ref={priorityDropdownRef}>
+        <div className="relative" ref={priorityDropdownRef}>
           <button
             onClick={() => setPriorityDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-1 focus:outline-none"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${getPriorityBorderColor(
+              currentPriority
+            )} bg-white shadow-xs hover:shadow-sm transition-all ${getPriorityBgColor(
+              currentPriority
+            )}`}
           >
-            <Bookmark
-              className={`w-6 h-6 ${getPriorityColor(currentPriority)}`}
-            />
-            <span className="text-sm">{displayPriority}</span>
-            <ChevronDown className="w-4 h-4" />
+            <Tag className={`w-4 h-4 ${getPriorityColor(currentPriority)}`} />
+            <span className="text-sm font-medium">{displayPriority}</span>
+            <ChevronDown className="w-4 h-4 text-gray-500" />
           </button>
+
           {priorityDropdownOpen && (
-            <div className="absolute w-32 mt-1 left-0 top-7 bg-white border border-gray-300 rounded shadow max-h-32 overflow-y-auto z-20">
+            <div
+              className={`absolute z-20 mt-1 left-0 min-w-[160px] bg-white rounded-lg shadow-lg border ${getPriorityBorderColor(
+                currentPriority
+              )} overflow-hidden animate-fade-in`}
+            >
               {priorities?.map((priority) => {
                 const normalizedPriority = priority.toLowerCase();
                 return (
-                  <div
+                  <button
                     key={normalizedPriority}
                     onClick={() => {
                       handleInputChange("priority", normalizedPriority);
                       setPriorityDropdownOpen(false);
                     }}
-                    className={`flex items-center px-4 py-1 hover:bg-gray-100 cursor-pointer ${getPriorityBgColor(
+                    className={`w-full flex items-center px-4 py-2 text-left hover:bg-gray-50 transition-colors ${getPriorityColor(
                       normalizedPriority
-                    )} text-xs`}
+                    )}`}
                   >
-                    <span>
+                    <span className="text-sm font-medium">
                       {priority.charAt(0).toUpperCase() +
                         priority.slice(1).toLowerCase()}
                     </span>
-                  </div>
+                    {currentPriority === normalizedPriority && (
+                      <Check className="ml-auto w-4 h-4" />
+                    )}
+                  </button>
                 );
               })}
             </div>
           )}
         </div>
 
-        {/* Task Input */}
-        <div className="flex h-7 flex-col w-full sm:w-[350px]">
-          <textarea
-            value={editData?.task || ""}
-            onChange={(e) => handleInputChange("task", e.target.value)}
-            placeholder="Task description..."
-            className="w-full text-sm p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-        </div>
-
-        {/* Remarks Input */}
-        <div className="flex h-7 flex-col w-full sm:w-[350px]">
-          <textarea
-            value={editData?.remarks || ""}
-            onChange={(e) => handleInputChange("remarks", e.target.value)}
-            rows="1"
-            placeholder="Add a remark..."
-            className="w-full text-sm p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-        </div>
-
-        {/* Agent Dropdown */}
-        <div className="min-w-[200px]">
-          <div className="relative" ref={agentDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setAgentDropdownOpen((prev) => !prev)}
-              className="w-full h-7 flex justify-between items-center border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600"
-            >
-              {selectedTicket?.assigned_to?.length > 0
-                ? `${selectedTicket?.assigned_to.length} agent${
-                    selectedTicket?.assigned_to.length > 1 ? "s" : ""
-                  }`
-                : "Select Agents"}
-              <ChevronDown className="w-4 h-4" />
-            </button>
-            {agentDropdownOpen && (
-              <div className="w-full mt-1 bg-white border border-gray-300 rounded shadow max-h-60 overflow-y-auto z-20">
-                {agents?.length > 0 ? (
-                  agents.map((agent) => (
-                    <label
-                      key={agent._id}
-                      className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={
-                          selectedTicket?.assigned_to?.includes(agent._id) ||
-                          false
-                        }
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleAssignedAgentToggle(agent._id);
-                          setSelectedTicket((prev) => ({
-                            ...prev,
-                            assigned_to: e.target.checked
-                              ? [...(prev.assigned_to || []), agent._id]
-                              : prev.assigned_to?.filter(
-                                  (id) => id !== agent._id
-                                ),
-                          }));
-                        }}
-                        className="mr-3 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                      />
-                      <span className="flex-1 text-sm text-gray-700">
-                        {agent.name}
-                      </span>
-                    </label>
-                  ))
-                ) : (
-                  <div className="px-4 py-2 text-sm text-gray-500">
-                    No agents available
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Save and Cancel Buttons */}
-        <div className="flex gap-2 ml-auto">
+        <div className="flex gap-2">
           <button
-            onClick={() => {
-              console.log("Saving ticket with editData:", editData);
-              handleSave(ticket._id);
-            }}
+            onClick={handleCancel}
             disabled={updating}
-            className="flex items-center w-16 h-6 gap-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60 shadow-sm text-sm"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-all shadow-xs hover:shadow-sm"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+          <button
+            onClick={() => handleSave(ticket._id)}
+            disabled={updating}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 transition-all shadow-xs hover:shadow-sm"
           >
             {updating ? (
               <Loader2 className="animate-spin w-4 h-4" />
             ) : (
-              <Save size={14} />
+              <Save className="w-4 h-4" />
             )}
-            Save
+            Save Changes
           </button>
-          {/* <button
-            onClick={handleCancel}
-            disabled={updating}
-            className="flex items-center w-16 h-6 gap-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60 shadow-sm text-sm"
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="space-y-4 flex gap-2">
+        {/* Task Input */}
+        <div className="space-y-1 mt-4">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <Tags className="w-4 h-4 text-gray-500" />
+            Task Description
+          </label>
+          <div
+            className={`relative rounded-lg border w-[450px] h-12  ${
+              isFocused.task
+                ? "border-purple-300 ring-2 ring-purple-100"
+                : "border-gray-300"
+            } bg-white transition-all`}
           >
-            <X size={14} />
-            Cancel
-          </button> */}
+            <textarea
+              value={editData?.task || ""}
+              onChange={(e) => handleInputChange("task", e.target.value)}
+              onFocus={() => setIsFocused((prev) => ({ ...prev, task: true }))}
+              onBlur={() => setIsFocused((prev) => ({ ...prev, task: false }))}
+              placeholder="Describe the task..."
+              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none min-h-[80px]"
+            />
+          </div>
+        </div>
+
+        {/* Remarks Input */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-gray-500" />
+            Remarks
+          </label>
+          <div
+            className={`relative rounded-lg border w-[450px] h-12 ${
+              isFocused.remarks
+                ? "border-purple-300 ring-2 ring-purple-100"
+                : "border-gray-300"
+            } bg-white transition-all`}
+          >
+            <textarea
+              value={editData?.remarks || ""}
+              onChange={(e) => handleInputChange("remarks", e.target.value)}
+              onFocus={() =>
+                setIsFocused((prev) => ({ ...prev, remarks: true }))
+              }
+              onBlur={() =>
+                setIsFocused((prev) => ({ ...prev, remarks: false }))
+              }
+              rows="1"
+              placeholder="Add any additional remarks..."
+              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none"
+            />
+          </div>
+        </div>
+
+        {/* Agent Assignment */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <Users className="w-4 h-4 text-gray-500" />
+            Assign Agents
+          </label>
+          <div className="relative" ref={agentDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setAgentDropdownOpen((prev) => !prev)}
+              className="w-full flex justify-between items-center px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-xs"
+            >
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-700">
+                  {selectedTicket?.assigned_to?.length > 0
+                    ? `${selectedTicket.assigned_to.length} agent${
+                        selectedTicket.assigned_to.length > 1 ? "s" : ""
+                      } selected`
+                    : "Select agents"}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-500 transition-transform ${
+                  agentDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {agentDropdownOpen && (
+              <div className=" z-20 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden animate-fade-in">
+                <div className="max-h-60 overflow-y-auto">
+                  {agents?.length > 0 ? (
+                    agents.map((agent) => (
+                      <label
+                        key={agent._id}
+                        className="flex items-center px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedTicket?.assigned_to?.includes(
+                                agent._id
+                              ) || false
+                            }
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleAssignedAgentToggle(agent._id);
+                              setSelectedTicket((prev) => ({
+                                ...prev,
+                                assigned_to: e.target.checked
+                                  ? [...(prev.assigned_to || []), agent._id]
+                                  : prev.assigned_to?.filter(
+                                      (id) => id !== agent._id
+                                    ),
+                              }));
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="w-5 h-5 border-2 border-gray-300 rounded-md peer-checked:bg-purple-600 peer-checked:border-purple-600 flex items-center justify-center transition-colors">
+                            <Check className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                        <span className="ml-3 text-sm text-gray-700">
+                          {agent.name}
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                      No agents available
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
