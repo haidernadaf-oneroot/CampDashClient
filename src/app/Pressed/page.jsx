@@ -166,7 +166,7 @@ const TableView = () => {
                     Phone Number
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
-                    tag
+                    Flow
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
                     Pressed
