@@ -197,14 +197,14 @@ const TicketDetails = ({
 
         {/* Save and Cancel Buttons */}
         <div className="flex gap-2">
-          <button
+          {/* <button
             onClick={handleCancel}
             disabled={updating}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-all shadow-xs hover:shadow-sm"
           >
             <X className="w-4 h-4" />
             Cancel
-          </button>
+          </button> */}
           <button
             onClick={() => handleSave(ticket._id)}
             disabled={updating}

@@ -166,6 +166,9 @@ const TableView = () => {
                     Phone Number
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
+                    tag
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
                     Pressed
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">
@@ -186,6 +189,7 @@ const TableView = () => {
                       }`}
                     >
                       <td className="px-6 py-4 text-gray-600">{item.number}</td>
+                      <td className="px-6 py-4 text-gray-600">{item.name}</td>
                       <td className="px-6 py-4 text-gray-600">
                         {item.pressed || "-"}
                       </td>

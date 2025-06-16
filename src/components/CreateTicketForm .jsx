@@ -345,7 +345,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
-                <option value="ASAP">ASAP</option>
+                <option value="asap">ASAP</option>
               </select>
             </div>
 
