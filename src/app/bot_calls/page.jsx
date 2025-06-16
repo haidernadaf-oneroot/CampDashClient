@@ -257,6 +257,9 @@ const TableHeader = React.memo(({ sortByTrees }) => {
             <th className="text-left p-4 font-semibold text-slate-700 min-w-[100px]">
               Status
             </th>
+            <th className="text-left p-4 font-semibold text-slate-700 min-w-[100px]">
+              Form
+            </th>
           </tr>
         </thead>
       </table>

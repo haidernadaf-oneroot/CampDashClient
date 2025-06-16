@@ -46,6 +46,13 @@ const Page = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [locationLoading, setLocationLoading] = useState({
+    tags: false,
+    districts: false,
+    talukas: false,
+    hoblis: false,
+    villages: false,
+  });
   const [downloading, setDownloading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isVisible, setIsVisible] = useState(false);
@@ -53,6 +60,7 @@ const Page = () => {
   const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
   const [pincode, setPincode] = useState("");
+  const [modalVillages, setModalVillages] = useState([]);
   const [locationData, setLocationData] = useState(null);
   const [activeTab, setActiveTab] = useState("table");
   const [selectedColumns, setSelectedColumns] = useState([
@@ -104,8 +112,10 @@ const Page = () => {
     { key: "coordinates", label: "Coordinates" },
   ];
 
+  // Fetch tags
   useEffect(() => {
     const fetchTags = async () => {
+      setLocationLoading((prev) => ({ ...prev, tags: true }));
       try {
         if (!process.env.NEXT_PUBLIC_API_URL) {
           throw new Error("API URL is not defined in environment variables");
@@ -117,32 +127,110 @@ const Page = () => {
       } catch (error) {
         console.error("Error fetching tags:", error);
         setTags(["Error loading tags"]);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, tags: false }));
       }
     };
-
     fetchTags();
   }, []);
 
-  // Derive location filter options from farmer data
+  // Fetch districts
   useEffect(() => {
-    const uniqueDistricts = [
-      ...new Set(farmer.map((f) => f.district).filter(Boolean)),
-    ];
-    const uniqueTalukas = [
-      ...new Set(farmer.map((f) => f.taluk).filter(Boolean)),
-    ];
-    const uniqueHoblis = [
-      ...new Set(farmer.map((f) => f.hobli).filter(Boolean)),
-    ];
-    const uniqueVillages = [
-      ...new Set(farmer.map((f) => f.village).filter(Boolean)),
-    ];
-    setDistricts(uniqueDistricts);
-    setTalukas(uniqueTalukas);
-    setHoblis(uniqueHoblis);
-    setVillages(uniqueVillages);
-  }, [farmer]);
+    const fetchDistricts = async () => {
+      setLocationLoading((prev) => ({ ...prev, districts: true }));
+      try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          throw new Error("API URL is not defined in environment variables");
+        }
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/districts`
+        );
+        if (!response.ok) throw new Error("Failed to fetch districts");
+        const data = await response.json();
+        setDistricts(data.length ? data : ["No districts available"]);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+        setDistricts(["Error loading districts"]);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, districts: false }));
+      }
+    };
+    fetchDistricts();
+  }, []);
 
+  // Fetch taluks
+  useEffect(() => {
+    const fetchTaluks = async () => {
+      setLocationLoading((prev) => ({ ...prev, talukas: true }));
+      try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          throw new Error("API URL is not defined in environment variables");
+        }
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/taluks`
+        );
+        if (!response.ok) throw new Error("Failed to fetch taluks");
+        const data = await response.json();
+        setTalukas(data.length ? data : ["No taluks available"]);
+      } catch (error) {
+        console.error("Error fetching taluks:", error);
+        setTalukas(["Error loading taluks"]);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, talukas: false }));
+      }
+    };
+    fetchTaluks();
+  }, []);
+
+  // Fetch hoblis
+  useEffect(() => {
+    const fetchHoblis = async () => {
+      setLocationLoading((prev) => ({ ...prev, hoblis: true }));
+      try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          throw new Error("API URL is not defined in environment variables");
+        }
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/hoblis`
+        );
+        if (!response.ok) throw new Error("Failed to fetch hoblis");
+        const data = await response.json();
+        setHoblis(data.length ? data : ["No hoblis available"]);
+      } catch (error) {
+        console.error("Error fetching hoblis:", error);
+        setHoblis(["Error loading hoblis"]);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, hoblis: false }));
+      }
+    };
+    fetchHoblis();
+  }, []);
+
+  // Fetch villages
+  useEffect(() => {
+    const fetchVillages = async () => {
+      setLocationLoading((prev) => ({ ...prev, villages: true }));
+      try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          throw new Error("API URL is not defined in environment variables");
+        }
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/villages`
+        );
+        if (!response.ok) throw new Error("Failed to fetch villages");
+        const data = await response.json();
+        setVillages(data.length ? data : ["No villages available"]);
+      } catch (error) {
+        console.error("Error fetching villages:", error);
+        setVillages(["Error loading villages"]);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, villages: false }));
+      }
+    };
+    fetchVillages();
+  }, []);
+
+  // Fetch farmers
   useEffect(() => {
     const getdata = async () => {
       setLoading(true);
@@ -190,7 +278,6 @@ const Page = () => {
         setLoading(false);
       }
     };
-
     getdata();
   }, [
     currentPage,
@@ -206,6 +293,7 @@ const Page = () => {
     villageFilter,
   ]);
 
+  // Fetch location data for EditModal based on pincode
   const fetchLocationData = async (pincodeValue) => {
     try {
       const response = await fetch(
@@ -215,10 +303,9 @@ const Page = () => {
 
       const result = await response.json();
       const data = result.data;
-
       setLocationData(data);
       const villageList = data.map((loc) => loc.village);
-      setVillages(villageList);
+      setModalVillages(villageList);
 
       if (data.length > 0) {
         setEditFormData((prev) => ({
@@ -229,7 +316,7 @@ const Page = () => {
       }
     } catch (error) {
       console.error("Error fetching location data:", error);
-      setVillages([]);
+      setModalVillages([]);
       setLocationData(null);
     }
   };
@@ -239,7 +326,7 @@ const Page = () => {
     setEditFormData({ ...farmer });
     setShowEditModal(true);
     setPincode("");
-    setVillages([]);
+    setModalVillages([]);
     setLocationData(null);
   };
 
@@ -282,7 +369,7 @@ const Page = () => {
     if (value.length === 6) {
       fetchLocationData(value);
     } else {
-      setVillages([]);
+      setModalVillages([]);
       setLocationData(null);
     }
   };
@@ -303,7 +390,7 @@ const Page = () => {
         district: editFormData.district || "",
         number: editFormData.number || "",
         identity: editFormData.identity || "",
-        tag: editFormData.tags || "",
+        tag: editFormData.tag || "",
         __v: editFormData.__v || 0,
         createdAt: editFormData.createdAt || "",
         updatedAt: editFormData.updatedAt || "",
@@ -336,6 +423,9 @@ const Page = () => {
       );
       setShowEditModal(false);
       setEditingFarmerId(null);
+      setModalVillages([]);
+      setPincode("");
+      setLocationData(null);
     } catch (error) {
       console.error("Error updating farmer:", error);
       alert("Failed to save changes.");
@@ -346,7 +436,7 @@ const Page = () => {
     setShowEditModal(false);
     setEditingFarmerId(null);
     setPincode("");
-    setVillages([]);
+    setModalVillages([]);
     setLocationData(null);
   };
 
@@ -481,12 +571,6 @@ const Page = () => {
 
   const displayedFarmers = farmer;
 
-  // Debug handleCancelEdit
-  console.log(
-    "handleCancelEdit defined:",
-    typeof handleCancelEdit === "function"
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -537,6 +621,7 @@ const Page = () => {
           setShowDownloadModal={setShowDownloadModal}
           downloading={downloading}
           selectedColumns={selectedColumns}
+          locationLoading={locationLoading} // Add this prop
         />
       )}
 
@@ -628,7 +713,7 @@ const Page = () => {
         setEditFormData={setEditFormData}
         pincode={pincode}
         setPincode={setPincode}
-        villages={villages}
+        villages={modalVillages}
         handleEditChange={handleEditChange}
         handlePincodeChange={handlePincodeChange}
         handleEditSubmit={handleEditSubmit}

@@ -1,4 +1,3 @@
-// TOPBAR COMPONENT
 import React, { useEffect, useState } from "react";
 import { User } from "lucide-react";
 

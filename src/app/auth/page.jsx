@@ -15,18 +15,14 @@ export default function Login() {
       if (!token) return;
 
       try {
-        // Call a backend endpoint to validate token (can be a "profile" or "validate" route)
         await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/agent/token/:token`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-
-        // Token is valid, redirect to Farmer page
         router.replace("/Farmer");
-      } catch (err) {
-        // Token invalid or expired
+      } catch {
         localStorage.clear();
         router.replace("/auth");
       }
@@ -65,6 +61,7 @@ export default function Login() {
 
       localStorage.setItem("token", token);
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("agentName", agent.name || "Agent");
 
       router.replace("/Farmer");
     } catch (err) {

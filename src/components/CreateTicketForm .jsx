@@ -23,17 +23,16 @@ const CreateTicketForm = ({ farmer, onClose }) => {
     name: farmer?.name || "",
     number: farmer?.number || "",
     cropName: "Tender Coconut",
-    // Include all farmer fields to be sent to the backend
     tag: farmer?.tag || "",
     downloaded: farmer?.downloaded || null,
     consent: farmer?.consent || null,
-    consent_date: farmer?.consent_date || null, // Match backend field name
+    consent_date: farmer?.consent_date || null,
     pincode: farmer?.pincode || null,
     village: farmer?.village || "",
     taluk: farmer?.taluk || "",
     district: farmer?.district || "",
     age: farmer?.age || null,
-    farmer_category: farmer?.farmer_category || "", // Match backend field name
+    farmer_category: farmer?.farmer_category || "",
   });
 
   const [agents, setAgents] = useState([]);
@@ -55,7 +54,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
           .join("")
       );
       return JSON.parse(jsonPayload);
-    } catch (e) {
+    } catch {
       return null;
     }
   };
@@ -76,8 +75,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
         const token = getAuthToken();
         if (!token) throw new Error("Please log in");
 
-        console.log("Token:", token);
-
         const userInfo = decodeToken(token);
         if (userInfo) {
           setCurrentUser({ _id: userInfo.id, name: userInfo.name || "You" });
@@ -96,15 +93,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
         if (!response.ok) throw new Error("Failed to fetch agents");
         let data = await response.json();
 
-        if (userInfo && userInfo.id === farmer?._id) {
-          data = [
-            { _id: userInfo.id, name: userInfo.name || "You" },
-            ...data.filter((agent) => agent._id !== userInfo.id),
-          ];
-        }
-
         setAgents(data || []);
-        console.log("Fetched agents:", data);
       } catch (err) {
         showMessage(err.message, true);
       } finally {
@@ -130,7 +119,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
     if (
       !formData.task.trim() ||
       !formData.dueDate ||
@@ -138,10 +126,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
       !formData.cropName ||
       !formData.number
     ) {
-      showMessage(
-        "Please fill all required fields, including crop name and number",
-        true
-      );
+      showMessage("Please fill all required fields", true);
       return;
     }
 
@@ -154,7 +139,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
     setLoading(true);
     try {
       const token = getAuthToken();
-      console.log("Payload being sent:", formData);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ticket`, {
         method: "POST",
         headers: {
@@ -165,8 +149,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
       });
 
       const data = await res.json();
-      console.log("Response from server:", data);
-
       if (data.success) {
         showMessage("Ticket created successfully!");
         setTimeout(onClose, 2000);
@@ -174,7 +156,6 @@ const CreateTicketForm = ({ farmer, onClose }) => {
         showMessage(data.message || "Failed to create ticket", true);
       }
     } catch (err) {
-      console.error("Error during fetch:", err);
       showMessage(err.message || "Something went wrong!", true);
     } finally {
       setLoading(false);
@@ -216,6 +197,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             </div>
           )}
 
+          {/* Farmer Info */}
           <div className="bg-gray-50 p-2 rounded-lg">
             <div className="flex items-center gap-1 mb-2">
               <User className="text-gray-600" size={14} />
@@ -233,6 +215,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             </div>
           </div>
 
+          {/* Task */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Task *
@@ -248,18 +231,16 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             />
           </div>
 
+          {/* Crop */}
           <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
-            <label
-              htmlFor="cropName"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Crop Name *
             </label>
             <select
               name="cropName"
               value={formData.cropName}
               onChange={handleChange}
-              className="w-full p-2.5 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-purple-500 focus:outline-none text-sm text-gray-800 bg-white"
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-0 text-sm bg-white"
               required
             >
               <option value="Tender Coconut">Tender Coconut</option>
@@ -269,6 +250,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             </select>
           </div>
 
+          {/* Assign Agents */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
               <Users size={14} />
@@ -282,55 +264,43 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             ) : (
               <div className="border border-gray-300 rounded-lg overflow-hidden">
                 <div className="max-h-32 overflow-y-auto">
-                  {agents.map((agent) => (
-                    <label
-                      key={agent._id}
-                      className="flex items-center p-2 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.assigned_to.includes(agent._id)}
-                        onChange={() => toggleAgent(agent._id)}
-                        className="mr-2 h-3 w-3 text-purple-600 rounded"
-                      />
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {agent._id === currentUser?._id
-                            ? `${agent.name} (You)`
-                            : agent.name}
-                        </div>
-                        {agent.email && (
-                          <div className="text-xs text-gray-500">
-                            {agent.email}
+                  {[...agents]
+                    .sort((a, b) => {
+                      if (a._id === currentUser?._id) return -1;
+                      if (b._id === currentUser?._id) return 1;
+                      return 0;
+                    })
+                    .map((agent) => (
+                      <label
+                        key={agent._id}
+                        className="flex items-center p-2 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.assigned_to.includes(agent._id)}
+                          onChange={() => toggleAgent(agent._id)}
+                          className="mr-2 h-3 w-3 text-purple-600 rounded"
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {agent._id === currentUser?._id
+                              ? `${agent.name} (You)`
+                              : agent.name}
                           </div>
-                        )}
-                      </div>
-                    </label>
-                  ))}
+                          {agent.email && (
+                            <div className="text-xs text-gray-500">
+                              {agent.email}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    ))}
                 </div>
-                {formData.assigned_to.length > 0 && (
-                  <div className="p-2 bg-purple-50 border-t">
-                    <div className="flex flex-wrap gap-1">
-                      {formData.assigned_to.map((agentId) => (
-                        <span
-                          key={agentId}
-                          className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800"
-                        >
-                          {agents.find((a) => a._id === agentId)?._id ===
-                          currentUser?._id
-                            ? `${
-                                agents.find((a) => a._id === agentId)?.name
-                              } (You)`
-                            : agents.find((a) => a._id === agentId)?.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
+          {/* Priority + Due Date */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -366,6 +336,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             </div>
           </div>
 
+          {/* Status */}
           <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">

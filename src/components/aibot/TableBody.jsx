@@ -2,6 +2,7 @@
 
 import { Copy, Download, Volume2, Play } from "lucide-react";
 import { memo } from "react";
+import Form from "./Form";
 
 const TableBody = memo(
   ({
@@ -165,6 +166,10 @@ const TableBody = memo(
                       recording={rec}
                       onStatusChange={handleStatusChange}
                     />
+                  </td>
+
+                  <td className="p-4 min-w-[100px]">
+                    <Form onStatusChange={handleStatusChange} />
                   </td>
                 </tr>
               ))

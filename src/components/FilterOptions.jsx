@@ -38,6 +38,7 @@ const FilterOptions = ({
   setShowDownloadModal,
   downloading,
   selectedColumns,
+  locationLoading, // Add this prop
 }) => (
   <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -95,18 +96,22 @@ const FilterOptions = ({
               Tags
             </label>
           </div>
-          <select
-            value={tagFilter}
-            onChange={(e) => setTagFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="">All</option>
-            {tags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
+          {locationLoading.tags ? (
+            <div className="text-gray-500">Loading tags...</div>
+          ) : (
+            <select
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">All</option>
+              {tags.map((tag) => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -150,18 +155,22 @@ const FilterOptions = ({
               District
             </label>
           </div>
-          <select
-            value={districtFilter}
-            onChange={(e) => setDistrictFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="">All</option>
-            {districts.map((district) => (
-              <option key={district} value={district}>
-                {district}
-              </option>
-            ))}
-          </select>
+          {locationLoading.districts ? (
+            <div className="text-gray-500">Loading districts...</div>
+          ) : (
+            <select
+              value={districtFilter}
+              onChange={(e) => setDistrictFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">All</option>
+              {districts.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -171,18 +180,22 @@ const FilterOptions = ({
               Taluka
             </label>
           </div>
-          <select
-            value={talukaFilter}
-            onChange={(e) => setTalukaFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="">All</option>
-            {talukas.map((taluka) => (
-              <option key={taluka} value={taluka}>
-                {taluka}
-              </option>
-            ))}
-          </select>
+          {locationLoading.talukas ? (
+            <div className="text-gray-500">Loading talukas...</div>
+          ) : (
+            <select
+              value={talukaFilter}
+              onChange={(e) => setTalukaFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">All</option>
+              {talukas.map((taluka) => (
+                <option key={taluka} value={taluka}>
+                  {taluka}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -192,18 +205,22 @@ const FilterOptions = ({
               Hobli
             </label>
           </div>
-          <select
-            value={hobliFilter}
-            onChange={(e) => setHobliFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="">All</option>
-            {hoblis.map((hobli) => (
-              <option key={hobli} value={hobli}>
-                {hobli}
-              </option>
-            ))}
-          </select>
+          {locationLoading.hoblis ? (
+            <div className="text-gray-500">Loading hoblis...</div>
+          ) : (
+            <select
+              value={hobliFilter}
+              onChange={(e) => setHobliFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">All</option>
+              {hoblis.map((hobli) => (
+                <option key={hobli} value={hobli}>
+                  {hobli}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -213,18 +230,22 @@ const FilterOptions = ({
               Village
             </label>
           </div>
-          <select
-            value={villageFilter}
-            onChange={(e) => setVillageFilter(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="">All</option>
-            {villages.map((village) => (
-              <option key={village} value={village}>
-                {village}
-              </option>
-            ))}
-          </select>
+          {locationLoading.villages ? (
+            <div className="text-gray-500">Loading villages...</div>
+          ) : (
+            <select
+              value={villageFilter}
+              onChange={(e) => setVillageFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">All</option>
+              {villages.map((village) => (
+                <option key={village} value={village}>
+                  {village}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
