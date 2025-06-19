@@ -1,11 +1,11 @@
 "use client";
 
 import React, {
-  useEffect,
   useState,
   useCallback,
   useRef,
   useMemo,
+  useEffect,
 } from "react";
 import {
   Search,
@@ -17,10 +17,12 @@ import {
   Pause,
   X,
 } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import TableBody from "@/components/aibot/TableBody";
 import Pagination from "@/components/aibot/pagination";
+import Form from "@/components/aibot/Form";
 
 // Custom hook for debouncing values
 const useDebounce = (value, delay) => {
@@ -64,157 +66,177 @@ const FilterSection = React.memo(
     cropFilter,
     setCropFilter,
   }) => {
+    const [showFilters, setShowFilters] = useState(true);
     return (
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Filter className="h-5 w-5 text-slate-600" />
-          <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {/* Search Phone Number */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Search Phone Number
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search by phone number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-              />
-            </div>
-            {searchTerm !== debouncedSearchTerm && (
-              <p className="text-xs text-slate-500 mt-1">Searching...</p>
+        {/* Header with toggle button */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Filter className="h-5 w-5 text-slate-600" />
+            <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="text-sm text-purple-600 font-medium hover:underline flex items-center gap-1"
+          >
+            {showFilters ? "Hide Filters" : "Show Filters"}
+            {showFilters ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
             )}
-          </div>
-
-          {/* Filter by Date */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Filter by Date
-            </label>
-            <div className="flex items-center gap-2 text-black">
-              <Calendar className="h-4 w-4 text-slate-500" />
-              <input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-              />
-              {filterDate && (
-                <button
-                  onClick={() => setFilterDate("")}
-                  className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filter by Status */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Filter by Status
-            </label>
-            <div className="flex items-center gap-2 text-black">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-              >
-                <option value="">All Status</option>
-                <option value="true">Done Only</option>
-                <option value="false">Pending Only</option>
-              </select>
-              {statusFilter && (
-                <button
-                  onClick={() => setStatusFilter("")}
-                  className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filter by Trees */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Filter by Trees
-            </label>
-            <div className="flex items-center gap-2">
-              <TreePine className="h-4 w-4 text-green-600" />
-              <select
-                value={treesOperator}
-                onChange={(e) => setTreesOperator(e.target.value)}
-                className="px-2 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors text-black"
-              >
-                <option value="gte">≥</option>
-                <option value="lte">≤</option>
-                <option value="eq">=</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Trees count"
-                value={treesFilter}
-                onChange={(e) => setTreesFilter(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors text-black"
-                min="0"
-              />
-              {treesFilter && (
-                <button
-                  onClick={() => setTreesFilter("")}
-                  className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filter by Crop */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Filter by Crop
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Enter crop name..."
-                value={cropFilter}
-                onChange={(e) => setCropFilter(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-black"
-              />
-              {cropFilter && (
-                <button
-                  onClick={() => setCropFilter("")}
-                  className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Sort by Trees */}
-          <div className="flex items-center justify-start mt-6">
-            <label className="flex items-center gap-2 bg-green-50 border border-green-200 px-4 py-2 rounded-lg cursor-pointer w-full">
-              <input
-                type="checkbox"
-                checked={sortByTrees}
-                onChange={(e) => setSortByTrees(e.target.checked)}
-                className="rounded border-green-300 text-green-600 focus:ring-green-500"
-              />
-              <TreePine className="h-4 w-4 text-green-600" />
-              <span className="text-green-800 font-medium">Sort by Trees</span>
-            </label>
-          </div>
+          </button>
         </div>
+
+        {/* Filters */}
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {/* Phone Search */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Search Phone Number
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search by phone number..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                />
+              </div>
+              {searchTerm !== debouncedSearchTerm && (
+                <p className="text-xs text-slate-500 mt-1">Searching...</p>
+              )}
+            </div>
+
+            {/* Filter by Date */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Filter by Date
+              </label>
+              <div className="flex items-center gap-2 text-black">
+                <Calendar className="h-4 w-4 text-slate-500" />
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                />
+                {filterDate && (
+                  <button
+                    onClick={() => setFilterDate("")}
+                    className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filter by Status */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Filter by Status
+              </label>
+              <div className="flex items-center gap-2 text-black">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                >
+                  <option value="">All Status</option>
+                  <option value="true">Done Only</option>
+                  <option value="false">Pending Only</option>
+                </select>
+                {statusFilter && (
+                  <button
+                    onClick={() => setStatusFilter("")}
+                    className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filter by Trees */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Filter by Trees
+              </label>
+              <div className="flex items-center gap-2">
+                <TreePine className="h-4 w-4 text-green-600" />
+                <select
+                  value={treesOperator}
+                  onChange={(e) => setTreesOperator(e.target.value)}
+                  className="px-2 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors text-black"
+                >
+                  <option value="gte">≥</option>
+                  <option value="lte">≤</option>
+                  <option value="eq">=</option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="Trees count"
+                  value={treesFilter}
+                  onChange={(e) => setTreesFilter(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors text-black"
+                  min="0"
+                />
+                {treesFilter && (
+                  <button
+                    onClick={() => setTreesFilter("")}
+                    className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filter by Crop */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Filter by Crop
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter crop name..."
+                  value={cropFilter}
+                  onChange={(e) => setCropFilter(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-black"
+                />
+                {cropFilter && (
+                  <button
+                    onClick={() => setCropFilter("")}
+                    className="px-2 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Sort by Trees checkbox */}
+            <div className="flex items-center justify-start mt-6">
+              <label className="flex items-center gap-2 bg-green-50 border border-green-200 px-4 py-2 rounded-lg cursor-pointer w-full">
+                <input
+                  type="checkbox"
+                  checked={sortByTrees}
+                  onChange={(e) => setSortByTrees(e.target.checked)}
+                  className="rounded border-green-300 text-green-600 focus:ring-green-500"
+                />
+                <TreePine className="h-4 w-4 text-green-600" />
+                <span className="text-green-800 font-medium">
+                  Sort by Trees
+                </span>
+              </label>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -274,11 +296,11 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
   const handleChange = useCallback(
     async (e) => {
       e.preventDefault();
-      const newValue = e.target.value === "true";
+      const newStatus = e.target.value === "true";
       setIsUpdating(true);
 
       try {
-        await onStatusChange(recording._id, newValue);
+        await onStatusChange(recording._id, newStatus);
       } catch (error) {
         console.error("Status update failed:", error);
       } finally {
@@ -296,12 +318,12 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
         value={currentStatus}
         onChange={handleChange}
         disabled={isUpdating}
-        className={`px-3 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer transition-all ${
+        className={`px-3 py-1 text-sm font-medium rounded-full border-0 focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer transition-all ${
           isUpdating
             ? "bg-gray-100 text-gray-500 cursor-not-allowed opacity-50"
             : recording.has_added
-            ? "bg-green-100 text-green-800 hover:bg-green-200"
-            : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+            ? "bg-green-100 text-green-700 hover:bg-green-200"
+            : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
         }`}
       >
         <option value="false">Pending</option>
@@ -316,7 +338,7 @@ const StatusDropdown = React.memo(({ recording, onStatusChange }) => {
   );
 });
 
-// Enhanced AudioPlayer Component - Fixed
+// AudioPlayer Component
 const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -325,7 +347,6 @@ const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Cleanup on unmount or when recording changes
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -367,7 +388,7 @@ const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
     }
   };
 
-  const handleSeek = (e) => {
+  const handleSeekBar = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     const newTime = percent * duration;
@@ -387,7 +408,7 @@ const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
 
   return (
     <div className="fixed bottom-4 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-80 z-50">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           <span className="text-sm font-medium text-slate-900">
@@ -435,7 +456,7 @@ const AudioPlayer = React.memo(({ recording, onClose, formatDate }) => {
         <div className="flex-1">
           <div
             className="h-2 bg-slate-200 rounded-full cursor-pointer"
-            onClick={handleSeek}
+            onClick={handleSeekBar}
           >
             <div
               className="h-full bg-purple-600 rounded-full transition-all duration-150"
@@ -492,16 +513,23 @@ const RecordingTable = () => {
   const [cropFilter, setCropFilter] = useState("");
   const [currentlyPlayingRecording, setCurrentlyPlayingRecording] =
     useState(null);
+  const [formOpen, setFormOpen] = useState(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const debouncedCropFilter = useDebounce(cropFilter, 300);
   const abortControllerRef = useRef();
 
+  const handleFormToggle = useCallback(
+    (recordingId) => {
+      setFormOpen(formOpen === recordingId ? null : recordingId);
+    },
+    [formOpen]
+  );
+
   const getToken = useCallback(() => {
     return localStorage.getItem("token");
   }, []);
 
-  // Format date for API (DD-MM-YYYY)
   const formatDateForAPI = useCallback((dateStr) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -512,17 +540,16 @@ const RecordingTable = () => {
     return `${day}-${month}-${year}`;
   }, []);
 
-  // Build query parameters for API
   const buildQueryParams = useCallback(() => {
     const params = new URLSearchParams({
-      page: currentPage,
-      limit,
+      page: currentPage.toString(),
+      limit: limit.toString(),
     });
 
     if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
     if (filterDate) params.append("date", formatDateForAPI(filterDate));
     if (statusFilter) params.append("hasAdded", statusFilter);
-    if (treesFilter && !isNaN(Number.parseInt(treesFilter))) {
+    if (treesFilter && !isNaN(parseInt(treesFilter))) {
       if (treesOperator === "gte") params.append("minTrees", treesFilter);
       if (treesOperator === "lte") params.append("maxTrees", treesFilter);
       if (treesOperator === "eq") {
@@ -550,7 +577,6 @@ const RecordingTable = () => {
     formatDateForAPI,
   ]);
 
-  // Fetch recordings from backend
   const fetchRecordings = useCallback(
     async (page = 1, resetLoading = true) => {
       if (abortControllerRef.current) {
@@ -594,7 +620,7 @@ const RecordingTable = () => {
         const data = await res.json();
         setRecordings(data.calls || []);
         setTotalPages(data.totalPages || 1);
-        setTotalRecords(data.totalCalls || 0);
+        setTotalRecords(data.totalRecords || 0);
         setCurrentPage(data.currentPage || page);
         setError(null);
       } catch (error) {
@@ -611,7 +637,6 @@ const RecordingTable = () => {
     [getToken, router, buildQueryParams]
   );
 
-  // Download all numbers
   const downloadAllNumbers = useCallback(async () => {
     const token = getToken();
     if (!token) {
@@ -679,7 +704,7 @@ const RecordingTable = () => {
         duration: 3000,
       });
     } catch (error) {
-      console.error("Failed to download:", error);
+      console.error("Download failed:", error);
       toast.dismiss(loadingToast);
       toast.error("Download failed. Please try again.");
     } finally {
@@ -695,7 +720,6 @@ const RecordingTable = () => {
     debouncedCropFilter,
   ]);
 
-  // Handle status change
   const handleStatusChange = useCallback(
     async (recordingId, newStatus) => {
       const token = getToken();
@@ -713,7 +737,7 @@ const RecordingTable = () => {
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/aibot/toggle-call-status`,
+          `${process.env.NEXT_PUBLIC_API_URL}/aibot/toggle-recording-status`,
           {
             method: "PUT",
             headers: {
@@ -760,15 +784,27 @@ const RecordingTable = () => {
     [currentPage, totalPages]
   );
 
-  // Format date for display
+  const handleCopy = useCallback((number) => {
+    const cleanNumber = number?.replace(/^(\+91|91)/, "");
+    if (cleanNumber) {
+      navigator.clipboard.writeText(cleanNumber);
+      toast.success(`Number copied: ${cleanNumber}`, {
+        duration: 2000,
+      });
+    } else {
+      toast.error("No valid number to copy", {
+        duration: 2000,
+      });
+    }
+  }, []);
+
   const formatDate = useCallback((dateStr) => {
     if (!dateStr) return dateStr;
-    // Assuming backend returns date in DD-MM-YYYY format
     const parts = dateStr.split("-");
     if (parts.length !== 3) return dateStr;
-    const day = Number.parseInt(parts[0], 10);
-    const month = Number.parseInt(parts[1], 10) - 1;
-    const year = Number.parseInt(parts[2], 10);
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
     const date = new Date(year, month, day);
     if (isNaN(date)) return dateStr;
     const dayStr = date.getDate().toString().padStart(2, "0");
@@ -786,20 +822,13 @@ const RecordingTable = () => {
       "Nov",
       "Dec",
     ];
-    const monthStr = monthNames[date.getMonth()];
-    const yearStr = date.getFullYear();
+    const monthStr = monthNames[month];
+    const yearStr = year;
     return `${dayStr} ${monthStr} ${yearStr}`;
-  }, []);
-
-  const handleCopy = useCallback((number) => {
-    const cleanNumber = number?.replace(/^(\+91|91)/, "");
-    navigator.clipboard.writeText(cleanNumber);
-    toast.success(`Number copied: ${cleanNumber}`, { duration: 2000 });
   }, []);
 
   const handleAudioToggle = useCallback(
     (audioId, recording) => {
-      // If a different recording is selected, update the currently playing recording
       if (currentlyPlayingRecording?._id !== audioId) {
         setCurrentlyPlayingRecording(recording);
       }
@@ -833,22 +862,20 @@ const RecordingTable = () => {
     debouncedCropFilter,
   ]);
 
-  // Fetch data when filters or page change
   useEffect(() => {
     fetchRecordings(currentPage);
   }, [
     currentPage,
     debouncedSearchTerm,
     filterDate,
+    debouncedCropFilter,
     statusFilter,
+    sortByTrees,
     treesFilter,
     treesOperator,
-    debouncedCropFilter,
-    sortByTrees,
     fetchRecordings,
   ]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     if (currentPage !== 1) {
       setCurrentPage(1);
@@ -863,7 +890,6 @@ const RecordingTable = () => {
     sortByTrees,
   ]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -873,51 +899,48 @@ const RecordingTable = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-background to-bg-gray-100 p-4 md:p-6">
       <Toaster position="top-right" />
-      <div className="max-w-8xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="max-w-[1500px] mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">
-              Recording Dashboard
+            <h1 className="text-3xl font-bold text-purple-600">
+              Recordings Dashboard
             </h1>
-            <p className="text-slate-600 mt-1">
-              Manage and review your audio recordings
-            </p>
+            <p className="text-purple-600 mt-1">Manage recordings</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-slate-600 bg-white px-4 py-2 rounded-lg shadow-sm border">
-              <span className="font-medium text-lg text-slate-900">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-lg text-purple-600">
                 {totalRecords}
               </span>
-              <span>total recordings</span>
+              <span className="text-purple-600">total records</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600 bg-blue-50 px-4 py-2 rounded-lg shadow-sm border border-blue-200">
-              <span className="font-medium text-blue-900">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-purple-600">
                 Download: {filterSummary}
               </span>
             </div>
             <button
               onClick={downloadAllNumbers}
               disabled={downloadLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
+              className="px-4 py-2 bg-purple-600 flex text-white rounded hover:bg-purple-700 disabled:bg-purple-400 disabled:cursor-not-allowed transition-colors"
             >
               <Download
                 className={`h-4 w-4 ${downloadLoading ? "animate-spin" : ""}`}
               />
-              {downloadLoading ? "Downloading..." : "Download Numbers"}
+              <span className="ml-2">
+                {downloadLoading ? "Downloading..." : "Download "}
+              </span>
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p className="text-red-700 text-center">
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-red-600 text-center">
               {error}{" "}
-              <a
-                href="/auth"
-                className="text-red-800 underline font-medium hover:text-red-900"
-              >
+              <a href="/auth" className="text-purple-600 underline">
                 Log in
               </a>
             </p>
@@ -941,22 +964,29 @@ const RecordingTable = () => {
           cropFilter={cropFilter}
           setCropFilter={setCropFilter}
         />
-
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-lg overflow-x-auto">
           <div className="flex flex-col h-[600px]">
-            <TableHeader sortByTrees={sortByTrees} />
+            <div className="table-header">
+              <TableHeader sortByTrees={sortByTrees} />
+            </div>
             <TableBody
               loading={loading}
               filteredRecordings={recordings}
               formatDate={formatDate}
               handleCopy={handleCopy}
+              statusFilter={statusFilter}
               handleAudioToggle={handleAudioToggle}
               playingAudio={currentlyPlayingRecording?._id}
+              filterSummary={filterSummary}
               StatusDropdown={StatusDropdown}
               handleStatusChange={handleStatusChange}
+              handleFormToggle={handleFormToggle}
+              formOpen={formOpen}
             />
           </div>
-          {totalPages > 1 && (
+        </div>
+        {totalPages > 1 && (
+          <div className="pagination">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -965,13 +995,24 @@ const RecordingTable = () => {
               handlePageChange={handlePageChange}
               loading={loading}
             />
-          )}
-        </div>
+          </div>
+        )}
         {currentlyPlayingRecording && (
-          <AudioPlayer
-            recording={currentlyPlayingRecording}
-            onClose={handleCloseAudioPlayer}
-            formatDate={formatDate}
+          <div className="AudioPlayer">
+            <AudioPlayer
+              recording={currentlyPlayingRecording}
+              onClose={handleCloseAudioPlayer}
+              formatDate={formatDate}
+            />
+          </div>
+        )}
+        {formOpen && (
+          <Form
+            recording={recordings.find((rec) => rec._id === formOpen)}
+            onStatusChange={handleStatusChange}
+            onClose={() => setFormOpen(null)}
+            getToken={getToken}
+            setRecordings={setRecordings}
           />
         )}
       </div>

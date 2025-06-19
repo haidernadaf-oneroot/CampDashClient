@@ -63,7 +63,7 @@ const Sidebar = () => {
     { label: "tasks", icon: FileText, href: "/tasks" },
     { label: "Bot_Calls", icon: BotIcon, href: "/bot_calls" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
-    { label: "Ticket", icon: MapPinned, href: "/create-ticket" },
+    { label: "AiBot-Records", icon: MapPinned, href: "/aibots-records" },
   ];
 
   return (

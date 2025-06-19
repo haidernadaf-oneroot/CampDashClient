@@ -1,8 +1,7 @@
 "use client";
 
-import { Copy, Download, Volume2, Play } from "lucide-react";
+import { Copy, Volume2, Play, BookUser } from "lucide-react";
 import { memo } from "react";
-import Form from "./Form";
 
 const TableBody = memo(
   ({
@@ -10,10 +9,12 @@ const TableBody = memo(
     filteredRecordings,
     formatDate,
     handleCopy,
-    handleAudioToggle, // Now expects (id, recording)
+    handleAudioToggle,
     playingAudio,
     StatusDropdown,
     handleStatusChange,
+    handleFormToggle,
+    formOpen,
   }) => {
     if (loading) {
       return (
@@ -27,6 +28,7 @@ const TableBody = memo(
     }
 
     function formatDuration(sec) {
+      if (!sec || isNaN(sec)) return "00:00";
       const m = Math.floor(sec / 60)
         .toString()
         .padStart(2, "0");
@@ -42,7 +44,7 @@ const TableBody = memo(
           <tbody>
             {filteredRecordings.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-12">
+                <td colSpan={9} className="text-center py-12">
                   <div className="flex flex-col items-center gap-3">
                     <Volume2 className="h-12 w-12 text-slate-300" />
                     <p className="text-slate-500 font-medium">
@@ -71,44 +73,42 @@ const TableBody = memo(
                   </td>
                   <td className="p-4 min-w-[140px]">
                     <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
-                      {rec.From}
+                      {rec.From || "N/A"}
                     </span>
                   </td>
                   <td className="p-4 min-w-[120px] text-black">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm">
-                        {rec.To?.replace(/^(\+91|91)/, "")}
+                        {rec.To?.replace(/^(\+91|91)/, "") || "N/A"}
                       </span>
                       <button
                         onClick={() => handleCopy(rec.To)}
-                        className="p-1 hover:bg-slate-200 rounded transition-colors"
+                        className="p-1 hover:bg-slate-200 rounded transition-colors disabled:opacity-50"
                         title="Copy number"
+                        disabled={!rec.To}
                       >
                         <Copy className="h-3 w-3 text-slate-600" />
                       </button>
                     </div>
                   </td>
-
                   <td className="p-4 min-w-[140px]">
                     <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
-                      {rec.crop}
+                      {rec.crop || "N/A"}
                     </span>
                   </td>
-
                   <td className="p-4 min-w-[140px]">
                     <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
-                      {rec.harvest}
+                      {rec.harvest || "N/A"}
                     </span>
                   </td>
-
-                  <td className="p-4 min-w-[240px] text-red-500">
+                  <td className="p-4 min-w-[240px]">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleAudioToggle(rec._id, rec)}
                         className={`relative p-2 rounded-lg transition-all duration-200 text-sm font-medium ${
                           playingAudio === rec._id
                             ? "bg-purple-100 text-purple-700 shadow-md"
-                            : "hover:bg-slate-200 text-slate-600"
+                            : "hover:bg-slate-200 text-gray-600"
                         }`}
                         title={playingAudio === rec._id ? "Pause" : "Play"}
                       >
@@ -143,9 +143,6 @@ const TableBody = memo(
                           <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                         )}
                       </button>
-                      {/* <span className="font-mono text-sm text-black bg-slate-100 px-2 py-1 rounded">
-                        {rec.duration}-sec
-                      </span> */}
                     </div>
                   </td>
                   <td className="p-4 min-w-[80px] text-black">
@@ -167,9 +164,16 @@ const TableBody = memo(
                       onStatusChange={handleStatusChange}
                     />
                   </td>
-
                   <td className="p-4 min-w-[100px]">
-                    <Form onStatusChange={handleStatusChange} />
+                    <BookUser
+                      className={`h-6 ml-2 w-9 cursor-pointer transition-colors ${
+                        formOpen === rec._id
+                          ? "text-purple-700"
+                          : "text-purple-600 hover:text-purple-800"
+                      }`}
+                      onClick={() => handleFormToggle(rec._id)}
+                      title={formOpen === rec._id ? "Close form" : "Open form"}
+                    />
                   </td>
                 </tr>
               ))
