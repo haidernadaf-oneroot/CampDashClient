@@ -17,6 +17,8 @@ import {
   MapPinned,
   ChevronLeft,
   BotIcon,
+  AirplayIcon,
+  Mic,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -63,7 +65,7 @@ const Sidebar = () => {
     { label: "tasks", icon: FileText, href: "/tasks" },
     { label: "Bot_Calls", icon: BotIcon, href: "/bot_calls" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
-    { label: "AiBot-Records", icon: MapPinned, href: "/aibots-records" },
+    { label: "AiBot-Records", icon: Mic, href: "/aibots-records" },
   ];
 
   return (
