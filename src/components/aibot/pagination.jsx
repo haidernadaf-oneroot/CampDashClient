@@ -4,7 +4,7 @@ import { useMemo } from "react";
 const Pagination = ({
   currentPage,
   totalPages,
-  totalRecords,
+  totalCalls,
   limit,
   handlePageChange,
   loading,
@@ -28,9 +28,9 @@ const Pagination = ({
         Showing{" "}
         <span className="font-medium">{(currentPage - 1) * limit + 1}</span> to{" "}
         <span className="font-medium">
-          {Math.min(currentPage * limit, totalRecords)}
+          {Math.min(currentPage * limit, totalCalls)}
         </span>{" "}
-        of <span className="font-medium">{totalRecords}</span> records
+        of <span className="font-medium">{totalCalls}</span> records
       </div>
       <div className="flex items-center gap-1">
         <button

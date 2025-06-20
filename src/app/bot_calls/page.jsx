@@ -502,7 +502,7 @@ const RecordingTable = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
+  const [totalCalls, setTotalRecords] = useState(0);
   const [limit] = useState(50);
   const [filterDate, setFilterDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -620,7 +620,7 @@ const RecordingTable = () => {
         const data = await res.json();
         setRecordings(data.calls || []);
         setTotalPages(data.totalPages || 1);
-        setTotalRecords(data.totalRecords || 0);
+        setTotalRecords(data.totalCalls || 0);
         setCurrentPage(data.currentPage || page);
         setError(null);
       } catch (error) {
@@ -912,7 +912,7 @@ const RecordingTable = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium text-lg text-purple-600">
-                {totalRecords}
+                {totalCalls}
               </span>
               <span className="text-purple-600">total records</span>
             </div>
@@ -990,7 +990,7 @@ const RecordingTable = () => {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalRecords={totalRecords}
+              totalCalls={totalCalls}
               limit={limit}
               handlePageChange={handlePageChange}
               loading={loading}
