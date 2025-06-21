@@ -3,16 +3,26 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { debounce } from "lodash";
+import CreatableSelect from "react-select/creatable";
+
+const cropOptions = [
+  { value: "Tender Coconut", label: "Tender Coconut" },
+  { value: "Dry Coconut", label: "Dry Coconut" },
+  { value: "Turmeric", label: "Turmeric" },
+  { value: "Banana", label: "Banana" },
+  { value: "Pineapple", label: "Pineapple" },
+];
 
 const Form = ({ recording, onClose, getToken, setRecordings }) => {
   const [formData, setFormData] = useState({
     number: recording?.To?.replace(/^(\+91|91)/, "") || "",
     name: "",
     tag: "",
-    crop: "",
+    crop: [],
     next_harvest_date: "",
     no_of_trees: "",
   });
+
   const [userExists, setUserExists] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +51,6 @@ const Form = ({ recording, onClose, getToken, setRecordings }) => {
 
         const json = await res.json();
 
-        // Handle different response structures
         const user =
           json.user || json.data || (res.ok && json.number ? json : null);
 
@@ -50,7 +59,7 @@ const Form = ({ recording, onClose, getToken, setRecordings }) => {
             ...prev,
             name: user.name || "",
             tag: user.tag || "",
-            crop: user.crop || "",
+            crop: user.crop ? user.crop.split(",").map((c) => c.trim()) : [],
             next_harvest_date: user.next_harvest_date
               ? new Date(user.next_harvest_date).toISOString().split("T")[0]
               : "",
@@ -102,7 +111,9 @@ const Form = ({ recording, onClose, getToken, setRecordings }) => {
       number: formData.number,
       name: formData.name,
       tag: formData.tag || "",
-      crop: formData.crop || "",
+      crop: Array.isArray(formData.crop)
+        ? formData.crop.join(", ")
+        : formData.crop,
       next_harvest_date: formData.next_harvest_date || "not specified",
       no_of_trees: formData.no_of_trees ? Number(formData.no_of_trees) : 0,
     };
@@ -199,17 +210,28 @@ const Form = ({ recording, onClose, getToken, setRecordings }) => {
             />
           </div>
 
-          {/* Crop */}
+          {/* Crop - Multi Select */}
           <div className="mb-4">
-            <label className="block text-sm font-medium">Crop</label>
-            <input
-              type="text"
-              name="crop"
-              value={formData.crop}
-              onChange={handleChange}
-              disabled={loadingUser}
-              className="w-full border p-2 rounded"
-              placeholder="e.g., coconut"
+            <label className="block text-sm font-medium">Crop(s)</label>
+            <CreatableSelect
+              isMulti
+              options={cropOptions}
+              value={
+                formData.crop?.map((c) => ({
+                  label: c,
+                  value: c,
+                })) || []
+              }
+              onChange={(selected) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  crop: selected.map((s) => s.value),
+                }))
+              }
+              isDisabled={loadingUser}
+              placeholder="Select or type crops..."
+              className="react-select-container"
+              classNamePrefix="react-select"
             />
           </div>
 

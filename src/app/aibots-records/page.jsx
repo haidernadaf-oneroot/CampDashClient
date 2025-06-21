@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState, useMemo } from "react";
 import {
   FiChevronUp,
@@ -6,7 +7,7 @@ import {
   FiSearch,
   FiCalendar,
 } from "react-icons/fi";
-import { Trash2 } from "lucide-react"; // 👈 Importing the trash icon
+import { Trash2 } from "lucide-react";
 
 const UserDataTable = () => {
   const [users, setUsers] = useState([]);
@@ -24,11 +25,11 @@ const UserDataTable = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/aibotData/getUser`
       );
       const result = await response.json();
+
       const sorted = [...(result.data || [])].sort(
-        (a, b) =>
-          new Date(b._id.toString().substring(0, 8) * 1000) -
-          new Date(a._id.toString().substring(0, 8) * 1000)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
+
       setUsers(sorted);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -126,7 +127,7 @@ const UserDataTable = () => {
   );
 
   return (
-    <div className="p-6  min-h-screen">
+    <div className="p-6 min-h-screen">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 className="text-2xl font-bold text-purple-800">User Records</h2>
@@ -151,12 +152,6 @@ const UserDataTable = () => {
           <table className="min-w-full divide-y divide-purple-200">
             <thead className="bg-purple-100">
               <tr>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-purple-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("_id")}
-                >
-                  <div className="flex items-center">#{getSortIcon("_id")}</div>
-                </th>
                 <th
                   className="px-6 py-3 text-left text-xs font-medium text-purple-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => requestSort("name")}
@@ -212,9 +207,6 @@ const UserDataTable = () => {
                   key={user._id}
                   className="hover:bg-purple-50 transition-colors"
                 >
-                  <td className="px-6 py-4 text-sm text-purple-500">
-                    {startIdx + idx + 1}
-                  </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-purple-900">
                       {user.name || "N/A"}
@@ -224,9 +216,20 @@ const UserDataTable = () => {
                     {user.number}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {user.crop || "N/A"}
-                    </span>
+                    {user.crop ? (
+                      <div className="flex flex-wrap gap-1">
+                        {user.crop.split(",").map((crop, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-800"
+                          >
+                            {crop.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-purple-400 text-sm">N/A</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-sm text-purple-500">
                     {user.tag || "N/A"}
@@ -264,7 +267,6 @@ const UserDataTable = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            {/* Go to first page */}
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
@@ -273,7 +275,6 @@ const UserDataTable = () => {
               &laquo;
             </button>
 
-            {/* Page numbers */}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .slice(
                 Math.max(currentPage - 3, 0),
@@ -293,7 +294,6 @@ const UserDataTable = () => {
                 </button>
               ))}
 
-            {/* Go to last page */}
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
