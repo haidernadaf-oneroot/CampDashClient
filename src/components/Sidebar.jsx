@@ -19,6 +19,8 @@ import {
   BotIcon,
   AirplayIcon,
   Mic,
+  UserRound,
+  UserRoundSearch,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -66,6 +68,7 @@ const Sidebar = () => {
     { label: "Bot_Calls", icon: BotIcon, href: "/bot_calls" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
     { label: "AiBot-Records", icon: Mic, href: "/aibots-records" },
+    { label: "All Leads", icon: UserRoundSearch, href: "/all_leads" },
   ];
 
   return (

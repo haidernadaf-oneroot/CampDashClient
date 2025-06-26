@@ -38,6 +38,7 @@ const Page = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [downloadedFilter, setDownloadedFilter] = useState("");
+  const [identityFilter, setIdentityFilter] = useState(null);
   const [districtFilter, setDistrictFilter] = useState("");
   const [talukaFilter, setTalukaFilter] = useState("");
   const [hobliFilter, setHobliFilter] = useState("");
@@ -237,7 +238,6 @@ const Page = () => {
       try {
         const queryParams = new URLSearchParams({
           page: currentPage.toString(),
-          identity: "Farmer",
           ...(tagFilter && { tag: tagFilter }),
           ...(consentFilter && { consent: consentFilter }),
           ...(dateFilter && { date: dateFilter }),
@@ -248,6 +248,7 @@ const Page = () => {
           ...(talukaFilter && { taluk: talukaFilter }),
           ...(hobliFilter && { hobli: hobliFilter }),
           ...(villageFilter && { village: villageFilter }),
+          ...(identityFilter && { identity: identityFilter }),
         });
 
         console.log("Fetching users with query:", queryParams.toString());
@@ -287,6 +288,7 @@ const Page = () => {
     dateFilter,
     downloadedFilter,
     searchTerm,
+    identityFilter,
     categoryFilter,
     districtFilter,
     talukaFilter,
@@ -575,7 +577,7 @@ const Page = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Farmer Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">All Leads</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={handleToggle}
@@ -594,6 +596,7 @@ const Page = () => {
 
       {isVisible && (
         <FilterOptions
+          showIdentityFilter={true}
           tags={tags}
           districts={districts}
           talukas={talukas}
@@ -609,6 +612,8 @@ const Page = () => {
           setDateFilter={setDateFilter}
           downloadedFilter={downloadedFilter}
           setDownloadedFilter={setDownloadedFilter}
+          identityFilter={identityFilter}
+          setIdentityFilter={setIdentityFilter}
           districtFilter={districtFilter}
           setDistrictFilter={setDistrictFilter}
           talukaFilter={talukaFilter}

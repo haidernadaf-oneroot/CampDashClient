@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 const FilterOptions = ({
+  showIdentityFilter,
   tags,
   districts,
   talukas,
@@ -25,6 +26,8 @@ const FilterOptions = ({
   setDateFilter,
   downloadedFilter,
   setDownloadedFilter,
+  identityFilter,
+  setIdentityFilter,
   districtFilter,
   setDistrictFilter,
   talukaFilter,
@@ -247,6 +250,26 @@ const FilterOptions = ({
             </select>
           )}
         </div>
+        {showIdentityFilter && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <DownloadIcon className="h-4 w-4 text-purple-600" />
+              <label className="block text-sm font-medium text-gray-700">
+                Identity
+              </label>
+            </div>
+            <select
+              value={identityFilter}
+              onChange={(e) => setIdentityFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="Farmer">Farmer</option>
+              <option value="Harvest">Harvest</option>
+              <option value="Loader">Loader</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {(consentFilter ||
