@@ -20,6 +20,8 @@ const FilterOptions = ({
   setConsentFilter,
   categoryFilter,
   setCategoryFilter,
+  identityFilter,
+  setIdentityFilter, // ✅ New
   tagFilter,
   setTagFilter,
   dateFilter,
@@ -108,6 +110,27 @@ const FilterOptions = ({
               <option value="Margin Farmer">Margin</option>
               <option value="Small Farmer">Small</option>
               <option value="Big Farmer">Big</option>
+            </select>
+          </div>
+
+          {/* Identity Filter */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-purple-600" />
+              <label className="block text-sm font-medium text-gray-700">
+                Identity
+              </label>
+            </div>
+            <select
+              value={identityFilter}
+              onChange={(e) => setIdentityFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="">All</option>
+              <option value="Farmer">Farmer</option>
+              <option value="Unknown">Unknown</option>
+              <option value="Harvester">Harvester</option>
+              <option value="Loader">Loader</option>
             </select>
           </div>
 
@@ -275,6 +298,7 @@ const FilterOptions = ({
           tagFilter ||
           downloadedFilter ||
           categoryFilter ||
+          identityFilter || // ✅ Include identity in the condition
           districtFilter ||
           talukaFilter ||
           hobliFilter ||
