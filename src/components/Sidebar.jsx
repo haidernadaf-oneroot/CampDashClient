@@ -60,6 +60,7 @@ const Sidebar = () => {
     { label: "Crops", icon: Leaf, href: "/crops" },
     { label: "Farmers", icon: User2, href: "/Farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/buyer" },
+    { label: "All Leads", icon: UserRoundSearch, href: "/all_leads" },
     { label: "Daily_RTH", icon: ListTodo, href: "/Daily_RTH" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },
     { label: "IVR", icon: PhoneCall, href: "/Pressed" },
@@ -68,7 +69,6 @@ const Sidebar = () => {
     { label: "Bot_Calls", icon: BotIcon, href: "/bot_calls" },
     { label: "Manage Taluka", icon: MapPinned, href: "/manage" },
     { label: "AiBot-Records", icon: Mic, href: "/aibots-records" },
-    { label: "All Leads", icon: UserRoundSearch, href: "/all_leads" },
   ];
 
   return (
