@@ -596,6 +596,7 @@ const Page = () => {
 
       {isVisible && (
         <FilterOptions
+          isVisible={isVisible}
           showIdentityFilter={true}
           tags={tags}
           districts={districts}
