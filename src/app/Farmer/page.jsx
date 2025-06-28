@@ -650,7 +650,7 @@ const Page = () => {
           >
             Table View
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveTab("cards")}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === "cards"
@@ -659,7 +659,7 @@ const Page = () => {
             }`}
           >
             Card View
-          </button>
+          </button> */}
         </div>
       </div>
 

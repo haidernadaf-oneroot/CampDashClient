@@ -1,4 +1,3 @@
-// src/app/layout.jsx
 "use client";
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
@@ -10,32 +9,35 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Check authentication status
-  const isAuthenticated = typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") === "true" : false;
+  const isAuthenticated =
+    typeof window !== "undefined"
+      ? localStorage.getItem("isAuthenticated") === "true"
+      : false;
 
-  // Redirect to /auth if not authenticated (except on /auth route)
   useEffect(() => {
     if (!isAuthenticated && pathname !== "/auth") {
       router.push("/auth");
     }
   }, [isAuthenticated, pathname, router]);
 
-  // Render only children for /auth or unauthenticated users
   if (pathname === "/auth" || !isAuthenticated) {
     return (
       <html lang="en">
         <head>
           <meta charSet="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
           <title>Markhetting</title>
         </head>
-        
-        <body className="antialiased bg-gray-100">{children}</body>
+        <body className="antialiased bg-gray-100 overflow-hidden h-screen">
+          {children}
+        </body>
       </html>
     );
   }
 
-  // Render full layout for authenticated users
   return (
     <html lang="en">
       <head>
@@ -43,14 +45,14 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Markheting</title>
       </head>
-      <body className="antialiased bg-gray-100">
-        <div className="flex min-h-screen bg-gray-100">
+      <body className="antialiased bg-gray-100 overflow-hidden h-screen">
+        <div className="flex h-screen">
           <Sidebar className="fixed left-0 top-0 w-52 h-screen bg-green-800 shadow-lg z-50" />
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col ml-52">
             <Topbar className="fixed top-0 left-52 right-0 h-16 bg-white shadow-md z-40" />
-            <main className="flex-1 transition-all duration-300 ease-in-out ml-52 mt-16 p-4">
-              {children}
-            </main>
+
+            {/* Make only main scrollable */}
+            <main className="flex-1 overflow-y-auto mt-16 p-4">{children}</main>
           </div>
         </div>
       </body>
