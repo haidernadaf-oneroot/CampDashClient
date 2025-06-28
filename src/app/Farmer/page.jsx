@@ -237,7 +237,7 @@ const Page = () => {
       try {
         const queryParams = new URLSearchParams({
           page: currentPage.toString(),
-          identity: "Farmer",
+          // identity: "Farmer",
           ...(tagFilter && { tag: tagFilter }),
           ...(consentFilter && { consent: consentFilter }),
           ...(dateFilter && { date: dateFilter }),
