@@ -96,7 +96,7 @@ const TableView = ({
                               : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {value || "No"}
+                          {value || "no"}
                         </span>
                       ) : (
                         value || "-"

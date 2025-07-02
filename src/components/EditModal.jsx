@@ -31,6 +31,7 @@ const EditModal = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Name */}
               <div className="space-y-2">
                 <label
                   htmlFor="name"
@@ -47,22 +48,42 @@ const EditModal = ({
                 />
               </div>
 
+              {/* Govt_ID */}
               <div className="space-y-2">
                 <label
-                  htmlFor="number"
+                  htmlFor="gov_farmer_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Mobile Number <span className="text-red-500">*</span>
+                  Govt ID
                 </label>
                 <input
-                  id="number"
-                  name="number"
-                  value={editFormData.number || ""}
+                  id="gov_farmer_id"
+                  name="gov_farmer_id"
+                  value={editFormData.gov_farmer_id || ""}
                   onChange={handleEditChange}
                   className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
 
+              {/* Age */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="age"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Age
+                </label>
+                <input
+                  id="age"
+                  name="age"
+                  type="number"
+                  value={editFormData.age || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Pincode */}
               <div className="space-y-2">
                 <label
                   htmlFor="pincode"
@@ -80,6 +101,7 @@ const EditModal = ({
                 />
               </div>
 
+              {/* Village */}
               <div className="space-y-2">
                 <label
                   htmlFor="village"
@@ -103,6 +125,7 @@ const EditModal = ({
                 </select>
               </div>
 
+              {/* Taluk */}
               <div className="space-y-2">
                 <label
                   htmlFor="taluk"
@@ -120,6 +143,7 @@ const EditModal = ({
                 />
               </div>
 
+              {/* District */}
               <div className="space-y-2">
                 <label
                   htmlFor="district"
@@ -137,6 +161,58 @@ const EditModal = ({
                 />
               </div>
 
+              {/* Mobile Number */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="number"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Mobile Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="number"
+                  name="number"
+                  value={editFormData.number || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Identity */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="identity"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Identity
+                </label>
+                <input
+                  id="identity"
+                  name="identity"
+                  value={editFormData.identity || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Tags */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="tag"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Tags
+                </label>
+                <input
+                  id="tag"
+                  name="tag"
+                  value={editFormData.tag || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Consent */}
               <div className="space-y-2">
                 <label
                   htmlFor="consent"
@@ -153,10 +229,11 @@ const EditModal = ({
                 >
                   <option value="">Select Consent</option>
                   <option value="yes">Yes</option>
-                  <option value="no">No</option>
+                  <option value="No">No</option>
                 </select>
               </div>
 
+              {/* Consent Date */}
               <div className="space-y-2">
                 <label
                   htmlFor="consent_date"
@@ -180,6 +257,41 @@ const EditModal = ({
                 />
               </div>
 
+              {/* Farmer Category */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="farmer_category"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Farmer Category
+                </label>
+                <input
+                  id="farmer_category"
+                  name="farmer_category"
+                  value={editFormData.farmer_category || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Hobli */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="hobli"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Hobli
+                </label>
+                <input
+                  id="hobli"
+                  name="hobli"
+                  value={editFormData.hobli || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Downloaded */}
               <div className="space-y-2">
                 <label
                   htmlFor="downloaded"
@@ -215,6 +327,7 @@ const EditModal = ({
                 </select>
               </div>
 
+              {/* Downloaded Date */}
               <div className="space-y-2">
                 <label
                   htmlFor="downloaded_date"
@@ -238,6 +351,7 @@ const EditModal = ({
                 />
               </div>
 
+              {/* Onboarded Date */}
               <div className="space-y-2">
                 <label
                   htmlFor="onboarded_date"
@@ -258,6 +372,74 @@ const EditModal = ({
                   }
                   onChange={handleEditChange}
                   className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Created At */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="createdAt"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Created At
+                </label>
+                <input
+                  id="createdAt"
+                  type="datetime-local"
+                  name="createdAt"
+                  value={
+                    editFormData.createdAt
+                      ? new Date(editFormData.createdAt)
+                          .toISOString()
+                          .slice(0, 16)
+                      : ""
+                  }
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  readOnly
+                />
+              </div>
+
+              {/* Updated At */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="updatedAt"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Updated At
+                </label>
+                <input
+                  id="updatedAt"
+                  type="datetime-local"
+                  name="updatedAt"
+                  value={
+                    editFormData.updatedAt
+                      ? new Date(editFormData.updatedAt)
+                          .toISOString()
+                          .slice(0, 16)
+                      : ""
+                  }
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  readOnly
+                />
+              </div>
+
+              {/* Coordinates */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="coordinates"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Coordinates
+                </label>
+                <input
+                  id="coordinates"
+                  name="coordinates"
+                  value={editFormData.coordinates || ""}
+                  onChange={handleEditChange}
+                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="e.g., 12.9716,77.5946"
                 />
               </div>
             </div>
@@ -282,4 +464,5 @@ const EditModal = ({
     )}
   </>
 );
+
 export default EditModal;

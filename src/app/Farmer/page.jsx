@@ -56,9 +56,9 @@ const Page = () => {
   const [downloading, setDownloading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const [editingFarmerId, setEditingFarmerId] = useState(null);
-  const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [originalNumber, setOriginalNumber] = useState(null);
   const [pincode, setPincode] = useState("");
   const [modalVillages, setModalVillages] = useState([]);
   const [locationData, setLocationData] = useState(null);
@@ -237,7 +237,6 @@ const Page = () => {
       try {
         const queryParams = new URLSearchParams({
           page: currentPage.toString(),
-          // identity: "Farmer",
           ...(tagFilter && { tag: tagFilter }),
           ...(consentFilter && { consent: consentFilter }),
           ...(dateFilter && { date: dateFilter }),
@@ -297,6 +296,7 @@ const Page = () => {
   // Fetch location data for EditModal based on pincode
   const fetchLocationData = async (pincodeValue) => {
     try {
+      console.log("Fetching location data for pincode:", pincodeValue);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/location/${pincodeValue}`
       );
@@ -319,16 +319,26 @@ const Page = () => {
       console.error("Error fetching location data:", error);
       setModalVillages([]);
       setLocationData(null);
+      setEditFormData((prev) => ({
+        ...prev,
+        taluk: "",
+        district: "",
+        village: "",
+      }));
     }
   };
 
   const handleEditClick = (farmer) => {
-    setEditingFarmerId(farmer._id);
-    setEditFormData({ ...farmer });
+    console.log("Opening edit modal with farmer:", farmer);
+    setEditFormData({ ...farmer, consent: farmer.consent || "" });
+    setOriginalNumber(farmer.number);
+    setPincode(farmer.pincode || "");
     setShowEditModal(true);
-    setPincode("");
     setModalVillages([]);
     setLocationData(null);
+    if (farmer.pincode) {
+      fetchLocationData(farmer.pincode);
+    }
   };
 
   const handleTaskClick = (farmer) => {
@@ -343,6 +353,7 @@ const Page = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Editing field ${name} with value: ${value}`);
 
     if (name === "village" && locationData) {
       const selectedLocation = locationData.find(
@@ -366,17 +377,33 @@ const Page = () => {
 
   const handlePincodeChange = (e) => {
     const value = e.target.value;
+    console.log("Pincode input changed to:", value);
     setPincode(value);
-    if (value.length === 6) {
+    setEditFormData((prev) => ({
+      ...prev,
+      pincode: value,
+    }));
+    if (value.length === 6 && /^\d{6}$/.test(value)) {
       fetchLocationData(value);
     } else {
       setModalVillages([]);
       setLocationData(null);
+      setEditFormData((prev) => ({
+        ...prev,
+        taluk: "",
+        district: "",
+        village: "",
+      }));
     }
   };
 
   const handleEditSubmit = async () => {
     try {
+      if (!originalNumber) {
+        alert("Original phone number is missing.");
+        return;
+      }
+
       const payload = {
         downloaded:
           editFormData.downloaded === true
@@ -384,14 +411,19 @@ const Page = () => {
             : editFormData.downloaded === false
             ? false
             : null,
-        _id: editingFarmerId,
         name: editFormData.name || "",
         village: editFormData.village || "",
         taluk: editFormData.taluk || "",
         district: editFormData.district || "",
+        pincode: editFormData.pincode || "",
         number: editFormData.number || "",
         identity: editFormData.identity || "",
         tag: editFormData.tag || "",
+        gov_farmer_id: editFormData.gov_farmer_id || "",
+        age: editFormData.age || "",
+        farmer_category: editFormData.farmer_category || "",
+        hobli: editFormData.hobli || "",
+        coordinates: editFormData.coordinates || "",
         __v: editFormData.__v || 0,
         createdAt: editFormData.createdAt || "",
         updatedAt: editFormData.updatedAt || "",
@@ -399,11 +431,12 @@ const Page = () => {
         consent: editFormData.consent || "",
         consent_date: editFormData.consent_date || "",
         downloaded_date: editFormData.downloaded_date || "",
-        farmer_category: editFormData.farmer_category || "",
       };
 
+      console.log("Submitting payload:", payload);
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/${editingFarmerId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/users/update-by-number/${originalNumber}`,
         {
           method: "PUT",
           headers: {
@@ -420,12 +453,12 @@ const Page = () => {
 
       const updatedFarmer = await response.json();
       setFarmer((prev) =>
-        prev.map((f) => (f._id === editingFarmerId ? updatedFarmer : f))
+        prev.map((f) => (f.number === originalNumber ? updatedFarmer : f))
       );
       setShowEditModal(false);
-      setEditingFarmerId(null);
-      setModalVillages([]);
+      setOriginalNumber(null);
       setPincode("");
+      setModalVillages([]);
       setLocationData(null);
     } catch (error) {
       console.error("Error updating farmer:", error);
@@ -435,7 +468,7 @@ const Page = () => {
 
   const handleCancelEdit = () => {
     setShowEditModal(false);
-    setEditingFarmerId(null);
+    setOriginalNumber(null);
     setPincode("");
     setModalVillages([]);
     setLocationData(null);
@@ -572,6 +605,16 @@ const Page = () => {
 
   const displayedFarmers = farmer;
 
+  // Debug log to verify states
+  console.log(
+    "Rendering Page - showEditModal:",
+    showEditModal,
+    "pincode:",
+    pincode,
+    "editFormData:",
+    editFormData
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -622,7 +665,7 @@ const Page = () => {
           setShowDownloadModal={setShowDownloadModal}
           downloading={downloading}
           selectedColumns={selectedColumns}
-          locationLoading={locationLoading} // Add this prop
+          locationLoading={locationLoading}
         />
       )}
 
@@ -650,16 +693,6 @@ const Page = () => {
           >
             Table View
           </button>
-          {/* <button
-            onClick={() => setActiveTab("cards")}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === "cards"
-                ? "border-b-2 border-purple-600 text-purple-600"
-                : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            Card View
-          </button> */}
         </div>
       </div>
 
