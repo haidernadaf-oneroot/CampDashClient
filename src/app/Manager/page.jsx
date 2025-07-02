@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import * as Papa from "papaparse";
 
+// CSV Field Mapper Component
 const CsvFieldMapper = ({
   csvHeaders,
   backendFields,
@@ -9,8 +10,6 @@ const CsvFieldMapper = ({
   onChange,
   onUpload,
 }) => {
-  const [identityInputType, setIdentityInputType] = useState("select"); // 'select' or 'text'
-
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl text-black border border-gray-200 h-[900px] w-[500px]">
       <h2 className="text-2xl font-bold mb-6 text-black">Map CSV Fields</h2>
@@ -19,56 +18,13 @@ const CsvFieldMapper = ({
           <div key={field} className="flex flex-col space-y-2">
             <label className="font-semibold text-black">{field}</label>
             {field === "tag" || field === "identity" ? (
-              <div className="flex flex-col space-y-2">
-                {field === "identity" && (
-                  <div className="flex space-x-2 mb-2">
-                    <button
-                      onClick={() => setIdentityInputType("select")}
-                      className={`px-2 py-1 text-xs rounded ${
-                        identityInputType === "select"
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-200"
-                      }`}
-                    >
-                      Map from CSV
-                    </button>
-                    <button
-                      onClick={() => setIdentityInputType("text")}
-                      className={`px-2 py-1 text-xs rounded ${
-                        identityInputType === "text"
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-200"
-                      }`}
-                    >
-                      Enter value
-                    </button>
-                  </div>
-                )}
-                {field === "identity" && identityInputType === "select" ? (
-                  <select
-                    className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent text-black"
-                    value={mapping[field] || ""}
-                    onChange={(e) => onChange(field, e.target.value)}
-                  >
-                    <option value="" className="text-black">
-                      -- Select Field --
-                    </option>
-                    {csvHeaders.map((header) => (
-                      <option key={header} value={header}>
-                        {header}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent"
-                    placeholder={`Enter ${field}`}
-                    value={mapping[field] || ""}
-                    onChange={(e) => onChange(field, e.target.value)}
-                  />
-                )}
-              </div>
+              <input
+                type="text"
+                className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent"
+                placeholder={`Enter ${field}`}
+                value={mapping[field] || ""}
+                onChange={(e) => onChange(field, e.target.value)}
+              />
             ) : (
               <select
                 className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent text-black"
@@ -98,6 +54,7 @@ const CsvFieldMapper = ({
   );
 };
 
+// Main CSV Upload Component
 const CsvUploadSection = () => {
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [csvData, setCsvData] = useState([]);
@@ -119,8 +76,8 @@ const CsvUploadSection = () => {
     "district",
     "number",
     "coordinates",
-    "tag",
     "identity",
+    "tag",
   ];
 
   const handleFileChange = (event) => {
@@ -170,7 +127,7 @@ const CsvUploadSection = () => {
         let newRow = {};
         backendFields.forEach((field) => {
           newRow[field] =
-            field === "tag" || (field === "identity" && !mapping[field])
+            field === "tag" || field === "identity"
               ? mapping[field] || ""
               : mapping[field]
               ? row[mapping[field]] || ""
@@ -227,7 +184,7 @@ const CsvUploadSection = () => {
       let newRow = {};
       backendFields.forEach((field) => {
         newRow[field] =
-          field === "tag" || (field === "identity" && !mapping[field])
+          field === "tag" || field === "identity"
             ? mapping[field] || ""
             : mapping[field]
             ? row[mapping[field]] || ""
@@ -310,6 +267,7 @@ const CsvUploadSection = () => {
             <li>
               <strong>Unique Numbers:</strong> {uploadStats.uniqueNumbers}
             </li>
+
             <li>
               <strong>Inserted Records:</strong> {uploadStats.insertedRecords}
             </li>
