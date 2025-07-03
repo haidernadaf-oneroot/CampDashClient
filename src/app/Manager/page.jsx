@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import * as Papa from "papaparse";
 
-// CSV Field Mapper Component
 const CsvFieldMapper = ({
   csvHeaders,
   backendFields,
@@ -11,28 +10,63 @@ const CsvFieldMapper = ({
   onUpload,
 }) => {
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl text-black border border-gray-200 h-[900px] w-[500px]">
-      <h2 className="text-2xl font-bold mb-6 text-black">Map CSV Fields</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
+    <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-800">
+            Map CSV Fields
+          </h2>
+          <p className="text-sm text-gray-500">
+            Match your CSV columns to the required fields
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {backendFields.map((field) => (
-          <div key={field} className="flex flex-col space-y-2">
-            <label className="font-semibold text-black">{field}</label>
+          <div key={field} className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 capitalize">
+              {field.replace(/_/g, " ")}
+            </label>
+
             {field === "tag" || field === "identity" ? (
-              <input
-                type="text"
-                className="border border-gray-300 text-black p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent"
-                placeholder={`Enter ${field}`}
-                value={mapping[field] || ""}
-                onChange={(e) => onChange(field, e.target.value)}
-              />
+              <div className="flex gap-1">
+                <div className="">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none"></div>
+                  <input
+                    type="text"
+                    className="block w-full pl-2  py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder={`Enter ${field}`}
+                    value={mapping[field]?.manual || ""}
+                    onChange={(e) => onChange(field, "manual", e.target.value)}
+                  />
+                </div>
+
+                <div className="relative ">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none"></div>
+                  <select
+                    className="block w-full pl-2 pr-8 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                    value={mapping[field]?.csv || ""}
+                    onChange={(e) => onChange(field, "csv", e.target.value)}
+                  >
+                    <option value="">Select column</option>
+                    {csvHeaders.map((header) => (
+                      <option key={header} value={header}>
+                        {header}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
             ) : (
               <select
-                className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent text-black"
-                value={mapping[field] || ""}
-                onChange={(e) => onChange(field, e.target.value)}
+                className="block text-center w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                value={mapping[field]?.csv || ""}
+                onChange={(e) => onChange(field, "csv", e.target.value)}
               >
-                <option value="" className="text-black">
-                  -- Select Field --
+                <option value="">
+                  ------------ Select column ------------
                 </option>
                 {csvHeaders.map((header) => (
                   <option key={header} value={header}>
@@ -43,18 +77,19 @@ const CsvFieldMapper = ({
             )}
           </div>
         ))}
+
+        <button
+          onClick={onUpload}
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+        >
+          <UploadIcon />
+          Upload Data
+        </button>
       </div>
-      <button
-        onClick={onUpload}
-        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition duration-300 w-48 mt-11"
-      >
-        Upload to Backend
-      </button>
     </div>
   );
 };
 
-// Main CSV Upload Component
 const CsvUploadSection = () => {
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [csvData, setCsvData] = useState([]);
@@ -90,6 +125,12 @@ const CsvUploadSection = () => {
             setCsvData(
               result.data.filter((row) => Object.values(row).some(Boolean))
             );
+
+            const initialMapping = {};
+            backendFields.forEach((field) => {
+              initialMapping[field] = { manual: "", csv: "" };
+            });
+            setMapping(initialMapping);
           }
         },
         header: true,
@@ -98,13 +139,38 @@ const CsvUploadSection = () => {
     }
   };
 
-  const handleMappingChange = (field, value) => {
-    setMapping((prev) => ({ ...prev, [field]: value }));
+  const handleMappingChange = (field, type, value) => {
+    setMapping((prev) => {
+      const newMapping = { ...prev };
+
+      if (field === "tag" || field === "identity") {
+        newMapping[field] = {
+          ...newMapping[field],
+          [type]: value,
+        };
+
+        if (type === "manual" && value) {
+          newMapping[field].csv = "";
+        } else if (type === "csv" && value) {
+          newMapping[field].manual = "";
+        }
+      } else {
+        newMapping[field] = {
+          manual: "",
+          csv: type === "csv" ? value : "",
+        };
+      }
+
+      return newMapping;
+    });
   };
 
   const handleUploadCsv = async () => {
     if (!csvData.length) {
-      setUploadStatus("Please upload a CSV file first.");
+      setUploadStatus({
+        type: "error",
+        message: "Please upload a CSV file first.",
+      });
       return;
     }
 
@@ -118,7 +184,7 @@ const CsvUploadSection = () => {
       insertedRecords: 0,
     };
 
-    setUploadStatus("Uploading data in chunks...");
+    setUploadStatus({ type: "info", message: "Uploading data in chunks..." });
 
     for (let i = 0; i < total; i++) {
       const chunk = csvData.slice(i * chunkSize, (i + 1) * chunkSize);
@@ -126,12 +192,19 @@ const CsvUploadSection = () => {
       const formattedData = chunk.map((row) => {
         let newRow = {};
         backendFields.forEach((field) => {
-          newRow[field] =
-            field === "tag" || field === "identity"
-              ? mapping[field] || ""
-              : mapping[field]
-              ? row[mapping[field]] || ""
+          if (field === "tag" || field === "identity") {
+            if (mapping[field]?.manual) {
+              newRow[field] = mapping[field].manual;
+            } else if (mapping[field]?.csv) {
+              newRow[field] = row[mapping[field].csv] || "";
+            } else {
+              newRow[field] = "";
+            }
+          } else {
+            newRow[field] = mapping[field]?.csv
+              ? row[mapping[field].csv] || ""
               : "";
+          }
         });
         return newRow;
       });
@@ -159,21 +232,33 @@ const CsvUploadSection = () => {
           summary.updatedRecords += result.updatedRecords || 0;
           summary.insertedRecords += result.insertedRecords || 0;
 
-          setUploadStatus(`Uploaded chunk ${i + 1} of ${total}...`);
+          setUploadStatus({
+            type: "info",
+            message: `Uploaded chunk ${i + 1} of ${total}...`,
+          });
         } else {
-          setUploadStatus(
-            `Chunk ${i + 1} failed: ${result.message || "Upload failed."}`
-          );
+          setUploadStatus({
+            type: "error",
+            message: `Chunk ${i + 1} failed: ${
+              result.message || "Upload failed."
+            }`,
+          });
           return;
         }
       } catch (error) {
         console.error("Error uploading chunk:", error);
-        setUploadStatus(`Error uploading chunk ${i + 1}.`);
+        setUploadStatus({
+          type: "error",
+          message: `Error uploading chunk ${i + 1}.`,
+        });
         return;
       }
     }
 
-    setUploadStatus("Upload completed successfully!");
+    setUploadStatus({
+      type: "success",
+      message: "Upload completed successfully!",
+    });
     setUploadStats(summary);
   };
 
@@ -183,12 +268,19 @@ const CsvUploadSection = () => {
     const formattedData = csvData.map((row) => {
       let newRow = {};
       backendFields.forEach((field) => {
-        newRow[field] =
-          field === "tag" || field === "identity"
-            ? mapping[field] || ""
-            : mapping[field]
-            ? row[mapping[field]] || ""
+        if (field === "tag" || field === "identity") {
+          if (mapping[field]?.manual) {
+            newRow[field] = mapping[field].manual;
+          } else if (mapping[field]?.csv) {
+            newRow[field] = row[mapping[field].csv] || "";
+          } else {
+            newRow[field] = "";
+          }
+        } else {
+          newRow[field] = mapping[field]?.csv
+            ? row[mapping[field].csv] || ""
             : "";
+        }
       });
       return newRow;
     });
@@ -204,18 +296,52 @@ const CsvUploadSection = () => {
   };
 
   return (
-    <div className="p-8 rounded-xl bg-gray-50 shadow-md mt-20">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Import Users</h1>
-      <div className="mb-6 text-2xl">
-        <label className="block font-semibold text-gray-700 mb-2">
-          Upload CSV File
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          Import Users
+        </h1>
+        <p className="text-sm text-gray-500">
+          Upload and map your CSV file to import user data
+        </p>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          CSV File
         </label>
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleFileChange}
-          className="block border border-black rounded-xl w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-90 file:text-purple-700 hover:file:bg-purple-200"
-        />
+        <div className="flex items-center gap-4">
+          <label className="flex-1 cursor-pointer">
+            <div className="flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 transition-colors">
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  {csvData.length > 0 ? "Change file" : "Select CSV file"}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {csvData.length > 0
+                    ? `${csvData.length} records loaded`
+                    : "Supports .csv files"}
+                </p>
+              </div>
+              <UploadIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          {csvData.length > 0 && (
+            <button
+              onClick={handleDownloadCsv}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              Export
+            </button>
+          )}
+        </div>
       </div>
 
       {csvHeaders.length > 0 && (
@@ -229,74 +355,86 @@ const CsvUploadSection = () => {
       )}
 
       {uploadStatus && (
-        <p
-          className={`mt-4 text-center font-medium ${
-            uploadStatus.includes("Error") || uploadStatus.includes("Failed")
-              ? "text-red-600"
-              : "text-purple-600"
+        <div
+          className={`mt-4 p-3 rounded-md ${
+            uploadStatus.type === "error"
+              ? "bg-red-50 text-red-700"
+              : uploadStatus.type === "success"
+              ? "bg-green-50 text-green-700"
+              : "bg-blue-50 text-blue-700"
           }`}
         >
-          {uploadStatus}
-        </p>
-      )}
-
-      {currentChunk > 0 && currentChunk <= totalChunks && (
-        <p className="text-center text-sm mt-1 text-gray-500">
-          Uploading chunk {currentChunk} of {totalChunks}
-        </p>
-      )}
-
-      {csvData.length > 0 && (
-        <div className="px-72">
-          <button
-            onClick={handleDownloadCsv}
-            className="mt-4 bg-purple-900 text-white px-6 py-3 rounded-lg hover:bg-purple-950 transition duration-300 w-52 h-12"
-          >
-            Download CSV
-          </button>
+          <div className="flex items-center gap-2">
+            {uploadStatus.type === "error" ? (
+              <ErrorIcon className="h-5 w-5" />
+            ) : uploadStatus.type === "success" ? (
+              <SuccessIcon className="h-5 w-5" />
+            ) : (
+              <InfoIcon className="h-5 w-5" />
+            )}
+            <p className="text-sm">{uploadStatus.message}</p>
+          </div>
+          {currentChunk > 0 && currentChunk <= totalChunks && (
+            <div className="mt-2">
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div
+                  className="bg-purple-600 h-1.5 rounded-full"
+                  style={{
+                    width: `${(currentChunk / totalChunks) * 100}%`,
+                  }}
+                ></div>
+              </div>
+              <p className="text-xs mt-1 text-right">
+                Processing chunk {currentChunk} of {totalChunks}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {uploadStats && (
-        <div className="mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-200 text-gray-800">
-          <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
-          <ul className="space-y-2">
-            <li>
-              <strong>Total Rows:</strong> {uploadStats.totalRows}
-            </li>
-            <li>
-              <strong>Unique Numbers:</strong> {uploadStats.uniqueNumbers}
-            </li>
-
-            <li>
-              <strong>Inserted Records:</strong> {uploadStats.insertedRecords}
-            </li>
-            <li>
-              <strong>Update Records:</strong> {uploadStats.updatedRecords}
-            </li>
-          </ul>
+        <div className="mt-6 bg-gray-50 rounded-lg p-4">
+          <h3 className="text-lg font-medium text-gray-800 mb-3">
+            Upload Summary
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard label="Total Rows" value={uploadStats.totalRows} />
+            <StatCard
+              label="Unique Numbers"
+              value={uploadStats.uniqueNumbers}
+            />
+            <StatCard
+              label="Inserted Records"
+              value={uploadStats.insertedRecords}
+            />
+            <StatCard
+              label="Updated Records"
+              value={uploadStats.updatedRecords}
+            />
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-// Consent Upload Component
-
 const ConsentUploadSection = () => {
   const [file, setFile] = useState(null);
-  const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [uploadSummary, setUploadSummary] = useState(null);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
-    setUploadMessage("");
+    setUploadStatus(null);
     setUploadSummary(null);
   };
 
   const handleConsentUpload = async () => {
     if (!file) {
-      setUploadMessage("Please select a CSV file first.");
+      setUploadStatus({
+        type: "error",
+        message: "Please select a CSV file first.",
+      });
       return;
     }
 
@@ -304,6 +442,11 @@ const ConsentUploadSection = () => {
     formData.append("csv", file);
 
     try {
+      setUploadStatus({
+        type: "info",
+        message: "Uploading consent data...",
+      });
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/consent`,
         {
@@ -315,7 +458,10 @@ const ConsentUploadSection = () => {
       const result = await response.json();
 
       if (response.ok) {
-        setUploadMessage("Consent upload successful!");
+        setUploadStatus({
+          type: "success",
+          message: "Consent upload successful!",
+        });
         setUploadSummary({
           totalProcessed: result.totalProcessed,
           modifiedCount: result.modifiedCount,
@@ -324,101 +470,270 @@ const ConsentUploadSection = () => {
         });
         setFile(null);
       } else {
-        setUploadMessage("Failed to upload consent file.");
+        setUploadStatus({
+          type: "error",
+          message: result.message || "Failed to upload consent file.",
+        });
         setUploadSummary(null);
       }
     } catch (error) {
       console.error("Upload Error:", error);
-      setUploadMessage("Error occurred while uploading.");
+      setUploadStatus({
+        type: "error",
+        message: "Error occurred while uploading.",
+      });
       setUploadSummary(null);
     }
   };
 
   return (
-    <div className="p-8 bg-gray-50 rounded-xl shadow-md mt-20 h-auto">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Consent User Upload
-      </h1>
-      <label className="flex flex-col items-center w-full px-4 py-3 bg-purple-100 border-2 border-purple-300 rounded-lg cursor-pointer hover:bg-purple-200 transition duration-300">
-        <span className="text-purple-700 font-semibold">
-          Select Consent CSV
-        </span>
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </label>
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          Consent Management
+        </h1>
+        <p className="text-sm text-gray-500">
+          Upload a CSV file to update user consent status
+        </p>
+      </div>
 
-      {file && (
-        <div className="mt-4 flex items-center justify-between bg-gray-100 p-3 rounded-lg w-full">
-          <span className="text-gray-700 truncate">{file.name}</span>
-          <button
-            onClick={() => setFile(null)}
-            className="text-red-600 hover:text-red-800 font-bold"
-          >
-            ✕
-          </button>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Consent CSV
+        </label>
+        <div className="flex items-center gap-4">
+          <label className="flex-1 cursor-pointer">
+            <div
+              className={`flex items-center justify-between p-4 border-2 rounded-lg transition-colors ${
+                file
+                  ? "border-green-300 bg-green-50"
+                  : "border-dashed border-gray-300 hover:border-purple-500"
+              }`}
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  {file ? file.name : "Select consent CSV"}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {file ? "Ready to upload" : "Supports .csv files"}
+                </p>
+              </div>
+              <UploadIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          {file && (
+            <button
+              onClick={() => setFile(null)}
+              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <XIcon className="h-5 w-5" />
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
       <button
         onClick={handleConsentUpload}
-        className={`mt-6 w-full px-6 py-3 rounded-lg text-white font-semibold transition duration-300 ${
-          file
-            ? "bg-purple-500 hover:bg-purple-600"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
         disabled={!file}
+        className={`w-full py-2.5 px-4 rounded-md font-medium transition-colors flex items-center justify-center gap-2 ${
+          file
+            ? "bg-purple-600 hover:bg-purple-700 text-white"
+            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+        }`}
       >
-        Upload Consent CSV
+        <UploadIcon className="h-4 w-4" />
+        Upload Consent Data
       </button>
 
-      {uploadMessage && (
-        <p
-          className={`mt-4 text-center font-medium ${
-            uploadMessage.includes("Error") || uploadMessage.includes("Failed")
-              ? "text-red-600"
-              : "text-purple-600"
+      {uploadStatus && (
+        <div
+          className={`mt-4 p-3 rounded-md ${
+            uploadStatus.type === "error"
+              ? "bg-red-50 text-red-700"
+              : uploadStatus.type === "success"
+              ? "bg-green-50 text-green-700"
+              : "bg-blue-50 text-blue-700"
           }`}
         >
-          {uploadMessage}
-        </p>
+          <div className="flex items-center gap-2">
+            {uploadStatus.type === "error" ? (
+              <ErrorIcon className="h-5 w-5" />
+            ) : uploadStatus.type === "success" ? (
+              <SuccessIcon className="h-5 w-5" />
+            ) : (
+              <InfoIcon className="h-5 w-5" />
+            )}
+            <p className="text-sm">{uploadStatus.message}</p>
+          </div>
+        </div>
       )}
 
       {uploadSummary && (
-        <div className="mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-200 text-gray-800">
-          <h3 className="text-xl font-bold mb-4">Upload Summary</h3>
-          <ul className="space-y-2">
-            <li>
-              <strong>Total Records:</strong> {uploadSummary.totalProcessed}
-            </li>
-            <li>
-              <strong>modified Counts:</strong> {uploadSummary.modifiedCount}
-            </li>
-            <li>
-              <strong>upserted Numbers:</strong> {uploadSummary.upsertedCount}
-            </li>
-            <li>
-              <strong>Skipped:</strong> {uploadSummary.skipped}
-            </li>
-          </ul>
+        <div className="mt-6 bg-gray-50 rounded-lg p-4">
+          <h3 className="text-lg font-medium text-gray-800 mb-3">
+            Consent Update Summary
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              label="Total Processed"
+              value={uploadSummary.totalProcessed}
+            />
+            <StatCard
+              label="Modified Count"
+              value={uploadSummary.modifiedCount}
+            />
+            <StatCard
+              label="Upserted Count"
+              value={uploadSummary.upsertedCount}
+            />
+            <StatCard label="Skipped" value={uploadSummary.skipped} />
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-// Main Page Component
+// Helper components
+const StatCard = ({ label, value }) => (
+  <div className="bg-white p-3 rounded-md border border-gray-200">
+    <p className="text-xs font-medium text-gray-500">{label}</p>
+    <p className="text-lg font-semibold text-gray-800">{value}</p>
+  </div>
+);
+
+const UploadIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const DownloadIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const ChevronDownIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const ErrorIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const SuccessIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const InfoIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const XIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 const Page = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row gap-8 p-8">
-      <div className="w-full lg:w-1/2">
-        <CsvUploadSection />
-      </div>
-      <div className="w-full lg:w-1/2">
-        <ConsentUploadSection />
+    <div className="min-h-screen bg-gray-50 pr-64">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Data Import Center
+          </h1>
+          <p className="mt-2 text-lg text-gray-600">
+            Manage user data imports and consent updates
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+          <div>
+            <CsvUploadSection />
+          </div>
+          <div>
+            <ConsentUploadSection />
+          </div>
+        </div>
       </div>
     </div>
   );
