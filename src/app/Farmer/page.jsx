@@ -10,6 +10,7 @@ import CardView from "@/components/CardView";
 import EditModal from "@/components/EditModal";
 import DownloadModal from "@/components/DownloadModal";
 import CreateTicketForm from "@/components/CreateTicketForm ";
+import { Loader2 } from "lucide-react";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -88,6 +89,7 @@ const Page = () => {
   });
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [selectedFarmer, setSelectedFarmer] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const allColumns = [
     { key: "name", label: "Name" },
@@ -580,9 +582,7 @@ const Page = () => {
     });
   };
 
-  const handleToggle = () => {
-    setIsVisible((prev) => !prev);
-  };
+  // Removed duplicate handleToggle to fix redeclaration error
 
   const getStatusText = (status) => {
     if (status === true) return "App";
@@ -615,6 +615,14 @@ const Page = () => {
     editFormData
   );
 
+  const handleToggle = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsVisible((prev) => !prev);
+      setIsLoading(false);
+    }, 300); // simulate a short delay
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -624,12 +632,18 @@ const Page = () => {
             onClick={handleToggle}
             className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           >
-            {isVisible ? (
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-purple-900" />
+            ) : isVisible ? (
               <FilterX className="h-4 w-4" />
             ) : (
               <Filter className="h-4 w-4" />
             )}
-            {isVisible ? "Hide Filters" : "Show Filters"}
+            {isLoading
+              ? "Loading..."
+              : isVisible
+              ? "Hide Filters"
+              : "Show Filters"}
           </button>
           <Update />
         </div>
