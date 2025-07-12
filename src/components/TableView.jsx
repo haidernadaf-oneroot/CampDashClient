@@ -15,7 +15,7 @@ const TableView = ({
   setCurrentPage,
   getPageNumbers,
 }) => (
-  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-[1670px]">
+  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
     <div id="table-container" className="max-h-[530px] overflow-auto">
       <table className="w-full text-left border-collapse text-sm">
         <thead className="sticky top-0 bg-purple-50">

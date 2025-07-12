@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Markheting</title>
       </head>
-      <body className="antialiased bg-gray-100 overflow-hidden h-screen">
+      <body className="antialiased bg-gray-100 overflow-x-scroll overflow-y-hidden h-screen">
         <div className="flex h-screen">
           <Sidebar className="fixed left-0 top-0 w-52 h-screen bg-green-800 shadow-lg z-50" />
           <div className="flex-1 flex flex-col ml-52">
