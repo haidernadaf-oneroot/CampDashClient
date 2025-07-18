@@ -83,7 +83,7 @@ const HarvesterDetails = () => {
             </h2>
             <p className="text-slate-600 mb-6">{error}</p>
             <button
-              onClick={() => router.push("/harvesters")}
+              onClick={() => router.push("/harvester")}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
