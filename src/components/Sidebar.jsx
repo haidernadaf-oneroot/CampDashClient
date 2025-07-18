@@ -21,7 +21,9 @@ import {
   Mic,
   UserRound,
   UserRoundSearch,
+  Tractor,
 } from "lucide-react";
+import { GiFarmer } from "react-icons/gi";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -58,8 +60,9 @@ const Sidebar = () => {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Reservation", icon: Calendar, href: "/reservation" },
     { label: "Crops", icon: Leaf, href: "/crops" },
-    { label: "Farmers", icon: User2, href: "/Farmer" },
+    { label: "Farmers", icon: GiFarmer, href: "/Farmer" },
     { label: "Buyers", icon: UserCheck2, href: "/buyer" },
+    { label: "Harvester", icon: Tractor, href: "/harvester" },
     { label: "All Leads", icon: UserRoundSearch, href: "/all_leads" },
     { label: "Daily_RTH", icon: ListTodo, href: "/Daily_RTH" },
     { label: "Manager", icon: BarChart2, href: "/Manager" },
