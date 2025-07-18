@@ -28,7 +28,7 @@ const CreateHarvesterForm = ({
     min_quantity_required: 0,
     min_daily_target_nuts: 0,
     price_per_nut: 0,
-    nut_type: "Single",
+    nut_type: "Selection",
     other_crops: [],
     harvests_in_winter: "No",
     taken_advance: "No",
@@ -219,8 +219,8 @@ const CreateHarvesterForm = ({
       newErrors.min_daily_target_nuts = "Daily target cannot be negative";
     if (formData.price_per_nut < 0)
       newErrors.price_per_nut = "Price per nut cannot be negative";
-    if (!["Mixed", "Single"].includes(formData.nut_type))
-      newErrors.nut_type = "Nut type must be Mixed or Single";
+    if (!["Mixed", "Selection"].includes(formData.nut_type))
+      newErrors.nut_type = "Nut type must be Mixed or Selection";
     if (
       !["Not interested", "Interested", "Interested but cannot"].includes(
         formData.ready_to_supply
@@ -1031,12 +1031,12 @@ const CreateHarvesterForm = ({
                           <input
                             type="radio"
                             name="nut_type"
-                            value="Single"
-                            checked={formData.nut_type === "Single"}
+                            value="Selection"
+                            checked={formData.nut_type === "Selection"}
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">Single</span>
+                          <span className="ml-2 text-gray-600">Selection</span>
                         </label>
                       </div>
                       {errors.nut_type && (
