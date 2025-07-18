@@ -390,7 +390,7 @@ const CreateHarvesterForm = ({
                         Phone
                       </label>
                       <input
-                        type="text"
+                        type="number"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
@@ -748,9 +748,9 @@ const CreateHarvesterForm = ({
                                           >
                                             <span>{market.name}</span>
                                             <span className="text-xs text-gray-500">
-                                              {market.id.startsWith("custom-")
+                                              {/* {market.id.startsWith("custom-")
                                                 ? "Custom"
-                                                : `ID: ${market.id}`}
+                                                : `ID: ${market.id}`} */}
                                             </span>
                                           </div>
                                         )}

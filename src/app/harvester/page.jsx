@@ -201,6 +201,9 @@ const HarvesterTable = () => {
                     created
                   </th>
                   <th className="px-4 py-3 font-semibold text-gray-700">
+                    Ready to Supply
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">
                     Actions
                   </th>
                 </tr>
@@ -222,6 +225,7 @@ const HarvesterTable = () => {
                       <td className="px-4 py-3 text-gray-700">
                         {buyer.village || "-"}
                       </td>
+
                       <td className="px-4 py-3 text-gray-700">
                         {buyer.taluk || "-"}
                       </td>
@@ -230,6 +234,9 @@ const HarvesterTable = () => {
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {buyer.createdAt || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {buyer.ready_to_supply || "-"}
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         <button
