@@ -17,12 +17,15 @@ import {
   CheckCircle,
   XCircle,
   ExternalLink,
+  Edit,
 } from "lucide-react";
+import UpdateHarvesterForm from "@/components/harvesterForm/HarvesterUpdateForm";
 
 const HarvesterDetails = () => {
   const [harvester, setHarvester] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const { id } = useParams();
 
@@ -61,6 +64,11 @@ const HarvesterDetails = () => {
     }
   }, [id]);
 
+  const handleUpdate = (updatedHarvester) => {
+    setHarvester(updatedHarvester);
+    setIsModalOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
@@ -87,7 +95,7 @@ const HarvesterDetails = () => {
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Harvesters
+              Back to Harvester
             </button>
           </div>
         </div>
@@ -108,11 +116,11 @@ const HarvesterDetails = () => {
               The requested harvester could not be found.
             </p>
             <button
-              onClick={() => router.push("/harvesters")}
+              onClick={() => router.push("/harvester")}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Harvesters
+              Back to Harvester
             </button>
           </div>
         </div>
@@ -165,51 +173,89 @@ const HarvesterDetails = () => {
     );
   };
 
-  const ImageCard = ({ url, alt, title }) => (
-    <div className="space-y-2">
-      <h4 className="font-medium text-slate-700">{title}</h4>
-      {url ? (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block group relative overflow-hidden rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
-        >
-          <img
-            src={url || "/placeholder.svg"}
-            alt={alt}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
-            onError={(e) =>
-              (e.target.src = "/placeholder.svg?height=192&width=256")
-            }
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
-            <ExternalLink className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+  const ImageCard = ({ url, alt, title }) => {
+    const isPdf = url?.toLowerCase().endsWith(".pdf");
+    const [loadError, setLoadError] = useState(null);
+
+    const handleImageError = (e) => {
+      console.error(`Failed to load image at ${url}:`, e);
+      setLoadError(
+        "Failed to load file. It may not exist or is not publicly accessible."
+      );
+      e.target.src = "/placeholder.png";
+    };
+
+    return (
+      <div className="space-y-2">
+        <h4 className="font-medium text-slate-700">{title}</h4>
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block group relative overflow-hidden rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+          >
+            {isPdf ? (
+              <div className="w-full h-48 bg-slate-100 flex items-center justify-center">
+                <div className="text-center">
+                  <FileText className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-500">View PDF</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <img
+                  src={url}
+                  alt={alt}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
+                  onError={handleImageError}
+                  onLoad={() => {
+                    console.log(`Successfully loaded image: ${url}`);
+                    setLoadError(null);
+                  }}
+                />
+                {loadError && (
+                  <p className="text-red-500 text-sm mt-2">{loadError}</p>
+                )}
+              </>
+            )}
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+              <ExternalLink className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </a>
+        ) : (
+          <div className="w-full h-48 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
+            <div className="text-center">
+              <Camera className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">No image available</p>
+            </div>
           </div>
-        </a>
-      ) : (
-        <div className="w-full h-48 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
-          <div className="text-center">
-            <Camera className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No image available</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push("/harvester")}
-            className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-800 hover:bg-white/50 px-3 py-2 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Harvesters
-          </button>
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => router.push("/harvester")}
+              className="flex items-center gap-2 shadow-2xl bg-white text-slate-600 hover:text-slate-800 hover:border-y-purple-800 px-3 py-2 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Harvester
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <Edit className="h-4 w-4" />
+              Edit Harvester
+            </button>
+          </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-start justify-between flex-wrap gap-4">
@@ -243,9 +289,26 @@ const HarvesterDetails = () => {
                   falseText="No Pickup"
                 />
               </div>
+              <div>
+                {new Date(harvester.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </div>
             </div>
           </div>
         </div>
+
+        <UpdateHarvesterForm
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          harvester={harvester}
+          onUpdate={handleUpdate}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Personal Information */}
