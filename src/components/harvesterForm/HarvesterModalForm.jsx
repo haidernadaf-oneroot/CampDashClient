@@ -374,7 +374,7 @@ const CreateHarvesterForm = ({
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.name ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                         placeholder="Enter name"
@@ -394,7 +394,7 @@ const CreateHarvesterForm = ({
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.phone ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                         placeholder="Enter 10-digit phone number"
@@ -414,7 +414,7 @@ const CreateHarvesterForm = ({
                         name="village"
                         value={formData.village}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.village ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                         placeholder="Enter village"
@@ -434,7 +434,7 @@ const CreateHarvesterForm = ({
                         name="hobli"
                         value={formData.hobli}
                         onChange={handleInputChange}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white"
+                        className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white"
                         placeholder="Enter hobli (optional)"
                       />
                     </div>
@@ -447,7 +447,7 @@ const CreateHarvesterForm = ({
                         name="taluk"
                         value={formData.taluk}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.taluk ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                         placeholder="Enter taluk"
@@ -467,7 +467,7 @@ const CreateHarvesterForm = ({
                         name="district"
                         value={formData.district}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.district ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                         placeholder="Enter district"
@@ -487,7 +487,7 @@ const CreateHarvesterForm = ({
                         name="aadhaar_card"
                         onChange={handleInputChange}
                         accept="image/*,.pdf"
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.aadhaar_card
                             ? "border-red-500"
                             : "border-gray-300"
@@ -500,14 +500,14 @@ const CreateHarvesterForm = ({
                       )}
                       {formData.aadhaar_card && (
                         <div className="mt-2">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-black">
                             Selected File: {formData.aadhaar_card.name}
                           </p>
                           {getImagePreview(formData.aadhaar_card) && (
                             <img
                               src={getImagePreview(formData.aadhaar_card)}
                               alt="Aadhaar Card Preview"
-                              className="mt-2 h-32 w-auto object-contain rounded-lg border border-gray-300"
+                              className="mt-2  text-black h-32 w-auto object-contain rounded-lg border border-gray-300"
                             />
                           )}
                         </div>
@@ -522,7 +522,7 @@ const CreateHarvesterForm = ({
                         name="photo"
                         onChange={handleInputChange}
                         accept="image/*"
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.photo ? "border-red-500" : "border-gray-300"
                         } rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white`}
                       />
@@ -533,14 +533,14 @@ const CreateHarvesterForm = ({
                       )}
                       {formData.photo && (
                         <div className="mt-2">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-black">
                             Selected File: {formData.photo.name}
                           </p>
                           {getImagePreview(formData.photo) && (
                             <img
                               src={getImagePreview(formData.photo)}
                               alt="Photo Preview"
-                              className="mt-2 h-32 w-auto object-contain rounded-lg border border-gray-300"
+                              className="mt-2 text-black h-32 w-auto object-contain rounded-lg border border-gray-300"
                             />
                           )}
                         </div>
@@ -555,7 +555,7 @@ const CreateHarvesterForm = ({
                         name="bank_account"
                         value={formData.bank_account}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.bank_account
                             ? "border-red-500"
                             : "border-gray-300"
@@ -580,7 +580,7 @@ const CreateHarvesterForm = ({
                             value="Yes"
                             checked={formData.is_owner === "Yes"}
                             onChange={handleInputChange}
-                            className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                            className="h-4 w-4  text-purple-600 focus:ring-purple-500"
                           />
                           <span className="ml-2 text-gray-600">Yes</span>
                         </label>
@@ -635,7 +635,7 @@ const CreateHarvesterForm = ({
                         name="workers_count"
                         value={formData.workers_count}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.workers_count
                             ? "border-red-500"
                             : "border-gray-300"
@@ -650,13 +650,13 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Markets
                       </label>
                       <button
                         type="button"
                         onClick={() => setShowMarkets(!showMarkets)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-left bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+                        className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-left bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
                       >
                         {showMarkets ? "Hide Markets" : "Show Markets"}
                       </button>
@@ -665,7 +665,7 @@ const CreateHarvesterForm = ({
                       <div className="col-span-1 md:col-span-2">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">
+                            <h3 className="text-sm font-medium text-black mb-2">
                               Available Markets
                             </h3>
                             <div className="flex items-center gap-2 mb-3">
@@ -676,10 +676,10 @@ const CreateHarvesterForm = ({
                                   onChange={(e) =>
                                     setMarketSearch(e.target.value)
                                   }
-                                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white"
+                                  className="w-full border text-black border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white"
                                   placeholder="Search markets..."
                                 />
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black h-5 w-5" />
                               </div>
                               <button
                                 type="button"
@@ -697,7 +697,7 @@ const CreateHarvesterForm = ({
                                   setCustomMarketInput(e.target.value);
                                   setCustomMarketError(null);
                                 }}
-                                className={`w-full border ${
+                                className={`w-full border text-black ${
                                   customMarketError
                                     ? "border-red-500"
                                     : "border-gray-300"
@@ -722,7 +722,7 @@ const CreateHarvesterForm = ({
                                 <div
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
-                                  className={`bg-gray-50 p-4 rounded-lg h-[200px] overflow-y-auto border ${
+                                  className={`bg-gray-50 p-4 text-black rounded-lg h-[200px] overflow-y-auto border ${
                                     snapshot.isDraggingOver
                                       ? "border-purple-300 bg-purple-50"
                                       : "border-gray-200"
@@ -740,7 +740,7 @@ const CreateHarvesterForm = ({
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
-                                            className={`bg-white p-3 mb-2 rounded-lg shadow-sm flex items-center justify-between ${
+                                            className={`bg-white text-black p-3 mb-2 rounded-lg shadow-sm flex items-center justify-between ${
                                               snapshot.isDragging
                                                 ? "shadow-lg bg-purple-100"
                                                 : "hover:shadow-md hover:bg-gray-100"
@@ -757,7 +757,7 @@ const CreateHarvesterForm = ({
                                       </Draggable>
                                     ))
                                   ) : (
-                                    <div className="text-center text-gray-500 text-sm py-4">
+                                    <div className="text-center text-black text-sm py-4">
                                       No markets found
                                     </div>
                                   )}
@@ -767,7 +767,7 @@ const CreateHarvesterForm = ({
                             </Droppable>
                           </div>
                           <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">
+                            <h3 className="text-sm font-medium text-black mb-2">
                               Main Markets
                             </h3>
                             <Droppable droppableId="main">
@@ -775,7 +775,7 @@ const CreateHarvesterForm = ({
                                 <div
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
-                                  className={`bg-gray-50 p-4 rounded-lg h-[200px] overflow-y-auto border ${
+                                  className={`bg-gray-50 text-black p-4 rounded-lg h-[200px] overflow-y-auto border ${
                                     errors.main_markets
                                       ? "border-red-500"
                                       : snapshot.isDraggingOver
@@ -796,7 +796,7 @@ const CreateHarvesterForm = ({
                                               ref={provided.innerRef}
                                               {...provided.draggableProps}
                                               {...provided.dragHandleProps}
-                                              className={`bg-white p-3 mb-2 rounded-lg shadow-sm ${
+                                              className={`bg-white p-3 text-black mb-2 rounded-lg shadow-sm ${
                                                 snapshot.isDragging
                                                   ? "shadow-lg bg-purple-100"
                                                   : "hover:shadow-md hover:bg-gray-100"
@@ -809,7 +809,7 @@ const CreateHarvesterForm = ({
                                       )
                                     )
                                   ) : (
-                                    <div className="text-center text-gray-500 text-sm py-4">
+                                    <div className="text-center text-black text-sm py-4">
                                       Drag markets here
                                     </div>
                                   )}
@@ -824,7 +824,7 @@ const CreateHarvesterForm = ({
                             )}
                           </div>
                           <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">
+                            <h3 className="text-sm font-medium text-black mb-2">
                               Secondary Markets
                             </h3>
                             <Droppable droppableId="secondary">
@@ -832,7 +832,7 @@ const CreateHarvesterForm = ({
                                 <div
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
-                                  className={`bg-gray-50 p-4 rounded-lg h-[200px] overflow-y-auto border ${
+                                  className={`bg-gray-50 p-4 text-black rounded-lg h-[200px] overflow-y-auto border ${
                                     snapshot.isDraggingOver
                                       ? "border-purple-300 bg-purple-50"
                                       : "border-gray-200"
@@ -851,7 +851,7 @@ const CreateHarvesterForm = ({
                                               ref={provided.innerRef}
                                               {...provided.draggableProps}
                                               {...provided.dragHandleProps}
-                                              className={`bg-white p-3 mb-2 rounded-lg shadow-sm ${
+                                              className={`bg-white text-black p-3 mb-2 rounded-lg shadow-sm ${
                                                 snapshot.isDragging
                                                   ? "shadow-lg bg-purple-100"
                                                   : "hover:shadow-md hover:bg-gray-100"
@@ -864,7 +864,7 @@ const CreateHarvesterForm = ({
                                       )
                                     )
                                   ) : (
-                                    <div className="text-center text-gray-500 text-sm py-4">
+                                    <div className="text-center text-black text-sm py-4">
                                       Drag markets here
                                     </div>
                                   )}
@@ -877,7 +877,7 @@ const CreateHarvesterForm = ({
                       </div>
                     )}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Harvest Areas ?
                       </label>
                       <input
@@ -885,7 +885,7 @@ const CreateHarvesterForm = ({
                         value={harvestInput}
                         onChange={(e) => setHarvestInput(e.target.value)}
                         onKeyPress={handleHarvestInputKeyPress}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.harvest_areas
                             ? "border-red-500"
                             : "border-gray-300"
@@ -902,7 +902,7 @@ const CreateHarvesterForm = ({
                           {formData.harvest_areas.map((area, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-1"
+                              className="flex items-center text-black gap-2 bg-gray-100 p-2 rounded-lg mb-1"
                             >
                               <span>{area}</span>
                               <button
@@ -919,7 +919,7 @@ const CreateHarvesterForm = ({
                     </div>
                     <div className="flex gap-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-black mb-1">
                           Max Distance (KM) ?
                         </label>
                         <input
@@ -927,7 +927,7 @@ const CreateHarvesterForm = ({
                           name="max_distance_km"
                           value={formData.max_distance_km}
                           onChange={handleInputChange}
-                          className={`w-full border ${
+                          className={`w-full border text-black ${
                             errors.max_distance_km
                               ? "border-red-500"
                               : "border-gray-300"
@@ -942,7 +942,7 @@ const CreateHarvesterForm = ({
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-black mb-1">
                           Min Quantity ?
                         </label>
                         <input
@@ -950,7 +950,7 @@ const CreateHarvesterForm = ({
                           name="min_quantity_required"
                           value={formData.min_quantity_required}
                           onChange={handleInputChange}
-                          className={`w-full border ${
+                          className={`w-full border text-black ${
                             errors.min_quantity_required
                               ? "border-red-500"
                               : "border-gray-300"
@@ -966,7 +966,7 @@ const CreateHarvesterForm = ({
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Daily Target of nuts ?
                       </label>
                       <input
@@ -974,7 +974,7 @@ const CreateHarvesterForm = ({
                         name="min_daily_target_nuts"
                         value={formData.min_daily_target_nuts}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.min_daily_target_nuts
                             ? "border-red-500"
                             : "border-gray-300"
@@ -989,7 +989,7 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Price/Nut
                       </label>
                       <input
@@ -997,7 +997,7 @@ const CreateHarvesterForm = ({
                         name="price_per_nut"
                         value={formData.price_per_nut}
                         onChange={handleInputChange}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.price_per_nut
                             ? "border-red-500"
                             : "border-gray-300"
@@ -1012,7 +1012,7 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Nut Type
                       </label>
                       <div className="flex gap-6">
@@ -1046,7 +1046,7 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Other Crops ?
                       </label>
                       <input
@@ -1054,7 +1054,7 @@ const CreateHarvesterForm = ({
                         value={cropInput}
                         onChange={(e) => setCropInput(e.target.value)}
                         onKeyPress={handleCropInputKeyPress}
-                        className={`w-full border ${
+                        className={`w-full border text-black ${
                           errors.other_crops
                             ? "border-red-500"
                             : "border-gray-300"
@@ -1071,7 +1071,7 @@ const CreateHarvesterForm = ({
                           {formData.other_crops.map((crop, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-1"
+                              className="flex items-center gap-2 text-black bg-gray-100 p-2 rounded-lg mb-1"
                             >
                               <span>{crop}</span>
                               <button
@@ -1087,7 +1087,7 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         IS Ready Harvest In Winter ☃️
                       </label>
                       <div className="flex gap-6">
@@ -1116,7 +1116,7 @@ const CreateHarvesterForm = ({
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Taken Advance ?
                       </label>
                       <div className="flex gap-6">
@@ -1129,7 +1129,7 @@ const CreateHarvesterForm = ({
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">Yes</span>
+                          <span className="ml-2 text-black">Yes</span>
                         </label>
                         <label className="flex items-center text-sm cursor-pointer">
                           <input
@@ -1140,12 +1140,12 @@ const CreateHarvesterForm = ({
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">No</span>
+                          <span className="ml-2 text-black">No</span>
                         </label>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Ready to Supply
                       </label>
                       <div className="flex gap-6">
@@ -1160,7 +1160,7 @@ const CreateHarvesterForm = ({
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">
+                          <span className="ml-2 text-black">
                             Not interested
                           </span>
                         </label>
@@ -1173,7 +1173,7 @@ const CreateHarvesterForm = ({
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">Interested</span>
+                          <span className="ml-2 text-black">Interested</span>
                         </label>
                         <label className="flex items-center text-sm cursor-pointer">
                           <input
@@ -1187,7 +1187,7 @@ const CreateHarvesterForm = ({
                             onChange={handleInputChange}
                             className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="ml-2 text-gray-600">
+                          <span className="ml-2 text-black">
                             Interested but cannot
                           </span>
                         </label>
@@ -1199,14 +1199,14 @@ const CreateHarvesterForm = ({
                       )}
                     </div>
                     <div className="col-span-1 md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-black mb-1">
                         Notes
                       </label>
                       <textarea
                         name="Buyer_notes"
                         value={formData.Buyer_notes}
                         onChange={handleInputChange}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white resize-y"
+                        className="w-full border text-black border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 hover:bg-white resize-y"
                         placeholder="Enter any additional notes (e.g., Prefers early morning deliveries)"
                         rows="4"
                       />
@@ -1219,7 +1219,7 @@ const CreateHarvesterForm = ({
                         setIsModalOpen(false);
                         resetForm();
                       }}
-                      className="bg-gray-200 text-gray-800 px-6 py-2.5 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium disabled:opacity-50"
+                      className="bg-gray-200 text-black  px-6 py-2.5 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium disabled:opacity-50"
                       disabled={isSubmitting}
                     >
                       Cancel
