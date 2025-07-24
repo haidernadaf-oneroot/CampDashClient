@@ -289,7 +289,7 @@ const HarvesterDetails = () => {
                   falseText="No Pickup"
                 />
               </div>
-              <div>
+              <div className="text-black">
                 {new Date(harvester.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
