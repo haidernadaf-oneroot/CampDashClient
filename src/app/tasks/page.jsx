@@ -1,6 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { User, CheckCircle, AlertCircle, Loader2, Tag } from "lucide-react";
+import {
+  User,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Tag,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import ToastNotifications from "@/components/ticket/ToastNotifications";
 import TicketDetails from "@/components/ticket/TicketDetails";
 import TicketActions from "@/components/ticket/TicketActions";
@@ -19,7 +27,12 @@ const TicketManagement = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [updating, setUpdating] = useState(false);
   const [openTicketId, setOpenTicketId] = useState(null);
-  const [agentId, setAgentId] = useState(null); // Current user’s agent ID
+  const [agentId, setAgentId] = useState(null);
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [limit] = useState(10); // Items per page
 
   const statuses = ["Opened", "Waiting For", "Closed"];
   const priorities = ["ASAP", "High", "Medium", "Low"];
@@ -32,7 +45,6 @@ const TicketManagement = () => {
   };
 
   useEffect(() => {
-    // Initialize agentId from localStorage
     if (typeof window !== "undefined") {
       setAgentId(localStorage.getItem("userId"));
     }
@@ -105,7 +117,7 @@ const TicketManagement = () => {
     }
   };
 
-  const fetchTickets = async () => {
+  const fetchTickets = async (page = 1) => {
     try {
       setLoading(true);
       setError("");
@@ -116,7 +128,7 @@ const TicketManagement = () => {
         return;
       }
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/ticket/get-opened-tickets`,
+        `${process.env.NEXT_PUBLIC_API_URL}/ticket/get-opened-tickets?page=${page}&limit=${limit}`,
         {
           method: "GET",
           headers: {
@@ -130,6 +142,9 @@ const TicketManagement = () => {
       }
       const data = await response.json();
       setTickets(data.data || []);
+      setCurrentPage(data.pagination.currentPage);
+      setTotalPages(data.pagination.totalPages);
+      setTotalItems(data.pagination.totalItems);
     } catch (err) {
       console.error("Error fetching tickets:", err);
       showErrorMessage("Failed to fetch tickets.");
@@ -182,7 +197,7 @@ const TicketManagement = () => {
   useEffect(() => {
     const loadData = async () => {
       await fetchAgents();
-      await fetchTickets();
+      await fetchTickets(currentPage);
     };
     loadData();
   }, []);
@@ -197,7 +212,7 @@ const TicketManagement = () => {
         : "",
       assignedTo: Array.isArray(ticket.assigned_to) ? ticket.assigned_to : [],
       status: ticket.status || "Opened",
-      remarks: "", // Initialize as empty string
+      remarks: "",
     });
     setEditingTicketId(null);
   };
@@ -222,7 +237,7 @@ const TicketManagement = () => {
         : "",
       assignedTo: Array.isArray(ticket.assigned_to) ? ticket.assigned_to : [],
       status: ticket.status || "Opened",
-      remarks: "", // Initialize as empty string
+      remarks: "",
     });
   };
 
@@ -258,7 +273,7 @@ const TicketManagement = () => {
         )
       );
       setEditData((prev) => ({ ...prev, remarks: "" }));
-      fetchTickets();
+      fetchTickets(currentPage);
     }
   };
 
@@ -330,7 +345,6 @@ const TicketManagement = () => {
     }
   };
 
-  // Format date as day/month/year
   const formatDate = (date) => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString("en-GB", {
@@ -340,12 +354,19 @@ const TicketManagement = () => {
     });
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchTickets(newPage);
+    }
+  };
+
   return (
     <>
       {selectedTickets.length > 0 ? (
         <div className="min-h-screen bg-gray-100 p-3 sm:p-4 lg:p-6">
           <ToastNotifications />
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-8xl mx-auto ">
             {successMessage && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-slide-in">
                 <CheckCircle className="text-green-600" size={18} />
@@ -393,7 +414,6 @@ const TicketManagement = () => {
                   key={ticket._id}
                   className="border mt-3 rounded-lg shadow-sm bg-white overflow-hidden"
                 >
-                  {/* Preview Row */}
                   <div
                     className="cursor-pointer p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition"
                     onClick={() =>
@@ -430,7 +450,6 @@ const TicketManagement = () => {
                     </div>
                   </div>
 
-                  {/* Collapsible Section */}
                   <div
                     className={`transition-all duration-300 ease-in-out ${
                       isOpen ? "max-h-[1000px] p-4" : "max-h-0"
@@ -446,7 +465,7 @@ const TicketManagement = () => {
                       getAssignedAgentNames={getAssignedAgentNames}
                       agents={agents}
                       priorities={["Low", "Medium", "High", "ASAP"]}
-                      agentId={agentId} // Use agentId state
+                      agentId={agentId}
                       onDeleteSuccess={(deletedId) => {
                         setTickets((prev) =>
                           prev.filter((t) => t._id !== deletedId)
@@ -469,7 +488,7 @@ const TicketManagement = () => {
       ) : (
         <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
           <ToastNotifications />
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-8xl mx-auto">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
               Ticket Management
             </h1>
@@ -507,13 +526,66 @@ const TicketManagement = () => {
               </div>
             )}
             {!loading && tickets.length > 0 && (
-              <TicketList
-                tickets={tickets}
-                handleUserClick={handleUserClick}
-                handleTicketClick={handleTicketClick}
-                getPriorityColor={getPriorityColor}
-                getPriorityBgColor={getPriorityBgColor}
-              />
+              <>
+                <TicketList
+                  tickets={tickets}
+                  handleUserClick={handleUserClick}
+                  handleTicketClick={handleTicketClick}
+                  getPriorityColor={getPriorityColor}
+                  getPriorityBgColor={getPriorityBgColor}
+                />
+                <div className="mt-6 flex items-center justify-between bg-white p-4 rounded-lg shadow-sm">
+                  <div className="text-sm text-gray-600">
+                    Showing {(currentPage - 1) * limit + 1} to{" "}
+                    {Math.min(currentPage * limit, totalItems)} of {totalItems}{" "}
+                    tickets
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`p-2 rounded-full ${
+                        currentPage === 1
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-purple-600 hover:bg-purple-50"
+                      }`}
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .slice(
+                          Math.max(0, currentPage - 3),
+                          Math.min(totalPages, currentPage + 2)
+                        )
+                        .map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`px-3 py-1 rounded-md text-sm ${
+                              currentPage === page
+                                ? "bg-purple-600 text-white"
+                                : "text-purple-600 hover:bg-purple-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                    </div>
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`p-2 rounded-full ${
+                        currentPage === totalPages
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-purple-600 hover:bg-purple-50"
+                      }`}
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

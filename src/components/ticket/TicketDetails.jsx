@@ -123,7 +123,7 @@ const TicketDetails = ({
     currentPriority.charAt(0).toUpperCase() + currentPriority.slice(1);
 
   return (
-    <div className="rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 border border-gray-200 shadow-sm space-y-6 transition-all duration-200 hover:shadow-md">
+    <div className="rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 border border-gray-200 shadow-sm space-y-6 transition-all duration-200 hover:shadow-md ">
       {/* Header Row */}
       <div className="flex flex-wrap items-center gap-4">
         {/* Status Toggle */}
