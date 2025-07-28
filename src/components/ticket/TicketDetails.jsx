@@ -131,15 +131,21 @@ const TicketDetails = ({
           <label className="relative flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={editData?.status === "Closed"}
+              checked={editData?.status === "Open" || !editData?.status} // defaults to Open
               onChange={(e) =>
-                handleInputChange("status", e.target.checked ? "Closed" : "")
+                handleInputChange(
+                  "status",
+                  e.target.checked ? "Open" : "Closed"
+                )
               }
               className="sr-only peer"
             />
+
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
             <span className="ml-3 text-sm font-medium text-gray-700">
-              {editData?.status === "Closed" ? "Closed" : "Open"}
+              {editData?.status === "Open" || !editData?.status
+                ? "Open"
+                : "Closed"}
             </span>
           </label>
         </div>
@@ -241,7 +247,7 @@ const TicketDetails = ({
               onFocus={() => setIsFocused((prev) => ({ ...prev, task: true }))}
               onBlur={() => setIsFocused((prev) => ({ ...prev, task: false }))}
               placeholder="Describe the task..."
-              className="w-full text-black p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none min-h-[80px]"
+              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none min-h-[80px]"
             />
           </div>
         </div>
@@ -270,7 +276,7 @@ const TicketDetails = ({
               }
               rows="1"
               placeholder="Add any additional remarks..."
-              className="w-full text-black p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none"
+              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none"
             />
           </div>
         </div>
