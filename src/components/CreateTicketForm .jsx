@@ -20,6 +20,7 @@ const CreateTicketForm = ({ farmer, onClose }) => {
     priority: "medium",
     dueDate: "",
     status: "Opened",
+    label: "Dashboard",
     name: farmer?.name || "",
     number: farmer?.number || "",
     cropName: "Tender Coconut",
@@ -336,18 +337,34 @@ const CreateTicketForm = ({ farmer, onClose }) => {
             </div>
           </div>
 
-          {/* Status */}
-          <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <Clock size={14} className="text-purple-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  Status
+          <div className="grid grid-cols-2 gap-3">
+            {/* Status */}
+            <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Clock size={14} className="text-purple-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Status
+                  </span>
+                </div>
+                <span className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                  Opened
                 </span>
               </div>
-              <span className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
-                Opened
-              </span>
+            </div>
+
+            <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Clock size={14} className="text-purple-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    label
+                  </span>
+                </div>
+                <span className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                  Dashboard
+                </span>
+              </div>
             </div>
           </div>
         </div>
