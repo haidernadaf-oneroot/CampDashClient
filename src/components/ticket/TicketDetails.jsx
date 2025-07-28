@@ -241,7 +241,7 @@ const TicketDetails = ({
               onFocus={() => setIsFocused((prev) => ({ ...prev, task: true }))}
               onBlur={() => setIsFocused((prev) => ({ ...prev, task: false }))}
               placeholder="Describe the task..."
-              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none min-h-[80px]"
+              className="w-full text-black p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none min-h-[80px]"
             />
           </div>
         </div>
@@ -270,7 +270,7 @@ const TicketDetails = ({
               }
               rows="1"
               placeholder="Add any additional remarks..."
-              className="w-full p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none"
+              className="w-full text-black p-3 text-sm rounded-lg focus:outline-none bg-transparent resize-none"
             />
           </div>
         </div>
